@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>My First Web Application</title>
+<script>
+function ramu(frm)
+{
+var nn=frm.nm.value.trim();
+if(nn.length==0)
+{
+alert("Name required");
+frm.nm.focus();
+return false;
+}
+var a='abcdefghijklmnopqrstuvwxyzABCDEFGHUIJKLMNOPQRSTUVWXYZ. ';
+var i=0;
+while(i<nn.length)
+{
+if(a.indexOf(nn.charAt(i))==-1)
+{
+alert("Invalid name, only alphabets, . and space are allowed.");
+frm.nm.focus();
+return false;
+}
+i++;
+}
+var cc=frm.ct.value.trim();
+if(cc.length==0)
+{
+var ctErrorSection=document.getElementById('ctErrorSection');
+ctErrorSection.innerHTML="City required";
+frm.ct.focus();
+return false;
+}
+var ff=document.getElementById('fl');
+var mm=document.getElementById('ml');
+if(!ff.checked && !mm.checked)
+{
+alert('Select gender');
+return false;
+}
+return true;
+}
+</script>
+</head>
+<body>
+<h1>Personal Information</h1>
+<form action='/one/saveData' onsubmit='return ramu(this)'>
+Name
+<input type='text' id='nm' name='nm'> <br>
+City
+<input type='text' id='ct' name='ct'>
+<span id='ctErrorSection' name='ctErrorSection'></span>
+<br>
+Gender
+<input type='radio' id='ml' name='gdr' value='M'> Male
+&nbsp;&nbsp;&nbsp;&nbsp;
+<input type='radio' id='fl' name='gdr' value='F'> Female
+<br>
+<button type='submit'>Save</button>
+</form>
+</body>
+</html>
