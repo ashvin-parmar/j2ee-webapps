@@ -23,19 +23,19 @@
   metadata-complete="true">
 
     <description>
-	My First Web Application	    
+      My First Web Application
     </description>
     <display-name>My First Web Application</display-name>
 
     <request-character-encoding>UTF-8</request-character-encoding>
-    
+
 <servlet>
 <servlet-name>ABCD</servlet-name>
-<servlet-class>xyz.aaa</servlet-class>
+<servlet-class>xyz.abc</servlet-class>
 </servlet>
+
 <servlet-mapping>
 <servlet-name>ABCD</servlet-name>
 <url-pattern>/saveData</url-pattern>
 </servlet-mapping>
-	
 </web-app>

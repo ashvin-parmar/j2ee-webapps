@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang='en'>
 <head>
 <meta charset='utf-8'>
 <title>My First Web Application</title>
@@ -13,52 +13,59 @@ alert("Name required");
 frm.nm.focus();
 return false;
 }
-var a='abcdefghijklmnopqrstuvwxyzABCDEFGHUIJKLMNOPQRSTUVWXYZ. ';
-var i=0;
+var a="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ .";
+var i=0
 while(i<nn.length)
 {
 if(a.indexOf(nn.charAt(i))==-1)
 {
-alert("Invalid name, only alphabets, . and space are allowed.");
+alert("Invalid name, only alphabets, '.' and space are allowed.");
 frm.nm.focus();
 return false;
 }
 i++;
 }
+
 var cc=frm.ct.value.trim();
+var ctErrorSection=document.getElementById('ctErrorSection');
 if(cc.length==0)
 {
-var ctErrorSection=document.getElementById('ctErrorSection');
-ctErrorSection.innerHTML="City required";
+ctErrorSection.innerHTML="City Required";
 frm.ct.focus();
 return false;
 }
+ctErrorSection.ineerHTML="";
+
 var ff=document.getElementById('fl');
 var mm=document.getElementById('ml');
-if(!ff.checked && !mm.checked)
+if(ff.checked==false  && mm.checked==false)
 {
-alert('Select gender');
+alert("Select gender");
 return false;
 }
+
 return true;
 }
 </script>
 </head>
 <body>
-<h1>Personal Information</h1>
+<h3>Personal Information</h3>
 <form action='/one/saveData' onsubmit='return ramu(this)'>
 Name
-<input type='text' id='nm' name='nm'> <br>
+<input type='text' id='nm' name='nm'><br>
 City
+&nbsp;&nbsp;
 <input type='text' id='ct' name='ct'>
-<span id='ctErrorSection' name='ctErrorSection'></span>
+<span id='ctErrorSection'></span>
 <br>
+
 Gender
+&nbsp;
 <input type='radio' id='ml' name='gdr' value='M'> Male
 &nbsp;&nbsp;&nbsp;&nbsp;
 <input type='radio' id='fl' name='gdr' value='F'> Female
 <br>
-<button type='submit'>Save</button>
+<button type='submit'>Save</button><br>
 </form>
 </body>
 </html>
