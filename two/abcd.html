@@ -2,9 +2,36 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8'>
-<title>Testing anchor tag with href attributes</title>
+<title>My Second Web Application</title>
+<script>
+function validate(frm)
+{
+var nn=frm.name.value.trim();
+if(nn.length==0)
+{
+alert("Name required");
+frm.name.focus();
+return false;
+}
+var a="abcdefghijklmnopqrstuvwxyz-._";
+for(var i=0;i<nn.length;i++)
+{
+if(a.indexOf(nn.charAt(i))==-1)
+{
+alert("Invalid name, only lowercase alphabets, '.', '-' and '_' are allowed (without space)");
+frm.name.focus();
+return false;
+}
+}
+return true;
+}
+</script>
 </head>
 <body>
-<h3>abcd.html file loaded</h3>
+<form action='/two/aaa' onsubmit='return validate(this)'>
+Name
+<input type='text' id='name' name='name'><br>
+<button type='submit'>Next</button>
+</form>
 </body>
 </html>
