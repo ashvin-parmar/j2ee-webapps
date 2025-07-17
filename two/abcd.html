@@ -13,12 +13,12 @@ alert("Name required");
 frm.name.focus();
 return false;
 }
-var a="abcdefghijklmnopqrstuvwxyz-._";
+var a="abcdefghijklmnopqrstuvwxyz-._ ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 for(var i=0;i<nn.length;i++)
 {
 if(a.indexOf(nn.charAt(i))==-1)
 {
-alert("Invalid name, only lowercase alphabets, '.', '-' and '_' are allowed (without space)");
+alert("Invalid name, only alphabets, '.', '-', space and '_' are allowed");
 frm.name.focus();
 return false;
 }

@@ -1,4 +1,4 @@
-package xyz;
+package com.thinking.machines;
 import java.io.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -23,11 +23,11 @@ pw.println("<meta charset='utf-8'>");
 pw.println("<title>My second web application</title>");
 pw.println("</head>");
 pw.println("<body>");
-pw.println("<form action='/two/index.html'>");
 pw.println("Data Saved<br>");
 pw.println("Name: "+name+"<br>");
 pw.println("City: "+city);
 pw.println("<br>");
+pw.println("<form action='/two/index.html'>");
 pw.println("<button type='submit'>OK</button>");
 pw.println("</form>");
 pw.println("</body>");

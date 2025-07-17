@@ -1,4 +1,4 @@
-package xyz;
+package com.thinking.machines;
 
 import javax.servlet.http.*;
 import javax.servlet.*;
@@ -37,8 +37,11 @@ pw.println("</script>");
 pw.println("</head>");
 pw.println("<body>");
 pw.println("<form action='/two/bbb' onsubmit='return validate(this)'>");
-pw.println("Name");
-pw.println("<input type='text' id='name' name='name' value='"+name+"'><br>");
+//pw.println("Name");
+//pw.println("<input type='text' id='name' name='name' value='"+name+"'><br>");
+//hidden type session tracking
+pw.println("<input type='hidden' id='name' name='name' value='"+name+"'>");
+
 pw.println("City");
 pw.println("<input type='text' id='city' name='city'>");
 pw.println("&nbsp;&nbsp;");
