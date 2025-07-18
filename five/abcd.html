@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<title>Fifth Web Application</title>
+<script>
+function validate(frm)
+{
+var name=frm.name.value.trim();
+if(name.length==0)
+{
+alert("name required");
+frm.name.focus();
+return false;
+}
+return true;
+}
+</script>
+</head>
+<body>
+<form action='/five/aaa' onsubmit='return validate(this)'>
+Name: 
+&nbsp;
+<input type='text' id='name' name='name'><br>
+<button type='submit'>Next</button>
+</form>
+</body>
+</html>
