@@ -16,3 +16,8 @@ HttpSession hs=request.getSession(false);
 ### Session response sends and data extacted using setter/getter
 hs.setAttrubute("name",name);		(key,value)		--> value of Object type [any]
 Object hs.getAttribute("name");		--> have to be type casted before assign.
+
+## Session Time-duration settings
+```hs.setMaxInactiveInterval(30);```
+This will set 30 seconds interval time for session to track, if no next request arrived in this time duration, the HttpSession object killed.
+If any request arrived, time duration start from when that new request -> response sends.

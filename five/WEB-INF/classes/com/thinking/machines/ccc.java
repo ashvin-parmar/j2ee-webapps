@@ -11,6 +11,7 @@ public void doGet(HttpServletRequest request,HttpServletResponse response)
 try
 {
 HttpSession hs=request.getSession();
+hs.setMaxInactiveInterval(30);
 String name=(String)hs.getAttribute("name");
 String city=(String)hs.getAttribute("city");
 System.out.println("Name: "+name);

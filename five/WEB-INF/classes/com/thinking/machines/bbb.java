@@ -11,6 +11,7 @@ public void doGet(HttpServletRequest request,HttpServletResponse response)
 try
 {
 HttpSession hs=request.getSession();
+hs.setMaxInactiveInterval(30);		//30 Second time duration assigned to this session
 String name=(String)hs.getAttribute("name");
 String city=request.getParameter("city");
 hs.setAttribute("city",city);
