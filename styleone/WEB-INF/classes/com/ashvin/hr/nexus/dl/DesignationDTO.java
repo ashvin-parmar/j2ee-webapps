@@ -1,6 +1,4 @@
 package com.ashvin.hr.nexus.dl;
-
-//Designation DataTransferObject
 public class DesignationDTO implements java.io.Serializable,Comparable<DesignationDTO>
 {
 private int code;
@@ -24,12 +22,12 @@ return this.title;
 public boolean equals(Object object)
 {
 if(!(object instanceof DesignationDTO)) return false;
-DesignationDTO designation=(DesignationDTO)object;
-return designation.code==this.code;
+DesignationDTO other=(DesignationDTO)object;
+return this.code==other.code;
 }
-public int compareTo(DesignationDTO designation)
+public int compareTo(DesignationDTO designationDTO)
 {
-return this.title.compareToIgnoreCase(designation.title);
+return designationDTO.getTitle().compareToIgnoreCase(this.title);
 }
 public int hashCode()
 {
