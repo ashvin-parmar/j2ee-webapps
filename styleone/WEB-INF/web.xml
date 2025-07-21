@@ -29,4 +29,14 @@
 
     <request-character-encoding>UTF-8</request-character-encoding>
 
+<servlet>
+<servlet-name>DesignationView</servlet-name>
+<servlet-class>com.ashvin.hr.nexus.servlets.DesignationView</servlet-class>
+</servlet>
+
+<servlet-mapping>
+<servlet-name>DesignationView</servlet-name>
+<url-pattern>/DesignationView</url-pattern>
+</servlet-mapping>
+
 </web-app>
