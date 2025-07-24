@@ -40,7 +40,7 @@ pw.println("<div style='width:90hw;height:72vh;margin:5px;border:1px solid white
 pw.println("<!-- left panel start here -->");
 pw.println("<div style='height:65vh;margin:5px;padding:5px;float:left;border:1px solid black'>");
 pw.println("<b>Designations</b><br>");
-pw.println("<a href='/styleone/EmployeeView' style='float:left'>Employees</a><br><br>");
+pw.println("<a href='/styleone/employeeView' style='float:left'>Employees</a><br><br>");
 pw.println("<a href='/styleone/index.html'>Home</a>");
 pw.println("</div>");
 pw.println("<!-- left panel ends here -->");

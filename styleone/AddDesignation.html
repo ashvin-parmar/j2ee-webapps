@@ -3,6 +3,21 @@
 <head>
 <meta charset='utf-8'>
 <title>Style one</title>
+<script>
+function validateDesignation(frm)
+{
+var title=frm.title.value.trim();
+var titleErrorSection=document.getElementById('titleErrorSection');
+titleErrorSection.innerHTML='';
+if(title.length==0)
+{
+titleErrorSection.innerHTML='Required';
+frm.title.focus();
+return false;
+}
+return true;
+}
+</script>
 </head>
 <body>
 <!-- Main content start here -->
@@ -24,28 +39,25 @@
 <!-- left panel ends here -->
 <!-- right panel start here -->
 <div style='height:65vh;margin-left:110px;margin-right:5px;margin-bottom:5px;margin-top:5px;padding:5px;overflow:scroll;border:1px solid black'>
-
-<table border='1'>
-<thead>
+<h2>Designation (Add Module)</h2>
+<table>
 <tr>
-<th colspan='4' style='text-align:right'><a href='/styleone/addDesignation.html'>Add new designation</a></th>
-<tr>
-<th style='width:40px;text-align:center'>S.No.</th>
-<th style='width:200px;text-align:center'>Designation</th>
-<th style='width:80px;text-align:center'>Edit</th>
-<th style='width:80px;text-align:center'>Delete</th>
+<td>
+<form action='/styleone/addDesignation' onsubmit='return validateDesignation(this)'>
+Designation
+&nbsp;
+<input type='text' id='title' name='title' maxlength='35' size='36'>
+<span id='titleErrorSection' style='color:red'></span><br>
+<button type='submit'>Add</button>
+</form>
+</td>
+<td>
+</td>
 </tr>
-</thead>
-<tbody>
-<tr>
-<td style='text-align:right'>1.</td>
-<td>Manager</td>
-<td style='text-align:center'><a href='/styleone/EditDesignation?code=1'>edit</a></td>
-<td style='text-align:center'><a href='/styleone/ConfirmDeleteDesignation?code=1'>delete</a></td>
-
-</tbody>
 </table>
-
+<form action='/styleone/designationView'>
+<button type='submit'>Cancel</button>
+</form>
 </div>
 <!-- right panel ends here -->
 </div>

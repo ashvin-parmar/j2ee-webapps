@@ -34,9 +34,18 @@
 <servlet-class>com.ashvin.hr.nexus.servlets.DesignationView</servlet-class>
 </servlet>
 
+<servlet>
+<servlet-name>AddDesignation</servlet-name>
+<servlet-class>com.ashvin.hr.nexus.servlets.AddDesignation</servlet-class>
+</servlet>
+
 <servlet-mapping>
 <servlet-name>DesignationView</servlet-name>
-<url-pattern>/DesignationView</url-pattern>
+<url-pattern>/designationView</url-pattern>
+</servlet-mapping>
+<servlet-mapping>
+<servlet-name>AddDesignation</servlet-name>
+<url-pattern>/addDesignation</url-pattern>
 </servlet-mapping>
 
 </web-app>
