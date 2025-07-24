@@ -74,8 +74,8 @@ title=designationDTO.getTitle();
 pw.println("<tr>");
 pw.println("<td style='text-align:right'>"+sno+".</td>");
 pw.println("<td>"+title+"</td>");
-pw.println("<td style='text-align:center'><a href='/styleone/EditDesignation?code="+code+"'>edit</a></td>");
-pw.println("<td style='text-align:center'><a href='/styleone/ConfirmDeleteDesignation?code="+code+"'>delete</a></td>");
+pw.println("<td style='text-align:center'><a href='/styleone/editDesignation?code="+code+"'>edit</a></td>");
+pw.println("<td style='text-align:center'><a href='/styleone/confirmDeleteDesignation?code="+code+"'>delete</a></td>");
 pw.println("</tr>");
 }
 pw.println("</tbody>");
