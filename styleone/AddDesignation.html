@@ -17,6 +17,10 @@ return false;
 }
 return true;
 }
+function cancelAddition()
+{
+document.getElementById('cancelAdditionForm').submit();
+}
 </script>
 </head>
 <body>
@@ -40,23 +44,13 @@ return true;
 <!-- right panel start here -->
 <div style='height:65vh;margin-left:110px;margin-right:5px;margin-bottom:5px;margin-top:5px;padding:5px;overflow:scroll;border:1px solid black'>
 <h2>Designation (Add Module)</h2>
-<table>
-<tr>
-<td>
 <form action='/styleone/addDesignation' onsubmit='return validateDesignation(this)'>
 Designation
 &nbsp;
 <input type='text' id='title' name='title' maxlength='35' size='36'>
 <span id='titleErrorSection' style='color:red'></span><br>
 <button type='submit'>Add</button>
-</form>
-</td>
-<td>
-</td>
-</tr>
-</table>
-<form action='/styleone/designationView'>
-<button type='submit'>Cancel</button>
+<button type='button' onclick='cancelAddition()'>Cancel</button>
 </form>
 </div>
 <!-- right panel ends here -->
@@ -69,5 +63,7 @@ Designation
 <!-- footer ends here -->
 </div>
 <!-- Main content ends here -->
+<form id='cancelAdditionForm' action='/styleone/designationView'>
+</form>
 </body>
 </html>
