@@ -4,6 +4,34 @@ import java.util.*;
 import java.sql.*;
 public class DesignationDAO
 {
+public void delete(int code) throws DAOException
+{
+if(code<=0) throw new DAOException("Invalid code: "+code);
+try
+{
+Connection connection=DAOConnection.getConnection();
+PreparedStatement preparedStatement=connection.prepareStatement("select code from designation where code=?");
+preparedStatement.setInt(1,code);
+ResultSet resultSet=preparedStatement.executeQuery();
+if(resultSet.next()==false)
+{
+resultSet.close();
+preparedStatement.close();
+connection.close();
+throw new DAOException("Invalid code: "+code);
+}
+resultSet.close();
+preparedStatement.close();
+preparedStatement=connection.prepareStatement("delete from designation where code=?");
+preparedStatement.setInt(1,code);
+preparedStatement.executeUpdate();
+preparedStatement.close();
+connection.close();
+}catch(SQLException sqlException)
+{
+throw new DAOException(sqlException.getMessage());
+}
+}
 public DesignationDTO getByCode(int code) throws DAOException
 {
 if(code<=0) throw new DAOException("Invalid code: "+code);
@@ -32,6 +60,7 @@ throw new DAOException(sqlException.getMessage());
 }
 public void update(DesignationDTO designationDTO) throws DAOException
 {
+if(designationDTO==null) throw new DAOException("designation required");
 int code=designationDTO.getCode();
 if(code<=0) throw new DAOException("Invalid code: "+code);
 String title=designationDTO.getTitle();

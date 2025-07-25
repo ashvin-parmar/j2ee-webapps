@@ -5,54 +5,35 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
 import java.util.*;
-public class EditDesignation extends HttpServlet
+
+public class ConfirmDeleteDesignation extends HttpServlet
 {
 public void doGet(HttpServletRequest request,HttpServletResponse response)
 {
+//Declared and assigned such that use them in both -> try and catch blocks
 PrintWriter pw=null;
 int code=0;
 try
 {
-pw=response.getWriter();
+pw=response.getWriter();		//To be declared above everything, such that in every case pw.println works
 response.setContentType("text/html");
 try
 {
 code=Integer.parseInt(request.getParameter("code"));
 }catch(NumberFormatException nfe)
 {
-System.out.println("Invalid code: "+code);
 sendBackView(response);
 return ;
-//Maybe user feed some string or whatever
 }
-DesignationDAO designationDAO=new DesignationDAO();
-DesignationDTO designationDTO=designationDAO.getByCode(code);
-String title=designationDTO.getTitle();
 
+DesignationDTO designationDTO=((new DesignationDAO()).getByCode(code));
+String title=designationDTO.getTitle();
+//Here succcess -> Add More HTML
 pw.println("<!DOCTYPE HTML>");
 pw.println("<html lang='en'>");
 pw.println("<head>");
 pw.println("<meta charset='utf-8'>");
 pw.println("<title>Style one</title>");
-pw.println("<script>");
-pw.println("function validateDesignation(frm)");
-pw.println("{");
-pw.println("var title=frm.title.value.trim();");
-pw.println("var titleErrorSection=document.getElementById('titleErrorSection');");
-pw.println("titleErrorSection.innerHTML='';");
-pw.println("if(title.length==0)");
-pw.println("{");
-pw.println("titleErrorSection.innerHTML='Required';");
-pw.println("frm.title.focus();");
-pw.println("return false;");
-pw.println("}");
-pw.println("return true;");
-pw.println("}");
-pw.println("function cancelEditing()");
-pw.println("{");
-pw.println("document.getElementById('cancelEditingForm').submit();");
-pw.println("}");
-pw.println("</script>");
 pw.println("</head>");
 pw.println("<body>");
 pw.println("<!-- Main content start here -->");
@@ -74,16 +55,25 @@ pw.println("</div>");
 pw.println("<!-- left panel ends here -->");
 pw.println("<!-- right panel start here -->");
 pw.println("<div style='height:65vh;margin-left:110px;margin-right:5px;margin-bottom:5px;margin-top:5px;padding:5px;overflow:scroll;border:1px solid black'>");
-pw.println("<h2>Designation (Update Module)</h2>");
-pw.println("<form method='post' action='/styleone/updateDesignation' onsubmit='return validateDesignation(this)'>");
-pw.println("Designation");
-pw.println("&nbsp;");
+pw.println("<h2>Notification</h2>");
+pw.println("Designation: "+title+"<br><br>");
+pw.println("<b>Are you sure, you want to delete designation '"+title+"'?</b><br>");
+pw.println("<table>");
+pw.println("<tr>");
+pw.println("<td>");
+pw.println("<form action='/styleone/deleteDesignation'>");
 pw.println("<input type='hidden' id='code' name='code' value='"+code+"'>");
-pw.println("<input type='text' id='title' name='title' maxlength='35' size='36' value='"+title+"'><br>");
-pw.println("<span id='titleErrorSection' style='color:red'></span><br>");
-pw.println("<button type='submit'>Update</button>");
-pw.println("<button type='button' onclick='cancelEditing()'>Cancel</button>");
+pw.println("<input type='hidden' id='title' name='title' value='"+title+"'>");
+pw.println("<button type='submit'>Yes</button>");
 pw.println("</form>");
+pw.println("</td>");
+pw.println("<td>");
+pw.println("<form action='/styleone/designationView'>");
+pw.println("<button type='submit'>No</button>");
+pw.println("</form>");
+pw.println("</td>");
+pw.println("</tr>");
+pw.println("</table>");
 pw.println("</div>");
 pw.println("<!-- right panel ends here -->");
 pw.println("</div>");
@@ -95,26 +85,22 @@ pw.println("</div>");
 pw.println("<!-- footer ends here -->");
 pw.println("</div>");
 pw.println("<!-- Main content ends here -->");
-pw.println("<form id='cancelEditingForm' action='/styleone/designationView'>");
-pw.println("</form>");
 pw.println("</body>");
 pw.println("</html>");
 
 }catch(DAOException daoException)
 {
-System.out.println(daoException.getMessage());		//error page
 sendBackView(response);
-return;
 }catch(Exception exception)
 {
-System.out.println(exception.getMessage());	// removed after testing
+System.out.println(exception.getMessage());
 }
 }
 public void doPost(HttpServletRequest request,HttpServletResponse response)
 {
 doGet(request,response);
 }
-private void sendBackView(HttpServletResponse response)
+public void sendBackView(HttpServletResponse response)
 {
 try
 {

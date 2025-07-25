@@ -46,6 +46,15 @@
 <servlet-name>UpdateDesignation</servlet-name>
 <servlet-class>com.ashvin.hr.nexus.servlets.UpdateDesignation</servlet-class>
 </servlet>
+<servlet>
+<servlet-name>ConfirmDeleteDesignation</servlet-name>
+<servlet-class>com.ashvin.hr.nexus.servlets.ConfirmDeleteDesignation</servlet-class>
+</servlet>
+<servlet>
+<servlet-name>DeleteDesignation</servlet-name>
+<servlet-class>com.ashvin.hr.nexus.servlets.DeleteDesignation</servlet-class>
+</servlet>
+
 
 <servlet-mapping>
 <servlet-name>DesignationView</servlet-name>
@@ -62,5 +71,13 @@
 <servlet-mapping>
 <servlet-name>UpdateDesignation</servlet-name>
 <url-pattern>/updateDesignation</url-pattern>
+</servlet-mapping>
+<servlet-mapping>
+<servlet-name>ConfirmDeleteDesignation</servlet-name>
+<url-pattern>/confirmDeleteDesignation</url-pattern>
+</servlet-mapping>
+<servlet-mapping>
+<servlet-name>DeleteDesignation</servlet-name>
+<url-pattern>/deleteDesignation</url-pattern>
 </servlet-mapping>
 </web-app>

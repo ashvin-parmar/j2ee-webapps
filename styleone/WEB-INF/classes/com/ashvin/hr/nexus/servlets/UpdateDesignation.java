@@ -32,10 +32,6 @@ code=Integer.parseInt(request.getParameter("code"));
 sendBackView(response);
 return ;
 }
-if(code<=0) 
-{
-return ;
-}
 DesignationDTO designation=new DesignationDTO();
 designation.setTitle(title);
 designation.setCode(code);
