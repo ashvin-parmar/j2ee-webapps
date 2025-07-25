@@ -42,7 +42,10 @@
 <servlet-name>EditDesignation</servlet-name>
 <servlet-class>com.ashvin.hr.nexus.servlets.EditDesignation</servlet-class>
 </servlet>
-
+<servlet>
+<servlet-name>UpdateDesignation</servlet-name>
+<servlet-class>com.ashvin.hr.nexus.servlets.UpdateDesignation</servlet-class>
+</servlet>
 
 <servlet-mapping>
 <servlet-name>DesignationView</servlet-name>
@@ -56,5 +59,8 @@
 <servlet-name>EditDesignation</servlet-name>
 <url-pattern>/editDesignation</url-pattern>
 </servlet-mapping>
-
+<servlet-mapping>
+<servlet-name>UpdateDesignation</servlet-name>
+<url-pattern>/updateDesignation</url-pattern>
+</servlet-mapping>
 </web-app>
