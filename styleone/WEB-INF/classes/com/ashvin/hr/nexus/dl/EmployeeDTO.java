@@ -5,20 +5,34 @@ import java.math.*;
 
 public class EmployeeDTO implements java.io.Serializable,Comparable<EmployeeDTO>
 {
-private int employeeId;
+private String employeeId;
 private String name;
 private int designationCode;
+private String designation;
 private Date dateOfBirth;
 private char gender;
 private boolean isIndian;
 private BigDecimal basicSalary;
 private String panNumber;
 private String aadharCardNumber;
-public void setEmployeeId(int employeeId)
+public EmployeeDTO()
+{
+this.employeeId="";
+this.name="";
+this.designationCode=0;
+this.designation="";
+this.dateOfBirth=null;
+this.gender=' ';
+this.isIndian=false;
+this.basicSalary=null;
+this.panNumber="";
+this.aadharCardNumber="";
+}
+public void setEmployeeId(java.lang.String employeeId)
 {
 this.employeeId=employeeId;
 }
-public int getEmployeeId()
+public java.lang.String getEmployeeId()
 {
 return this.employeeId;
 }
@@ -37,6 +51,14 @@ this.designationCode=designationCode;
 public int getDesignationCode()
 {
 return this.designationCode;
+}
+public void setDesignation(java.lang.String designation)
+{
+this.designation=designation;
+}
+public java.lang.String getDesignation()
+{
+return this.designation;
 }
 public void setDateOfBirth(java.util.Date dateOfBirth)
 {
@@ -66,15 +88,15 @@ public void setBasicSalary(java.math.BigDecimal basicSalary)
 {
 this.basicSalary=basicSalary;
 }
-public BigDecimal getBasicSalary()
+public java.math.BigDecimal getBasicSalary()
 {
 return this.basicSalary;
 }
-public void setPanNumber(java.lang.String panNumber)
+public void setPANNumber(java.lang.String panNumber)
 {
 this.panNumber=panNumber;
 }
-public java.lang.String getPanNumber()
+public java.lang.String getPANNumber()
 {
 return this.panNumber;
 }
@@ -90,14 +112,14 @@ public boolean equals(Object other)
 {
 if(!(other instanceof EmployeeDTO)) return false;
 EmployeeDTO employeeDTO=(EmployeeDTO)other;
-return employeeDTO.employeeId==this.employeeId;
+return this.employeeId.equalsIgnoreCase(employeeDTO.employeeId);
 }
 public int compareTo(EmployeeDTO other)
 {
-return other.employeeId-this.employeeId;
+return this.employeeId.compareTo(other.employeeId);
 }
 public int hashCode()
 {
-return this.employeeId;
+return this.employeeId.hashCode();
 }
 }

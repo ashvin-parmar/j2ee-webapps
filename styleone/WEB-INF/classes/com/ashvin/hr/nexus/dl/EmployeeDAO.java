@@ -15,15 +15,16 @@ try
 {
 Connection connection=DAOConnection.getConnection();
 Statement statement=connection.createStatement();
-ResultSet resultSet=statement.executeQuery("select * from employee");
+ResultSet resultSet=statement.executeQuery("select employee.id,employee.name,employee.designation_code,designation.title,employee.date_of_birth,employee.gender,employee.is_indian,employee.basic_salary,employee.pan_number,employee.aadhar_card_number from employee inner join designation on employee.designation_code=designation.code");
 EmployeeDTO employee;
 int employeeId=0;
 String name="";
 int designationCode=0;
-java.util.Date dateOfBirth;
+String designation="";
+java.sql.Date dateOfBirth;
 char gender=' ';
 boolean isIndian=false;
-BigDecimal basicSalary=new BigDecimal("0");
+BigDecimal basicSalary=null;
 String panNumber="";
 String aadharCardNumber="";
 while(resultSet.next())
@@ -31,31 +32,33 @@ while(resultSet.next())
 employeeId=resultSet.getInt("id");
 name=resultSet.getString("name").trim();
 designationCode=resultSet.getInt("designation_code");
+designation=resultSet.getString("title").trim();
 dateOfBirth=resultSet.getDate("date_of_birth");
-gender=resultSet.getString("gender").trim().charAt(0);
+gender=resultSet.getString("gender").charAt(0);
 isIndian=resultSet.getBoolean("is_indian");
-basicSalary=new BigDecimal(resultSet.getString("basic_salary").trim());
+basicSalary=resultSet.getBigDecimal("basic_salary");
 panNumber=resultSet.getString("pan_number").trim();
 aadharCardNumber=resultSet.getString("aadhar_card_number").trim();
 employee=new EmployeeDTO();
-employee.setEmployeeId(employeeId);
+employee.setEmployeeId("A"+employeeId);
 employee.setName(name);
 employee.setDesignationCode(designationCode);
+employee.setDesignation(designation);
 employee.setDateOfBirth(dateOfBirth);
 employee.setGender(gender);
 employee.setIsIndian(isIndian);
 employee.setBasicSalary(basicSalary);
-employee.setPanNumber(panNumber);
+employee.setPANNumber(panNumber);
 employee.setAadharCardNumber(aadharCardNumber);
 employees.add(employee);
 }
 resultSet.close();
 statement.close();
 connection.close();
-return employees;
 }catch(SQLException sqlException)
 {
 throw new DAOException(sqlException.getMessage());
 }
+return employees;
 }//getAll function ends
 }//class ends
