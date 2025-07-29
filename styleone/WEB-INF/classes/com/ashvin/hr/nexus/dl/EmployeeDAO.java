@@ -7,7 +7,7 @@ import java.math.*;
 
 public class EmployeeDAO 
 {
-List<EmployeeDTO> getAll() throws DAOException
+public List<EmployeeDTO> getAll() throws DAOException
 {
 List<EmployeeDTO> employees;
 employees=new LinkedList<>();

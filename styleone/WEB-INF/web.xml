@@ -54,8 +54,6 @@
 <servlet-name>DeleteDesignation</servlet-name>
 <servlet-class>com.ashvin.hr.nexus.servlets.DeleteDesignation</servlet-class>
 </servlet>
-
-
 <servlet-mapping>
 <servlet-name>DesignationView</servlet-name>
 <url-pattern>/designationView</url-pattern>
@@ -79,5 +77,14 @@
 <servlet-mapping>
 <servlet-name>DeleteDesignation</servlet-name>
 <url-pattern>/deleteDesignation</url-pattern>
+</servlet-mapping>
+
+<servlet>
+<servlet-name>EmployeeView</servlet-name>
+<servlet-class>com.ashvin.hr.nexus.servlets.EmployeeView</servlet-class>
+</servlet>
+<servlet-mapping>
+<servlet-name>EmployeeView</servlet-name>
+<url-pattern>/employeeView</url-pattern>
 </servlet-mapping>
 </web-app>
