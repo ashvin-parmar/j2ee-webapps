@@ -2,76 +2,80 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8'>
-<title>HR-Nexus Application</title>
+<title>HR-Nexus</title>
 <script>
-function Employee()
+function validateDesignation(frm)
 {
-this.employeeId="";
-this.name="";
-this.designationCode=0;
-this.designation="";
-this.dateOfBirth="";
-this.gender="";
-this.isIndian=true;
-this.basicSalary=0;
-this.panNumber="";
-this.aadharCardNumber="";
+var firstInvalidComponent=null;
+var valid=true;
+var name=frm.name.value.trim();
+var nameErrorSection=document.getElementById('nameErrorSection');
+nameErrorSection.innerHTML='';
+if(name.length==0)
+{
+nameErrorSection.innerHTML='Required';
+firstInvalidComponent=frm.name;
+valid=false;
 }
-var employees=[];
-var employee=new Employee();
-employee.employeeId="A100001";
-employee.name="Ashvin Parmar";
-employee.designationCode=1;
-employee.designation="Clerk"
-employee.dateOfBirth="01/01/2000";
-employee.gender="Male";
-employee.isIndian=true;
-employee.basicSalary=50000;
-employee.panNumber="PAN123456";
-employee.aadharCardNumber="UID123456";
-employees[0]=employee;
-employee=new Employee();
-employee.employeeId="A100002";
-employee.name="Rohit";
-employee.designationCode=2;
-employee.designation="Minister"
-employee.dateOfBirth="02/10/2004";
-employee.gender="Male";
-employee.isIndian=true;
-employee.basicSalary=299999;
-employee.panNumber="PAN151534";
-employee.aadharCardNumber="UID8675453";
-employees[1]=employee;
-var selectedRow=null;
-function selectEmployee(row,employeeId)
+var designationCode=frm.designationCode.value;
+var designationCodeErrorSection=document.getElementById('designationCodeErrorSection');
+designationCodeErrorSection.innerHTML='';
+if(designationCode==-1)
 {
-if(selectedRow==row) return;
-if(selectedRow!=null)
-{
-selectedRow.style.background="white";
-selectedRow.style.color="black";
+designationCodeErrorSection.innerHTML="Select designation";
+if(firstInvalidComponent==null) firstInvalidComponent=frm.designationCode;
+valid=false;
 }
-row.style.background="grey";
-row.style.color="white";
-selectedRow=row;
-var i;
-for(i=0;i<employees.length;i++)
+var dateOfBirth=frm.dateOfBirth.value;
+var dateOfBirthErrorSection=document.getElementById('dateOfBirthErrorSection');
+dateOfBirthErrorSection.innerHTML='';
+if(dateOfBirth.length==0)
 {
-if(employees[i].employeeId==employeeId)
+dateOfBirthErrorSection.innerHTML='Select date of birth';
+if(firstInvalidComponent==null) firstInvalidComponent=frm.dateOfBirth;
+valid=false;
+}
+var gender=frm.gender;
+var genderErrorSection=document.getElementById('genderErrorSection');
+genderErrorSection.innerHTML='';
+if(gender[0].checked==false && gender[0].checked==false)
 {
-break;
+genderErrorSection.innerHTML='Select gender';
+valid=false;
 }
+var basicSalary=frm.basicSalary.value;
+var basicSalaryErrorSection=document.getElementById('basicSalaryErrorSection');
+basicSalaryErrorSection.innerHTML='';
+if(basicSalary<=0)
+{
+basicSalaryErrorSection.innerHTML='Invalid basic salary';
+if(firstInvalidComponent==null) firstInvalidComponent=frm.basicSalary;
+valid=false;
 }
-var emp=employees[i];
-document.getElementById('detailsPanel_employeeId').innerHTML=emp.employeeId;
-document.getElementById('detailsPanel_name').innerHTML=emp.name;
-document.getElementById('detailsPanel_designation').innerHTML=emp.designation;
-document.getElementById('detailsPanel_dateOfBirth').innerHTML=emp.dateOfBirth;
-document.getElementById('detailsPanel_isIndian').innerHTML=emp.isIndian?"Yes":"No";
-document.getElementById('detailsPanel_gender').innerHTML=emp.gender;
-document.getElementById('detailsPanel_basicSalary').innerHTML=emp.basicSalary;
-document.getElementById('detailsPanel_panNumber').innerHTML=emp.panNumber;
-document.getElementById('detailsPanel_aadharCardNumber').innerHTML=emp.aadharCardNumber;
+var panNumber=frm.panNumber.value.trim();
+var panNumberErrorSection=document.getElementById('panNumberErrorSection');
+panNumberErrorSection.innerHTML='';
+if(panNumber.length==0)
+{
+panNumberErrorSection.innerHTML='PAN number required';
+if(firstInvalidComponent==null) firstInvalidComponent=frm.panNumber;
+valid=false;
+}
+var aadharCardNumber=frm.aadharCardNumber.value.trim();
+var aadharCardNumberErrorSection=document.getElementById('aadharCardNumberErrorSection');
+aadharCardNumberErrorSection.innerHTML='';
+if(aadharCardNumber.length==0)
+{
+aadharCardNumberErrorSection.innerHTML='Aadhar card number required';
+if(firstInvalidComponent==null) firstInvalidComponent=frm.aadharCardNumber;
+valid=false;
+}
+if(!valid) firstInvalidComponent.focus();
+return valid;
+}
+function cancelAddition()
+{
+document.getElementById('cancelAdditionForm').submit();
 }
 </script>
 </head>
@@ -88,73 +92,83 @@ document.getElementById('detailsPanel_aadharCardNumber').innerHTML=emp.aadharCar
 <div style='width:90hw;height:72vh;margin:5px;border:1px solid white'>
 <!-- left panel start here -->
 <div style='height:65vh;margin:5px;padding:5px;float:left;border:1px solid black'>
-<a href='/styleone/designationView' style='float:left'>Designations</a><br>
-<b>Employees</b><br><br>
+<b>Designations</b><br>
+<a href='/styleone/employeeView' style='float:left'>Employees</a><br><br>
 <a href='/styleone/index.html'>Home</a>
 </div>
 <!-- left panel ends here -->
 <!-- right panel start here -->
-<div style='height:65vh;margin-left:110px;margin-right:5px;margin-bottom:5px;margin-top:5px;padding:5px;border:1px solid black'>
-<b>Employees</b><br>
-<!-- table division start here -->
-<div style='height:35vh;margin:5px;border:1px solid black;overflow:scroll'>
-<table border='1'>
-<thead>
+<div style='height:65vh;margin-left:110px;margin-right:5px;margin-bottom:5px;margin-top:5px;padding:5px;overflow:scroll;border:1px solid black'>
+<b>Employee (Add Module)</b><br>
+<form action='/styleone/addEmployee' onsubmit='return validateDesignation(this)'>
+<table>
 <tr>
-<th colspan='6' style='text-align:right'><a href='/styleone/addEmployee' style='margin-right:5px'>Add employee</a></th>
+<td><b>Name: </b></td>
+<td>
+<input type='text' id='name' name='name' maxlength='50' size='51'>
+<span id='nameErrorSection' style='color:red'></span>
+</td>
+</tr>
+
+<tr>
+<td><b>Designation: </b></td>
+<td>
+<select id='designationCode' name='designationCode'>
+<option value='-1'>&lt;Select designation&gt;</option>
+<option value='1'>Manager</option>
+<option value='2'>Clerk</option>
+</select>
+&nbsp;<span id='designationCodeErrorSection' style='color:red'></span>
+</td>
 </tr>
 <tr>
-<th style='width:40px;text-align:center'>S.No.</th>
-<th style='width:100px;text-align:center'>ID</th>
-<th style='width:200px;text-align:center'>Name</th>
-<th style='width:200px;text-align:center'>Designation</th>
-<th style='width:60px;text-align:center'>Edit</th>
-<th style='width:80px;text-align:center'>Delete</th>
+<td>Date of birth: </td>
+<td><input type='date' id='dateOfBirth' name='dateOfBirth'>
+<span id='dateOfBirthErrorSection' style='color:red'></span></td>
 </tr>
-</thead>
-<tbody>
-<tr style='cursor:pointer' onclick='selectEmployee(this,"A100001")'>
-<td style='text-align:right'>1.</td>
-<td style='text-align:right'>A100001</td>
-<td>Ashvin Parmar</td>
-<td>Clerk</td>
-<td style='text-align:center'><a href='/styleone/editEmployee?id=A100001'>edit</a></td>
-<td style='text-align:center'><a href='/styleone/confirmDeleteEmployee?id=A100001'>delete</a></td>
+<tr>
+<td>Gender: </td>
+<td>
+<input type='radio' id='male' name='gender' value='M'>Male
+&nbsp;&nbsp;
+<input type='radio' id='female' name='gender' value='F'>Female
+<span id='genderErrorSection' style='color:red'></span>
+</td>
 </tr>
-<tr style='cursor:pointer' onclick='selectEmployee(this,"A100002")'>
-<td style='text-align:right'>2.</td>
-<td style='text-align:right'>A100002</td>
-<td>Rohit</td>
-<td>Minister</td>
-<td style='text-align:center'><a href='/styleone/editEmployee?id=A100002'>edit</a></td>
-<td style='text-align:center'><a href='/styleone/confirmDeleteEmployee?id=A100002'>delete</a></td>
+<tr>
+<td>Indian? : </td>
+<td>
+<input type='checkbox' id='isIndian' name='isIndian'>
+</td>
 </tr>
-</tbody>
+<tr>
+<td>Basic Salary: </td>
+<td>
+<input type='number' id='basicSalary' name='basicSalary'>
+<span id='basicSalaryErrorSection' style='color:red'></span>
+</td>
+</tr>
+
+<tr>
+<td>PAN number: </td>
+<td>
+<input type='text' id='panNumber' name='panNumber' maxlength='15' size='16'>
+<span id='panNumberErrorSection' style='color:red'></span>
+</td>
+</tr>
+<tr>
+<td>Aadhar card number: </td>
+<td>
+<input type='text' id='aadharCardNumber' name='aadharCardNumber' maxlength='15' size='16'>
+<span id='aadharCardNumberErrorSection' style='color:red'></span>
+</td>
+</tr>
+<td colspan='2'>
+<button type='submit'>Add</button> &nbsp;&nbsp;
+<button type='button' onclick='cancelAddition()'>Cancel</button>
+</td>
 </table>
-</div>		
-<!-- table division ends here -->
-<!-- data show panel start here -->
-<div style='height:20vh;margin:5px;padding-left:5px;border:1px solid black'>
-<label style='background:grey;color:white;padding-left:5px;padding-right:5px;'>Details</label>
-<table border='0'  width='100%'>
-<tr>
-<td>ID: <span id='detailsPanel_employeeId' style='margin-right:30px'></span></td>
-<td>Name: <span id='detailsPanel_name' style='margin-right:30px'></span></td>
-<td>Designation: <span id='detailsPanel_designation'></span></td>
-</tr>
-<tr>
-<td>Is Indian?: <span id='detailsPanel_isIndian'></span></td>
-<td>Gender: <span id='detailsPanel_gender'></span></td>
-<td>Date of Birth: <span id='detailsPanel_dateOfBirth'></span></td>
-</tr>
-<tr>
-<td>Basic salary: <span id='detailsPanel_basicSalary'></span></td>
-<td>PAN number: <span id='detailsPanel_panNumber'></span></td>
-<td>Aadhar card number: <span id='detailsPanel_aadharCardNumber'></span></td>
-</tr>
-</table >
-</div>
-<!-- data show panel ends here -->
+</form>
 </div>
 <!-- right panel ends here -->
 </div>
@@ -166,5 +180,7 @@ document.getElementById('detailsPanel_aadharCardNumber').innerHTML=emp.aadharCar
 <!-- footer ends here -->
 </div>
 <!-- Main content ends here -->
+<form id='cancelAdditionForm' action='/styleone/employeeView'>
+</form>
 </body>
 </html>
