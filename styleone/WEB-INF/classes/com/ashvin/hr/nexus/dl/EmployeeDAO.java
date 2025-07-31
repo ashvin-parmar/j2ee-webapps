@@ -7,6 +7,10 @@ import java.math.*;
 
 public class EmployeeDAO 
 {
+public void addEmployee(EmployeeDTO employeeDTO) throws DAOException
+{
+
+}
 public List<EmployeeDTO> getAll() throws DAOException
 {
 List<EmployeeDTO> employees;

@@ -118,7 +118,7 @@ pw.println("<div style='height:35vh;margin:5px;border:1px solid black;overflow:s
 pw.println("<table border='1'>");
 pw.println("<thead>");
 pw.println("<tr>");
-pw.println("<th colspan='6' style='text-align:right'><a href='/styleone/addEmployee' style='margin-right:5px'>Add employee</a></th>");
+pw.println("<th colspan='6' style='text-align:right'><a href='/styleone/addEmployeeForm' style='margin-right:5px'>Add employee</a></th>");
 pw.println("</tr>");
 pw.println("<tr>");
 pw.println("<th style='width:40px;text-align:center'>S.No.</th>");
