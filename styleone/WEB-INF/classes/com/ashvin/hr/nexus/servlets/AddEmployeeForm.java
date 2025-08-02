@@ -118,7 +118,7 @@ pw.println("<!-- left panel ends here -->");
 pw.println("<!-- right panel start here -->");
 pw.println("<div style='height:65vh;margin-left:110px;margin-right:5px;margin-bottom:5px;margin-top:5px;padding:5px;overflow:scroll;border:1px solid black'>");
 pw.println("<b>Employee (Add Module)</b><br>");
-pw.println("<form method='get' action='/styleone/addEmployee' onsubmit='return validateDesignation(this)'>");
+pw.println("<form method='post' action='/styleone/addEmployee' onsubmit='return validateDesignation(this)'>");
 pw.println("<table>");
 pw.println("<tr>");
 pw.println("<td><b>Name: </b></td>");
@@ -133,15 +133,18 @@ pw.println("<td><b>Designation: </b></td>");
 pw.println("<td>");
 pw.println("<select id='designationCode' name='designationCode'>");
 pw.println("<option value='-1'>&lt;Select designation&gt;</option>");
-pw.println("<option value='1'>Manager</option>");
-pw.println("<option value='2'>Clerk</option>");
+List<DesignationDTO> designations=(new DesignationDAO()).getAll();
+for(DesignationDTO designation:designations)
+{
+pw.println("<option value='"+designation.getCode()+"'>"+designation.getTitle()+"</option>");
+}
 pw.println("</select>");
 pw.println("&nbsp;<span id='designationCodeErrorSection' style='color:red'></span>");
 pw.println("</td>");
 pw.println("</tr>");
 pw.println("<tr>");
 pw.println("<td>Date of birth: </td>");
-pw.println("<td><input type='date' id='dateOfBirth' name='dateOfBirth'>");
+pw.println("<td><input type='date' id='dateOfBirth' name='dateOfBirth' value='1970-01-01'>");	//format: 'yyyy-MM-dd'
 pw.println("<span id='dateOfBirthErrorSection' style='color:red'></span></td>");
 pw.println("</tr>");
 pw.println("<tr>");
@@ -156,7 +159,7 @@ pw.println("</tr>");
 pw.println("<tr>");
 pw.println("<td>Indian? : </td>");
 pw.println("<td>");
-pw.println("<input type='checkbox' id='isIndian' name='isIndian'>");
+pw.println("<input type='checkbox' id='isIndian' name='isIndian' value='Y'>");
 pw.println("</td>");
 pw.println("</tr>");
 pw.println("<tr>");
