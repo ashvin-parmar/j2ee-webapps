@@ -70,6 +70,50 @@ connection.close();
 throw new DAOException(sqlException.getMessage());
 }
 }
+public boolean isPANNumberExists(String panNumber) throws DAOException
+{
+if(panNumber==null) return false;
+panNumber=panNumber.trim();
+if(panNumber.length()==0) return false;
+boolean exists=false;
+try
+{
+Connection connection=DAOConnection.getConnection();
+PreparedStatement preparedStatement=connection.prepareStatement("select gender from employee where pan_number=?");
+preparedStatement.setString(1,panNumber);
+ResultSet resultSet=preparedStatement.executeQuery();
+exists=resultSet.next();
+resultSet.close();
+preparedStatement.close();
+connection.close();
+}catch(SQLException sqlException)
+{
+throw new DAOException(sqlException.getMessage());
+}
+return exists;
+}
+public boolean isAadharCardNumberExists(String aadharCardNumber) throws DAOException
+{
+if(aadharCardNumber==null) return false;
+aadharCardNumber=aadharCardNumber.trim();
+if(aadharCardNumber.length()==0) return false;
+boolean exists=false;
+try
+{
+Connection connection=DAOConnection.getConnection();
+PreparedStatement preparedStatement=connection.prepareStatement("select gender from employee where aadhar_card_number=?");
+preparedStatement.setString(1,aadharCardNumber);
+ResultSet resultSet=preparedStatement.executeQuery();
+exists=resultSet.next();
+resultSet.close();
+preparedStatement.close();
+connection.close();
+}catch(SQLException sqlException)
+{
+throw new DAOException(sqlException.getMessage());
+}
+return exists;
+}
 public List<EmployeeDTO> getAll() throws DAOException
 {
 List<EmployeeDTO> employees;

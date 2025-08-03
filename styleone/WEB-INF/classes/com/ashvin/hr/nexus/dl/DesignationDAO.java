@@ -22,6 +22,18 @@ throw new DAOException("Invalid code: "+code);
 }
 resultSet.close();
 preparedStatement.close();
+preparedStatement=connection.prepareStatement("select gender from employee where designation_code=?");
+preparedStatement.setInt(1,code);
+resultSet=preparedStatement.executeQuery();
+if(resultSet.next())
+{
+resultSet.close();
+preparedStatement.close();
+connection.close();
+throw new DAOException("Cannot delete designation as it has been alloted to an employee");
+}
+resultSet.close();
+preparedStatement.close();
 preparedStatement=connection.prepareStatement("delete from designation where code=?");
 preparedStatement.setInt(1,code);
 preparedStatement.executeUpdate();
@@ -146,6 +158,26 @@ designationDTO.setCode(code);
 {
 throw new DAOException(sqlException.getMessage());
 }
+}
+public boolean isCodeExists(int code) throws DAOException
+{
+if(code<=0) return false;
+boolean exists=false;
+try
+{
+Connection connection=DAOConnection.getConnection();
+PreparedStatement preparedStatement=connection.prepareStatement("select code from designation where code=?");
+preparedStatement.setInt(1,code);
+ResultSet resultSet=preparedStatement.executeQuery();
+exists=resultSet.next();
+resultSet.close();
+preparedStatement.close();
+connection.close();
+}catch(SQLException sqlException)
+{
+throw new DAOException(sqlException.getMessage());	//rarely arrived
+}
+return exists;
 }
 public List<DesignationDTO> getAll() throws DAOException
 {
