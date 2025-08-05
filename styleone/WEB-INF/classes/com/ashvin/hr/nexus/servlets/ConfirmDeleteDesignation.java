@@ -61,7 +61,7 @@ pw.println("Are you sure, you want to delete designation '<b>"+title+"</b>'?<br>
 pw.println("<table>");
 pw.println("<tr>");
 pw.println("<td>");
-pw.println("<form action='/styleone/deleteDesignation'>");
+pw.println("<form method='post' action='/styleone/deleteDesignation'>");
 pw.println("<input type='hidden' id='code' name='code' value='"+code+"'>");
 pw.println("<input type='hidden' id='title' name='title' value='"+title+"'>");
 pw.println("<button type='submit'>Yes</button>");
@@ -104,12 +104,12 @@ public void sendBackView(HttpServletResponse response)
 {
 try
 {
+PrintWriter pw=response.getWriter();
+response.setContentType("text/html");
 DesignationDAO designationDAO;
 designationDAO=new DesignationDAO();
 List<DesignationDTO> designations;
 designations=designationDAO.getAll();
-PrintWriter pw=response.getWriter();
-response.setContentType("text/html");
 
 pw.println("<!DOCTYPE HTML>");
 pw.println("<html lang='en'>");

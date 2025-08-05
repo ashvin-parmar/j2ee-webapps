@@ -136,12 +136,12 @@ private void sendBackView(HttpServletResponse response)
 {
 try
 {
+PrintWriter pw=response.getWriter();
+response.setContentType("text/html");
 DesignationDAO designationDAO;
 designationDAO=new DesignationDAO();
 List<DesignationDTO> designations;
 designations=designationDAO.getAll();
-PrintWriter pw=response.getWriter();
-response.setContentType("text/html");
 
 pw.println("<!DOCTYPE HTML>");
 pw.println("<html lang='en'>");
