@@ -51,7 +51,7 @@ pw.println("employee.name=\""+employee.getName()+"\";");
 pw.println("employee.designationCode="+employee.getDesignationCode()+";");
 pw.println("employee.designation=\""+employee.getDesignation()+"\"");
 pw.println("employee.dateOfBirth=\""+simpleDateFormat.format(employee.getDateOfBirth())+"\";");
-pw.println("employee.gender=\""+((employee.getGender()=='M')?"Male":"Female")+"\";");
+pw.println("employee.gender=\""+((employee.getGender().equals("M"))?"Male":"Female")+"\";");
 pw.println("employee.isIndian="+employee.getIsIndian()+";");
 pw.println("employee.basicSalary="+employee.getBasicSalary()+";");
 pw.println("employee.panNumber=\""+employee.getPANNumber()+"\";");

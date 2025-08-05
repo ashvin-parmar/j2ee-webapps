@@ -31,7 +31,7 @@ code=Integer.parseInt(request.getParameter("code"));
 sendBackView(response);
 return ;
 }
-(new DesignationDAO()).delete(code);
+(new DesignationDAO()).deleteByCode(code);
 pw.println("<!DOCTYPE HTML>");
 pw.println("<html lang='en'>");
 pw.println("<head>");

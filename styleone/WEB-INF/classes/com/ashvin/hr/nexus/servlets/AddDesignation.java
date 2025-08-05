@@ -51,7 +51,7 @@ pw.println("<!-- right panel start here -->");
 pw.println("<div style='height:65vh;margin-left:110px;margin-right:5px;margin-bottom:5px;margin-top:5px;padding:5px;overflow:scroll;border:1px solid black'>");
 pw.println("<h2>Notification</h2>");
 pw.println("Designation "+title+" added<br><br>");
-pw.println("<b>Add more?</b><br>");
+pw.println("<b>Would you like to add more designation?</b><br>");
 pw.println("<table>");
 pw.println("<tr>");
 pw.println("<td>");

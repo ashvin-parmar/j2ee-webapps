@@ -4,7 +4,7 @@ import java.util.*;
 import java.sql.*;
 public class DesignationDAO
 {
-public void delete(int code) throws DAOException
+public void deleteByCode(int code) throws DAOException
 {
 if(code<=0) throw new DAOException("Invalid code: "+code);
 try

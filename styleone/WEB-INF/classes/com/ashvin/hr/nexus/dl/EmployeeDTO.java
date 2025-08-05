@@ -10,7 +10,7 @@ private String name;
 private int designationCode;
 private String designation;
 private Date dateOfBirth;
-private char gender;
+private String gender;
 private boolean isIndian;
 private BigDecimal basicSalary;
 private String panNumber;
@@ -22,7 +22,7 @@ this.name="";
 this.designationCode=0;
 this.designation="";
 this.dateOfBirth=null;
-this.gender=' ';
+this.gender="";
 this.isIndian=false;
 this.basicSalary=null;
 this.panNumber="";
@@ -68,11 +68,11 @@ public java.util.Date getDateOfBirth()
 {
 return this.dateOfBirth;
 }
-public void setGender(char gender)
+public void setGender(String gender)
 {
 this.gender=gender;
 }
-public char getGender()
+public String getGender()
 {
 return this.gender;
 }
