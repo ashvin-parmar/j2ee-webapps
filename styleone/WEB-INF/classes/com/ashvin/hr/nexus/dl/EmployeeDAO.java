@@ -131,7 +131,39 @@ return employeeDTO;
 }
 public void deleteByEmployeeId(String employeeId) throws DAOException
 {
-
+int id=0;
+try
+{
+try
+{
+id=Integer.parseInt(employeeId.substring(1));
+}catch(NumberFormatException nfew)
+{
+//do nothing
+}
+if(id==0) throw new DAOException("Invalid employee id: "+employeeId);
+Connection connection=DAOConnection.getConnection();
+PreparedStatement preparedStatement=connection.prepareStatement("select gender from employee where id=?");
+preparedStatement.setInt(1,id);
+ResultSet resultSet=preparedStatement.executeQuery();
+if(resultSet.next()==false)
+{
+resultSet.close();
+preparedStatement.close();
+connection.close();
+throw new DAOException("Invalid employee id: "+employeeId);
+}
+resultSet.close();
+preparedStatement.close();
+preparedStatement=connection.prepareStatement("delete from employee where id=?");
+preparedStatement.setInt(1,id);
+preparedStatement.executeUpdate();
+preparedStatement.close();
+connection.close();
+}catch(SQLException sqlException)
+{
+throw new DAOException(sqlException.getMessage());
+}
 }
 public boolean isPANNumberExists(String panNumber) throws DAOException
 {

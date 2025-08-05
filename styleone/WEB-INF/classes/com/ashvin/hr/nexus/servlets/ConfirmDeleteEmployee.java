@@ -5,33 +5,33 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
 import java.util.*;
+import java.text.*;
+import java.math.*;
 
-public class DeleteDesignation extends HttpServlet
+public class ConfirmDeleteEmployee extends HttpServlet
 {
 public void doGet(HttpServletRequest request,HttpServletResponse response)
 {
+//Declared and assigned such that use them in both -> try and catch blocks
 PrintWriter pw=null;
-String title="";
-int code=0;
+String employeeId="";
 try
 {
-pw=response.getWriter();	
+SimpleDateFormat simpleDateFormat=new SimpleDateFormat("dd/MM/yyyy");
+pw=response.getWriter();		//To be declared above everything, such that in every case pw.println works
 response.setContentType("text/html");
-title=request.getParameter("title");
-if(title==null)
-{
-sendBackView(response);
-return ;
-}
-try
-{
-code=Integer.parseInt(request.getParameter("code"));
-}catch(NumberFormatException nfe)
-{
-sendBackView(response);
-return ;
-}
-(new DesignationDAO()).deleteByCode(code);
+employeeId=request.getParameter("employeeId");
+EmployeeDTO employeeDTO=((new EmployeeDAO()).getByEmployeeId(employeeId));
+employeeId=employeeDTO.getEmployeeId();
+String name=employeeDTO.getName();
+String designation=employeeDTO.getDesignation();
+java.util.Date dateOfBirth=employeeDTO.getDateOfBirth();
+String gender=employeeDTO.getGender();
+boolean isIndian=employeeDTO.getIsIndian();
+BigDecimal basicSalary=employeeDTO.getBasicSalary();
+String panNumber=employeeDTO.getPANNumber();
+String aadharCardNumber=employeeDTO.getAadharCardNumber();
+
 pw.println("<!DOCTYPE HTML>");
 pw.println("<html lang='en'>");
 pw.println("<head>");
@@ -51,18 +51,41 @@ pw.println("<!-- middle content start here -->");
 pw.println("<div style='width:90hw;height:72vh;margin:5px;border:1px solid white'>");
 pw.println("<!-- left panel start here -->");
 pw.println("<div style='height:65vh;margin:5px;padding:5px;float:left;border:1px solid black'>");
-pw.println("<b>Designations</b><br>");
-pw.println("<a href='/styleone/employeeView' style='float:left'>Employees</a><br><br>");
+pw.println("<a href='/styleone/designationView'>Designations</a><br>");
+pw.println("<b>Employees</b><br><br>");
 pw.println("<a href='/styleone/index.html'>Home</a>");
 pw.println("</div>");
 pw.println("<!-- left panel ends here -->");
 pw.println("<!-- right panel start here -->");
 pw.println("<div style='height:65vh;margin-left:110px;margin-right:5px;margin-bottom:5px;margin-top:5px;padding:5px;overflow:scroll;border:1px solid black'>");
 pw.println("<h2>Notification</h2>");
-pw.println("Designation <b>"+title+"</b> Deleted<br>");
-pw.println("<form action='/styleone/designationView'>");
-pw.println("<button type='submit'>OK</button>");
+pw.println("<b>Employee ID: </b> "+employeeId+"<br>");
+pw.println("<b>Name: </b> "+name+"<br>");
+pw.println("<b>Designation: </b>"+designation+"<br>");
+pw.println("<b>Gender: </b>"+(gender.equals("M")?"Male":"Female")+"<br>");
+pw.println("<b>Nationality: </b>"+(isIndian?"Indian<br>":"Not an Indian<br>"));
+pw.println("<b>Date of Birth: </b>"+simpleDateFormat.format(dateOfBirth)+"<br>");
+pw.println("<b>Basic salary: </b>"+basicSalary.toPlainString()+"<br>");
+pw.println("<b>PAN number: </b>"+panNumber+"<br>");
+pw.println("<b>Aadhar card number: </b>"+aadharCardNumber+"<br>");
+
+pw.println("Are you sure, you want to delete employee '<b>"+name+"</b>'?<br>");
+pw.println("<table>");
+pw.println("<tr>");
+pw.println("<td>");
+pw.println("<form action='/styleone/deleteEmployee'>");
+pw.println("<input type='hidden' id='employeeId' name='employeeId' value='"+employeeId+"'>");
+pw.println("<input type='hidden' id='name' name='name' value='"+name+"'>");
+pw.println("<button type='submit'>Yes</button>");
 pw.println("</form>");
+pw.println("</td>");
+pw.println("<td>");
+pw.println("<form action='/styleone/employeeView'>");
+pw.println("<button type='submit'>No</button>");
+pw.println("</form>");
+pw.println("</td>");
+pw.println("</tr>");
+pw.println("</table>");
 pw.println("</div>");
 pw.println("<!-- right panel ends here -->");
 pw.println("</div>");
@@ -76,63 +99,20 @@ pw.println("</div>");
 pw.println("<!-- Main content ends here -->");
 pw.println("</body>");
 pw.println("</html>");
+
 }catch(DAOException daoException)
 {
-pw.println("<!DOCTYPE HTML>");
-pw.println("<html lang='en'>");
-pw.println("<head>");
-pw.println("<meta charset='utf-8'>");
-pw.println("<title>Style one</title>");
-pw.println("</head>");
-pw.println("<body>");
-pw.println("<!-- Main content start here -->");
-pw.println("<div style='width:90hw;height:95vh;border:1px solid black'>");
-pw.println("<!-- header start here -->");
-pw.println("<div style='width:90hw;margin:5px;border:1px solid black'>");
-pw.println("<a href='/styleone/index.html'><img src='/styleone/images/hr_nexus_logo.png' style='width:30px;float:left'></a>");
-pw.println("<div style='margin:4px;font-size:15pt'>HR-Nexus</div>");
-pw.println("</div>");
-pw.println("<!-- header ends here -->");
-pw.println("<!-- middle content start here -->");
-pw.println("<div style='width:90hw;height:72vh;margin:5px;border:1px solid white'>");
-pw.println("<!-- left panel start here -->");
-pw.println("<div style='height:65vh;margin:5px;padding:5px;float:left;border:1px solid black'>");
-pw.println("<b>Designations</b><br>");
-pw.println("<a href='/styleone/employeeView' style='float:left'>Employees</a><br><br>");
-pw.println("<a href='/styleone/index.html'>Home</a>");
-pw.println("</div>");
-pw.println("<!-- left panel ends here -->");
-pw.println("<!-- right panel start here -->");
-pw.println("<div style='height:65vh;margin-left:110px;margin-right:5px;margin-bottom:5px;margin-top:5px;padding:5px;overflow:scroll;border:1px solid black'>");
-pw.println("<h2>Notification</h2>");
-pw.println("Unable to delete designation <b>"+title+"</b><br>");
-pw.println("<span id='errorMessage' style='color:red'>"+daoException.getMessage()+"</span><br>");
-pw.println("<form action='/styleone/designationView'>");
-pw.println("<button type='submit'>OK</button>");
-pw.println("</form>");
-pw.println("</div>");
-pw.println("<!-- right panel ends here -->");
-pw.println("</div>");
-pw.println("<!-- middle content ends here -->");
-pw.println("<!-- footer start here -->");
-pw.println("<div style='text-align:center;margin:5px;font-size:10pt;border:1px solid white'>");
-pw.println("&copy; HR-Nexus 2025");
-pw.println("</div>");
-pw.println("<!-- footer ends here -->");
-pw.println("</div>");
-pw.println("<!-- Main content ends here -->");
-pw.println("</body>");
-pw.println("</html>");
+sendBackView(response);
 }catch(Exception exception)
 {
-System.out.println(exception.getMessage());		//Removed after testing, exception mistaken by networking
+System.out.println(exception.getMessage());
 }
 }
 public void doPost(HttpServletRequest request,HttpServletResponse response)
 {
 doGet(request,response);
 }
-private void sendBackView(HttpServletResponse response)
+public void sendBackView(HttpServletResponse response)
 {
 try
 {

@@ -138,8 +138,8 @@ pw.println("<td style='text-align:right'>"+i+".</td>");
 pw.println("<td style='text-align:right'>"+employee.getEmployeeId()+"</td>");
 pw.println("<td>"+employee.getName()+"</td>");
 pw.println("<td>"+employee.getDesignation()+"</td>");
-pw.println("<td style='text-align:center'><a href='/styleone/editEmployee?id="+employee.getEmployeeId()+"'>edit</a></td>");
-pw.println("<td style='text-align:center'><a href='/styleone/confirmDeleteEmployee?id="+employee.getEmployeeId()+"'>delete</a></td>");
+pw.println("<td style='text-align:center'><a href='/styleone/editEmployee?employeeId="+employee.getEmployeeId()+"'>edit</a></td>");
+pw.println("<td style='text-align:center'><a href='/styleone/confirmDeleteEmployee?employeeId="+employee.getEmployeeId()+"'>delete</a></td>");
 pw.println("</tr>");
 i++;
 }
