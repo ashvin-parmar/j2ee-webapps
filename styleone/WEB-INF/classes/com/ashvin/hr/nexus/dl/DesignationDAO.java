@@ -30,7 +30,7 @@ if(resultSet.next())
 resultSet.close();
 preparedStatement.close();
 connection.close();
-throw new DAOException("Cannot delete designation as it has been alloted to an employee");
+throw new DAOException("Cannot delete designation as it has been alloted to employee(s)");
 }
 resultSet.close();
 preparedStatement.close();
@@ -95,6 +95,16 @@ throw new DAOException("Invalid code: "+code);
 }
 resultSet.close();
 preparedStatement.close();
+preparedStatement=connection.prepareStatement("select gender from employee where designation_code=?");
+preparedStatement.setInt(1,code);
+resultSet=preparedStatement.executeQuery();
+if(resultSet.next())
+{
+resultSet.close();
+preparedStatement.close();
+connection.close();
+throw new DAOException("Cannot update designation as it has been alloted to employee(s)");
+}
 preparedStatement=connection.prepareStatement("select code from designation where title=? and code!=?");
 preparedStatement.setString(1,title);
 preparedStatement.setInt(2,code);

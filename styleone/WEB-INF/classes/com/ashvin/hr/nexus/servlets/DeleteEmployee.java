@@ -6,36 +6,25 @@ import javax.servlet.http.*;
 import java.io.*;
 import java.util.*;
 
-public class UpdateDesignation extends HttpServlet
+public class DeleteEmployee extends HttpServlet
 {
 public void doGet(HttpServletRequest request,HttpServletResponse response)
 {
-//Declared and assigned such that use them in both -> try and catch blocks
 PrintWriter pw=null;
-String title="";
-int code=0;
+String name="";
+String employeeId="";
 try
 {
 pw=response.getWriter();	
 response.setContentType("text/html");
-title=request.getParameter("title");
-if(title==null)
+employeeId=request.getParameter("employeeId");
+if(employeeId==null)
 {
 sendBackView(response);
 return ;
 }
-try
-{
-code=Integer.parseInt(request.getParameter("code"));
-}catch(NumberFormatException nfe)
-{
-sendBackView(response);
-return ;
-}
-DesignationDTO designation=new DesignationDTO();
-designation.setTitle(title);
-designation.setCode(code);
-(new DesignationDAO()).update(designation);
+name=request.getParameter("name");
+(new EmployeeDAO()).deleteByEmployeeId(employeeId);
 pw.println("<!DOCTYPE HTML>");
 pw.println("<html lang='en'>");
 pw.println("<head>");
@@ -55,16 +44,16 @@ pw.println("<!-- middle content start here -->");
 pw.println("<div style='width:90hw;height:72vh;margin:5px;border:1px solid white'>");
 pw.println("<!-- left panel start here -->");
 pw.println("<div style='height:65vh;margin:5px;padding:5px;float:left;border:1px solid black'>");
-pw.println("<b>Designations</b><br>");
-pw.println("<a href='/styleone/employeeView' style='float:left'>Employees</a><br><br>");
+pw.println("<a href='/styleone/designationView' style='float:left'>Designations</a><br>");
+pw.println("<b'>Employees</b><br><br>");
 pw.println("<a href='/styleone/index.html'>Home</a>");
 pw.println("</div>");
 pw.println("<!-- left panel ends here -->");
 pw.println("<!-- right panel start here -->");
 pw.println("<div style='height:65vh;margin-left:110px;margin-right:5px;margin-bottom:5px;margin-top:5px;padding:5px;overflow:scroll;border:1px solid black'>");
 pw.println("<h2>Notification</h2>");
-pw.println("Designation Updated<br>");
-pw.println("<form action='/styleone/designationView'>");
+pw.println("Employee <b>"+name+"</b> Deleted<br>");
+pw.println("<form action='/styleone/employeeView'>");
 pw.println("<button type='submit'>OK</button>");
 pw.println("</form>");
 pw.println("</div>");
@@ -87,25 +76,6 @@ pw.println("<html lang='en'>");
 pw.println("<head>");
 pw.println("<meta charset='utf-8'>");
 pw.println("<title>Style one</title>");
-pw.println("<script>");
-pw.println("function validateDesignation(frm)");
-pw.println("{");
-pw.println("var title=frm.title.value.trim();");
-pw.println("var titleErrorSection=document.getElementById('titleErrorSection');");
-pw.println("titleErrorSection.innerHTML='';");
-pw.println("if(title.length==0)");
-pw.println("{");
-pw.println("titleErrorSection.innerHTML='Required';");
-pw.println("frm.title.focus();");
-pw.println("return false;");
-pw.println("}");
-pw.println("return true;");
-pw.println("}");
-pw.println("function cancelEditing()");
-pw.println("{");
-pw.println("document.getElementById('cancelEditingForm').submit();");
-pw.println("}");
-pw.println("</script>");
 pw.println("</head>");
 pw.println("<body>");
 pw.println("<!-- Main content start here -->");
@@ -120,24 +90,18 @@ pw.println("<!-- middle content start here -->");
 pw.println("<div style='width:90hw;height:72vh;margin:5px;border:1px solid white'>");
 pw.println("<!-- left panel start here -->");
 pw.println("<div style='height:65vh;margin:5px;padding:5px;float:left;border:1px solid black'>");
-pw.println("<b>Designations</b><br>");
-pw.println("<a href='/styleone/employeeView' style='float:left'>Employees</a><br><br>");
+pw.println("<a href='/styleone/designationView' style='float:left'>Designations</a><br>");
+pw.println("<b'>Employees</b><br><br>");
 pw.println("<a href='/styleone/index.html'>Home</a>");
 pw.println("</div>");
 pw.println("<!-- left panel ends here -->");
 pw.println("<!-- right panel start here -->");
 pw.println("<div style='height:65vh;margin-left:110px;margin-right:5px;margin-bottom:5px;margin-top:5px;padding:5px;overflow:scroll;border:1px solid black'>");
-pw.println("<h2>Designation (Update Module)</h2>");
-pw.println("<div style='color:red'>"+daoException.getMessage()+"</div>");
-
-pw.println("<form method='post' action='/styleone/updateDesignation' onsubmit='return validateDesignation(this)'>");
-pw.println("Designation");
-pw.println("&nbsp;");
-pw.println("<input type='hidden' id='code' name='code' value='"+code+"'>");
-pw.println("<input type='text' id='title' name='title' maxlength='35' size='36' value='"+title+"' autofocus><br>");
-pw.println("<span id='titleErrorSection' style='color:red'></span><br>");
-pw.println("<button type='submit'>Update</button>");
-pw.println("<button type='button' onclick='cancelEditing()'>Cancel</button>");
+pw.println("<h2>Notification</h2>");
+pw.println("Unable to delete employee <b>"+name+"</b><br>");
+pw.println("<span id='errorMessage' style='color:red'>"+daoException.getMessage()+"</span><br>");
+pw.println("<form action='/styleone/employeeView'>");
+pw.println("<button type='submit'>OK</button>");
 pw.println("</form>");
 pw.println("</div>");
 pw.println("<!-- right panel ends here -->");
@@ -150,8 +114,6 @@ pw.println("</div>");
 pw.println("<!-- footer ends here -->");
 pw.println("</div>");
 pw.println("<!-- Main content ends here -->");
-pw.println("<form id='cancelEditingForm' action='/styleone/designationView'>");
-pw.println("</form>");
 pw.println("</body>");
 pw.println("</html>");
 }catch(Exception exception)
