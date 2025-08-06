@@ -46,8 +46,9 @@ dateOfBirth=simpleDateFormat.parse(request.getParameter("dateOfBirth"));
 sendBackView(response);
 return;
 }
-gender=request.getParameter("gender").startsWith("M")?"M":"F";
-isIndian=request.getParameter("isIndian").equals("Y")?true:false;
+gender=(request.getParameter("gender").startsWith("M")?"M":"F");
+String isInd=request.getParameter("isIndian");
+isIndian=(isInd==null?false:true);
 basicSalary=new BigDecimal(request.getParameter("basicSalary"));
 panNumber=request.getParameter("panNumber");
 aadharCardNumber=request.getParameter("aadharCardNumber");
@@ -148,7 +149,7 @@ pw.println("}");
 pw.println("var gender=frm.gender;");
 pw.println("var genderErrorSection=document.getElementById('genderErrorSection');");
 pw.println("genderErrorSection.innerHTML='';");
-pw.println("if(gender[0].checked==false && gender[0].checked==false)");
+pw.println("if(gender[0].checked==false && gender[1].checked==false)");
 pw.println("{");
 pw.println("genderErrorSection.innerHTML='Select gender';");
 pw.println("valid=false;");
@@ -180,7 +181,7 @@ pw.println("aadharCardNumberErrorSection.innerHTML='Aadhar card number required'
 pw.println("if(firstInvalidComponent==null) firstInvalidComponent=frm.aadharCardNumber;");
 pw.println("valid=false;");
 pw.println("}");
-pw.println("if(!valid) firstInvalidComponent.focus();");
+pw.println("if(!valid && firstInvalidComponent!=null) firstInvalidComponent.focus();");		//In case of gender
 pw.println("return valid;");
 pw.println("}");
 pw.println("function cancelEditing()");

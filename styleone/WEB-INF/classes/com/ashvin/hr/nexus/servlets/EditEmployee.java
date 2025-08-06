@@ -72,7 +72,7 @@ pw.println("}");
 pw.println("var gender=frm.gender;");
 pw.println("var genderErrorSection=document.getElementById('genderErrorSection');");
 pw.println("genderErrorSection.innerHTML='';");
-pw.println("if(gender[0].checked==false && gender[0].checked==false)");
+pw.println("if(gender[0].checked==false && gender[1].checked==false)");
 pw.println("{");
 pw.println("genderErrorSection.innerHTML='Select gender';");
 pw.println("valid=false;");
@@ -104,7 +104,7 @@ pw.println("aadharCardNumberErrorSection.innerHTML='Aadhar card number required'
 pw.println("if(firstInvalidComponent==null) firstInvalidComponent=frm.aadharCardNumber;");
 pw.println("valid=false;");
 pw.println("}");
-pw.println("if(!valid) firstInvalidComponent.focus();");
+pw.println("if(!valid && firstInvalidComponent!=null) firstInvalidComponent.focus();");
 pw.println("return valid;");
 pw.println("}");
 pw.println("function cancelEditing()");
