@@ -65,7 +65,7 @@ throw new DAOException("Invalid employee id: "+employeeId);
 }
 resultSet.close();
 preparedStatement.close();
-preparedStatement=connection.prepareStatement("select gender from employee where pan_number=? && id!=");
+preparedStatement=connection.prepareStatement("select gender from employee where pan_number=? && id!=?");
 preparedStatement.setString(1,panNumber);
 preparedStatement.setInt(2,id);
 resultSet=preparedStatement.executeQuery();
@@ -91,7 +91,7 @@ throw new DAOException("Aadhar card number "+aadharCardNumber+" exists");
 }
 resultSet.close();
 preparedStatement.close();
-preparedStatement=connection.prepareStatement("update employee set name=? designation_code=? gender=? is_indian=? date_of_birth=? basic_salary=? pan_number=? aadhar_card_number=? where id=?");
+preparedStatement=connection.prepareStatement("update employee set name=?, designation_code=?, gender=?, is_indian=?, date_of_birth=?, basic_salary=?, pan_number=?, aadhar_card_number=? where id=?");
 preparedStatement.setString(1,name);
 preparedStatement.setInt(2,designationCode);
 preparedStatement.setString(3,gender);
