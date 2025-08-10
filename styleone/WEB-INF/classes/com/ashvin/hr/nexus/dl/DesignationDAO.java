@@ -105,7 +105,7 @@ preparedStatement.close();
 connection.close();
 throw new DAOException("Cannot update designation as it has been alloted to employee(s)");
 }
-preparedStatement=connection.prepareStatement("select code from designation where title=? and code!=?");
+preparedStatement=connection.prepareStatement("select code from designation where title=? and code<>?");
 preparedStatement.setString(1,title);
 preparedStatement.setInt(2,code);
 resultSet=preparedStatement.executeQuery();
