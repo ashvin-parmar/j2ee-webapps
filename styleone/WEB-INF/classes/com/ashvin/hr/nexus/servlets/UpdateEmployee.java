@@ -24,6 +24,13 @@ BigDecimal basicSalary=null;
 String panNumber="";
 String aadharCardNumber="";
 SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd");
+Boolean employeeIdExists=false;
+Boolean panNumberExists=false;
+Boolean aadharCardNumberExists=false;
+Boolean designationCodeExists=false;
+EmployeeDAO employeeDAO=null;
+EmployeeDTO employeeDTO=null;
+DesignationDAO designationDAO=null;
 try
 {
 pw=response.getWriter();	
@@ -52,7 +59,262 @@ isIndian=(isInd==null?false:true);
 basicSalary=new BigDecimal(request.getParameter("basicSalary"));
 panNumber=request.getParameter("panNumber");
 aadharCardNumber=request.getParameter("aadharCardNumber");
-EmployeeDTO employeeDTO=new EmployeeDTO();
+
+employeeDAO=new EmployeeDAO();
+designationDAO=new DesignationDAO();
+try
+{
+employeeIdExists=employeeDAO.isEmployeeIdExists(employeeId);
+}catch(DAOException d1)
+{
+employeeIdExists=false;
+}
+if(employeeIdExists==false) 
+{
+sendBackView(response);
+return;
+}
+try
+{
+employeeDTO=employeeDAO.getByPANNumber(panNumber);
+if(employeeDTO.getEmployeeId().equals(employeeId)==false)
+{
+panNumberExists=true;
+}
+}catch(DAOException d2)
+{
+panNumberExists=false;
+}
+try
+{
+employeeDTO=employeeDAO.getByAadharCardNumber(aadharCardNumber);
+if(employeeDTO.getEmployeeId().equals(employeeId)==false)
+{
+aadharCardNumberExists=true;
+}
+}catch(DAOException d3)
+{
+aadharCardNumberExists=false;
+}
+try
+{
+designationCodeExists=designationDAO.isCodeExists(designationCode);
+}catch(DAOException d4)
+{
+designationCodeExists=false;
+}
+if(designationCodeExists==false || panNumberExists==true || aadharCardNumberExists==true)
+{
+pw.println("<!DOCTYPE HTML>");
+pw.println("<html lang='en'>");
+pw.println("<head>");
+pw.println("<meta charset='utf-8'>");
+pw.println("<title>Style one</title>");
+pw.println("<script>");
+pw.println("function validateEmployee(frm)");
+pw.println("{");
+pw.println("var firstInvalidComponent=null;");
+pw.println("var valid=true;");
+pw.println("var name=frm.name.value.trim();");
+pw.println("var nameErrorSection=document.getElementById('nameErrorSection');");
+pw.println("nameErrorSection.innerHTML='';");
+pw.println("if(name.length==0)");
+pw.println("{");
+pw.println("nameErrorSection.innerHTML='Required';");
+pw.println("firstInvalidComponent=frm.name;");
+pw.println("valid=false;");
+pw.println("}");
+pw.println("var designationCode=frm.designationCode.value;");
+pw.println("var designationCodeErrorSection=document.getElementById('designationCodeErrorSection');");
+pw.println("designationCodeErrorSection.innerHTML='';");
+pw.println("if(designationCode==-1)");
+pw.println("{");
+pw.println("designationCodeErrorSection.innerHTML=\"Select designation\";");
+pw.println("if(firstInvalidComponent==null) firstInvalidComponent=frm.designationCode;");
+pw.println("valid=false;");
+pw.println("}");
+pw.println("var dateOfBirth=frm.dateOfBirth.value;");
+pw.println("var dateOfBirthErrorSection=document.getElementById('dateOfBirthErrorSection');");
+pw.println("dateOfBirthErrorSection.innerHTML='';");
+pw.println("if(dateOfBirth.length==0)");
+pw.println("{");
+pw.println("dateOfBirthErrorSection.innerHTML='Select date of birth';");
+pw.println("if(firstInvalidComponent==null) firstInvalidComponent=frm.dateOfBirth;");
+pw.println("valid=false;");
+pw.println("}");
+pw.println("var gender=frm.gender;");
+pw.println("var genderErrorSection=document.getElementById('genderErrorSection');");
+pw.println("genderErrorSection.innerHTML='';");
+pw.println("if(gender[0].checked==false && gender[1].checked==false)");
+pw.println("{");
+pw.println("genderErrorSection.innerHTML='Select gender';");
+pw.println("valid=false;");
+pw.println("}");
+pw.println("var basicSalary=frm.basicSalary.value;");
+pw.println("var basicSalaryErrorSection=document.getElementById('basicSalaryErrorSection');");
+pw.println("basicSalaryErrorSection.innerHTML='';");
+pw.println("if(basicSalary<=0)");
+pw.println("{");
+pw.println("basicSalaryErrorSection.innerHTML='Invalid basic salary';");
+pw.println("if(firstInvalidComponent==null) firstInvalidComponent=frm.basicSalary;");
+pw.println("valid=false;");
+pw.println("}");
+pw.println("var panNumber=frm.panNumber.value.trim();");
+pw.println("var panNumberErrorSection=document.getElementById('panNumberErrorSection');");
+pw.println("panNumberErrorSection.innerHTML='"+(panNumberExists==true?"PAN number exists":"")+"';");
+pw.println("if(panNumber.length==0)");
+pw.println("{");
+pw.println("panNumberErrorSection.innerHTML='PAN number required';");
+pw.println("if(firstInvalidComponent==null) firstInvalidComponent=frm.panNumber;");
+pw.println("valid=false;");
+pw.println("}");
+pw.println("var aadharCardNumber=frm.aadharCardNumber.value.trim();");
+pw.println("var aadharCardNumberErrorSection=document.getElementById('aadharCardNumberErrorSection');");
+pw.println("aadharCardNumberErrorSection.innerHTML='"+(aadharCardNumberExists==true?"Aadhar card number exists":"")+"';");
+pw.println("if(aadharCardNumber.length==0)");
+pw.println("{");
+pw.println("aadharCardNumberErrorSection.innerHTML='Aadhar card number required';");
+pw.println("if(firstInvalidComponent==null) firstInvalidComponent=frm.aadharCardNumber;");
+pw.println("valid=false;");
+pw.println("}");
+pw.println("if(!valid && firstInvalidComponent!=null) firstInvalidComponent.focus();");		//In case of gender
+pw.println("return valid;");
+pw.println("}");
+pw.println("function cancelEditing()");
+pw.println("{");
+pw.println("document.getElementById('cancelEditingForm').submit();");
+pw.println("}");
+pw.println("</script>");
+pw.println("</head>");
+pw.println("<body>");
+pw.println("<!-- Main content start here -->");
+pw.println("<div style='width:90hw;height:95vh;border:1px solid black'>");
+pw.println("<!-- header start here -->");
+pw.println("<div style='width:90hw;margin:5px;border:1px solid black'>");
+pw.println("<a href='/styleone/index.html'><img src='/styleone/images/hr_nexus_logo.png' style='width:30px;float:left'></a>");
+pw.println("<div style='margin:4px;font-size:15pt'>HR-Nexus</div>");
+pw.println("</div>");
+pw.println("<!-- header ends here -->");
+pw.println("<!-- middle content start here -->");
+pw.println("<div style='width:90hw;height:72vh;margin:5px;border:1px solid white'>");
+pw.println("<!-- left panel start here -->");
+pw.println("<div style='height:65vh;margin:5px;padding:5px;float:left;border:1px solid black'>");
+pw.println("<a href='/styleone/designationView'>Designations</a><br>");
+pw.println("<b>Employees</b><br><br>");
+pw.println("<a href='/styleone/index.html'>Home</a>");
+pw.println("</div>");
+pw.println("<!-- left panel ends here -->");
+pw.println("<!-- right panel start here -->");
+pw.println("<div style='height:65vh;margin-left:110px;margin-right:5px;margin-bottom:5px;margin-top:5px;padding:5px;overflow:scroll;border:1px solid black'>");
+pw.println("<b>Employee (Update Module)</b><br>");
+pw.println("<form method='post' action='/styleone/updateEmployee' onsubmit='return validateEmployee(this)'>");
+pw.println("<table>");
+pw.println("<input type='hidden' id='employeeId' name='employeeId' value='"+employeeId+"'>");
+pw.println("<tr>");
+pw.println("<td><b>Name: </b></td>");
+pw.println("<td>");
+pw.println("<input type='text' id='name' name='name' maxlength='50' size='51' value='"+name+"'>");
+pw.println("<span id='nameErrorSection' style='color:red'></span>");
+pw.println("</td>");
+pw.println("</tr>");
+pw.println("<tr>");
+pw.println("<td><b>Designation: </b></td>");
+pw.println("<td>");
+pw.println("<select id='designationCode' name='designationCode'>");
+pw.println("<option value='-1'>&lt;Select designation&gt;</option>");
+List<DesignationDTO> designations=null;
+try
+{
+designations=(designationDAO).getAll();
+}catch(DAOException d)
+{
+//do nothing
+}
+for(DesignationDTO designation:designations)
+{
+pw.println("<option "+(designation.getCode()==designationCode?"selected":"")+" value='"+designation.getCode()+"'>"+designation.getTitle()+"</option>");
+}
+pw.println("</select>");
+pw.println("&nbsp;<span id='designationCodeErrorSection' style='color:red'>"+(designationCodeExists==false?"Select designation":"")+"</span>");
+pw.println("</td>");
+pw.println("</tr>");
+pw.println("<tr>");
+pw.println("<td><b>Date of birth: </b></td>");
+pw.println("<td><input type='date' id='dateOfBirth' name='dateOfBirth' value='"+simpleDateFormat.format(dateOfBirth)+"'>");	//format: 'yyyy-MM-dd'
+pw.println("<span id='dateOfBirthErrorSection' style='color:red'></span></td>");
+pw.println("</tr>");
+pw.println("<tr>");
+pw.println("<td><b>Gender: </b></td>");
+pw.println("<td>");
+if(gender.equals("M")) 
+{
+pw.println("<input type='radio' checked  id='male' name='gender' value='M'>Male");
+pw.println("&nbsp;&nbsp;");
+pw.println("<input type='radio'id='female' name='gender' value='F'>Female");
+}
+else
+{
+pw.println("<input type='radio' id='male' name='gender' value='M'>Male");
+pw.println("&nbsp;&nbsp;");
+pw.println("<input type='radio' checked id='female' name='gender' value='F'>Female");
+}
+pw.println("<span id='genderErrorSection' style='color:red'></span>");
+pw.println("</td>");
+pw.println("</tr>");
+pw.println("<tr>");
+pw.println("<td><b>Indian? : </b></td>");
+pw.println("<td>");
+pw.println("<input type='checkbox' "+(isIndian?"checked":"")+" id='isIndian' name='isIndian' value='Y'>");
+pw.println("</td>");
+pw.println("</tr>");
+pw.println("<tr>");
+pw.println("<td><b>Basic Salary: </b></td>");
+pw.println("<td>");
+pw.println("<input type='number' id='basicSalary' name='basicSalary' value='"+basicSalary.toPlainString()+"'>");
+pw.println("<span id='basicSalaryErrorSection' style='color:red'></span>");
+pw.println("</td>");
+pw.println("</tr>");
+pw.println("");
+pw.println("<tr>");
+pw.println("<td><b>PAN number: </b></td>");
+pw.println("<td>");
+pw.println("<input type='text' id='panNumber' name='panNumber' maxlength='15' size='16' value='"+panNumber+"'>");
+pw.println("<span id='panNumberErrorSection' style='color:red'>"+(panNumberExists==true?"PAN number exists":"")+"</span>");
+pw.println("</td>");
+pw.println("</tr>");
+pw.println("<tr>");
+pw.println("<td><b>Aadhar card number: </b></td>");
+pw.println("<td>");
+pw.println("<input type='text' id='aadharCardNumber' name='aadharCardNumber' maxlength='15' size='16' value='"+aadharCardNumber+"'>");
+pw.println("<span id='aadharCardNumberErrorSection' style='color:red'>"+(aadharCardNumberExists==true?"Aadhar card number exists":"")+"</span>");
+pw.println("</td>");
+pw.println("</tr>");
+pw.println("<td colspan='2'>");
+pw.println("<button type='submit'>Update</button> &nbsp;&nbsp;");
+pw.println("<button type='button' onclick='cancelEditing()'>Cancel</button>");
+pw.println("</td>");
+pw.println("</table>");
+pw.println("</form>");
+pw.println("</div>");
+pw.println("<!-- right panel ends here -->");
+pw.println("</div>");
+pw.println("<!-- middle content ends here -->");
+pw.println("<!-- footer start here -->");
+pw.println("<div style='text-align:center;margin:5px;font-size:10pt;border:1px solid white'>");
+pw.println("&copy; HR-Nexus 2025");
+pw.println("</div>");
+pw.println("<!-- footer ends here -->");
+pw.println("</div>");
+pw.println("<!-- Main content ends here -->");
+pw.println("<form id='cancelEditingForm' action='/styleone/employeeView'>");
+pw.println("</form>");
+pw.println("</body>");
+pw.println("</html>");
+return ;
+}
+
+
+employeeDTO=new EmployeeDTO();
 employeeDTO.setEmployeeId(employeeId);
 employeeDTO.setName(name);
 employeeDTO.setDesignationCode(designationCode);
@@ -62,7 +324,7 @@ employeeDTO.setIsIndian(isIndian);
 employeeDTO.setBasicSalary(basicSalary);
 employeeDTO.setPANNumber(panNumber);
 employeeDTO.setAadharCardNumber(aadharCardNumber);
-(new EmployeeDAO()).update(employeeDTO);
+employeeDAO.update(employeeDTO);
 pw.println("<!DOCTYPE HTML>");
 pw.println("<html lang='en'>");
 pw.println("<head>");
@@ -165,7 +427,7 @@ pw.println("valid=false;");
 pw.println("}");
 pw.println("var panNumber=frm.panNumber.value.trim();");
 pw.println("var panNumberErrorSection=document.getElementById('panNumberErrorSection');");
-pw.println("panNumberErrorSection.innerHTML='';");
+pw.println("panNumberErrorSection.innerHTML='"+(panNumberExists==true?"PAN number exists":"")+"';");
 pw.println("if(panNumber.length==0)");
 pw.println("{");
 pw.println("panNumberErrorSection.innerHTML='PAN number required';");
@@ -174,7 +436,7 @@ pw.println("valid=false;");
 pw.println("}");
 pw.println("var aadharCardNumber=frm.aadharCardNumber.value.trim();");
 pw.println("var aadharCardNumberErrorSection=document.getElementById('aadharCardNumberErrorSection');");
-pw.println("aadharCardNumberErrorSection.innerHTML='';");
+pw.println("aadharCardNumberErrorSection.innerHTML='"+(aadharCardNumberExists==true?"Aadhar card number exists":"")+"';");
 pw.println("if(aadharCardNumber.length==0)");
 pw.println("{");
 pw.println("aadharCardNumberErrorSection.innerHTML='Aadhar card number required';");
@@ -214,13 +476,7 @@ pw.println("<b>Employee (Update Module)</b><br>");
 pw.println("<span id='errorMessage' style='color:red'>"+daoException.getMessage()+"</span>");
 pw.println("<form method='post' action='/styleone/updateEmployee' onsubmit='return validateEmployee(this)'>");
 pw.println("<table>");
-pw.println("<tr>");
-pw.println("<td><b>ID: </b></td>");
-pw.println("<td>");
-pw.println(employeeId);
 pw.println("<input type='hidden' id='employeeId' name='employeeId' value='"+employeeId+"'>");
-pw.println("</td>");
-pw.println("</tr>");
 pw.println("<tr>");
 pw.println("<td><b>Name: </b></td>");
 pw.println("<td>");
@@ -243,26 +499,19 @@ designations=(new DesignationDAO()).getAll();
 }
 for(DesignationDTO designation:designations)
 {
-if(designationCode==designation.getCode())
-{
-pw.println("<option selected value='"+designation.getCode()+"'>"+designation.getTitle()+"</option>");
-}
-else
-{
-pw.println("<option value='"+designation.getCode()+"'>"+designation.getTitle()+"</option>");
-}
+pw.println("<option "+(designation.getCode()==designationCode?"selected":"")+" value='"+designation.getCode()+"'>"+designation.getTitle()+"</option>");
 }
 pw.println("</select>");
-pw.println("&nbsp;<span id='designationCodeErrorSection' style='color:red'></span>");
+pw.println("&nbsp;<span id='designationCodeErrorSection' style='color:red'>"+(designationCodeExists==false?"Select designation":"")+"</span>");
 pw.println("</td>");
 pw.println("</tr>");
 pw.println("<tr>");
-pw.println("<td>Date of birth: </td>");
+pw.println("<td><b>Date of birth: </b></td>");
 pw.println("<td><input type='date' id='dateOfBirth' name='dateOfBirth' value='"+simpleDateFormat.format(dateOfBirth)+"'>");	//format: 'yyyy-MM-dd'
 pw.println("<span id='dateOfBirthErrorSection' style='color:red'></span></td>");
 pw.println("</tr>");
 pw.println("<tr>");
-pw.println("<td>Gender: </td>");
+pw.println("<td><b>Gender: </b></td>");
 pw.println("<td>");
 if(gender.equals("M")) 
 {
@@ -280,13 +529,13 @@ pw.println("<span id='genderErrorSection' style='color:red'></span>");
 pw.println("</td>");
 pw.println("</tr>");
 pw.println("<tr>");
-pw.println("<td>Indian? : </td>");
+pw.println("<td><b>Indian? : </b></td>");
 pw.println("<td>");
 pw.println("<input type='checkbox' "+(isIndian?"checked":"")+" id='isIndian' name='isIndian' value='Y'>");
 pw.println("</td>");
 pw.println("</tr>");
 pw.println("<tr>");
-pw.println("<td>Basic Salary: </td>");
+pw.println("<td><b>Basic Salary: </b></td>");
 pw.println("<td>");
 pw.println("<input type='number' id='basicSalary' name='basicSalary' value='"+basicSalary.toPlainString()+"'>");
 pw.println("<span id='basicSalaryErrorSection' style='color:red'></span>");
@@ -294,17 +543,17 @@ pw.println("</td>");
 pw.println("</tr>");
 pw.println("");
 pw.println("<tr>");
-pw.println("<td>PAN number: </td>");
+pw.println("<td><b>PAN number: </b></td>");
 pw.println("<td>");
 pw.println("<input type='text' id='panNumber' name='panNumber' maxlength='15' size='16' value='"+panNumber+"'>");
-pw.println("<span id='panNumberErrorSection' style='color:red'></span>");
+pw.println("<span id='panNumberErrorSection' style='color:red'>"+(panNumberExists==true?"PAN number exists":"")+"</span>");
 pw.println("</td>");
 pw.println("</tr>");
 pw.println("<tr>");
-pw.println("<td>Aadhar card number: </td>");
+pw.println("<td><b>Aadhar card number: </b></td>");
 pw.println("<td>");
 pw.println("<input type='text' id='aadharCardNumber' name='aadharCardNumber' maxlength='15' size='16' value='"+aadharCardNumber+"'>");
-pw.println("<span id='aadharCardNumberErrorSection' style='color:red'></span>");
+pw.println("<span id='aadharCardNumberErrorSection' style='color:red'>"+(aadharCardNumberExists==true?"Aadhar card number exists":"")+"</span>");
 pw.println("</td>");
 pw.println("</tr>");
 pw.println("<td colspan='2'>");
