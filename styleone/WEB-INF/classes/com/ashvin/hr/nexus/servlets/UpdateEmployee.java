@@ -77,7 +77,7 @@ return;
 try
 {
 employeeDTO=employeeDAO.getByPANNumber(panNumber);
-if(employeeDTO.getEmployeeId().equals(employeeId)==false)
+if(employeeDTO.getEmployeeId().equalsIgnoreCase(employeeId)==false)
 {
 panNumberExists=true;
 }
@@ -88,7 +88,7 @@ panNumberExists=false;
 try
 {
 employeeDTO=employeeDAO.getByAadharCardNumber(aadharCardNumber);
-if(employeeDTO.getEmployeeId().equals(employeeId)==false)
+if(employeeDTO.getEmployeeId().equalsIgnoreCase(employeeId)==false)
 {
 aadharCardNumberExists=true;
 }
