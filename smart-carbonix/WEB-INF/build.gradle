@@ -1,0 +1,12 @@
+plugins{
+id 'java'
+}
+dependencies{
+implementation files('../libs/mysql.jar')
+implementation fileTree(include:'*.jar',dir:'/media/ashvin/code/tomcat9/lib')
+}
+jar
+{
+archiveBaseName='smart-carbonix'
+destinationDirectory.set(file("$buildDir/../libs"))
+}

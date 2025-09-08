@@ -1,0 +1,163 @@
+plugins {
+    id 'java'
+    id 'war'
+    id 'eclipse-wtp'
+    id 'idea'
+}
+
+group = 'com.smartcarbonix'
+version = '1.0.0'
+description = 'Smart Carbonix - Sustainability Platform'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Servlet API
+    providedCompile 'javax.servlet:javax.servlet-api:4.0.1'
+    
+    // JSP API
+    providedCompile 'javax.servlet.jsp:javax.servlet.jsp-api:2.3.3'
+    
+    // JSTL
+    implementation 'javax.servlet:jstl:1.2'
+    
+    // PostgreSQL JDBC Driver
+    implementation 'org.postgresql:postgresql:42.6.0'
+    
+    // Apache Commons DBCP2 for Connection Pooling
+    implementation 'org.apache.commons:commons-dbcp2:2.9.0'
+    
+    // Jackson for JSON processing
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.15.2'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
+    
+    // Apache Commons Lang
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    
+    // BCrypt for password hashing
+    implementation 'org.mindrot:jbcrypt:0.4'
+    
+    // Logging
+    implementation 'org.slf4j:slf4j-api:1.7.36'
+    implementation 'ch.qos.logback:logback-classic:1.2.12'
+    
+    // JUnit for testing
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:4.6.1'
+    testImplementation 'org.springframework:spring-test:5.3.21'
+}
+
+// Gradle WAR plugin configuration
+war {
+    archiveFileName = "${project.name}-${project.version}.war"
+    from 'src/main/webapp'
+    
+    // Include all runtime dependencies in WEB-INF/lib
+    classpath configurations.runtimeClasspath
+    
+    webInf {
+        from 'src/main/resources'
+        exclude '**/*.properties'
+        exclude 'database/**'
+    }
+    
+    // Exclude provided dependencies
+    classpath = classpath - configurations.providedCompile
+}
+
+// Source sets configuration
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+        }
+        resources {
+            srcDirs = ['src/main/resources']
+        }
+    }
+    test {
+        java {
+            srcDirs = ['src/test/java']
+        }
+        resources {
+            srcDirs = ['src/test/resources']
+        }
+    }
+}
+
+// Web application directory
+webAppDirName = 'src/main/webapp'
+
+// Compilation options
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ['-Xlint:deprecation', '-Xlint:unchecked']
+}
+
+// Test configuration
+test {
+    useJUnit()
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+    }
+}
+
+// Custom tasks for development
+task copyDependencies(type: Copy) {
+    from configurations.runtimeClasspath
+    into 'lib'
+}
+
+task createDirectories {
+    doLast {
+        file('src/main/java').mkdirs()
+        file('src/main/resources').mkdirs()
+        file('src/main/webapp/WEB-INF').mkdirs()
+        file('src/test/java').mkdirs()
+        file('src/test/resources').mkdirs()
+        println 'Project directories created successfully'
+    }
+}
+
+// Database tasks
+task setupDatabase {
+    doLast {
+        println 'Database setup task - Run schema.sql manually against your PostgreSQL instance'
+        println 'Schema file location: src/main/resources/database/schema.sql'
+    }
+}
+
+// Development server task (for reference)
+task runTomcat {
+    doLast {
+        println 'To run the application:'
+        println '1. Build the WAR file: ./gradlew war'
+        println '2. Deploy to Tomcat webapps directory'
+        println '3. Access at: http://localhost:8080/smart-carbonix'
+        println ''
+        println 'For development with embedded Tomcat, consider adding:'
+        println 'id "org.gretty" version "3.0.8" to plugins block'
+    }
+}
+
+// Clean task enhancement
+clean {
+    delete 'lib'
+    delete 'build'
+    delete '.gradle'
+}
+
+// Wrapper task configuration
+wrapper {
+    gradleVersion = '7.6'
+    distributionType = Wrapper.DistributionType.ALL
+}
