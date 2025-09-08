@@ -3,6 +3,8 @@
 /host-manager/
 /manager/
 /ROOT/
+build/
+.gradle/
 
 *.class
 
