@@ -20,7 +20,6 @@ try
 designationDTO=new DesignationDTO();
 designationDTO.setTitle(designationBean.getTitle());
 designationDAO=new DesignationDAO();
-System.out.println("Title: "+designationDTO.getTitle());
 designationDAO.add(designationDTO);
 designationBean.setCode(designationDTO.getCode());
 
