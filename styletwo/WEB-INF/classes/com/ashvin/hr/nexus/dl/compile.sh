@@ -1,1 +1,1 @@
-javac -classpath ../../../../../../classes/:/media/ashvin/code/tomcat9/lib/*:. *.java
+javac -classpath ../../../../../../classes/../../../../../../libs:/media/ashvin/code/tomcat9/lib/*:. *.java

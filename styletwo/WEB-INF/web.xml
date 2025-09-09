@@ -29,6 +29,13 @@
 
     <request-character-encoding>UTF-8</request-character-encoding>
 
-
+<servlet>
+<servlet-name>AddDesignation</servlet-name>
+<servlet-class>com.ashvin.hr.nexus.servlets.AddDesignation</servlet-class>
+</servlet>
+<servlet-mapping>
+<servlet-name>AddDesignation</servlet-name>
+<url-pattern>/addDesignation</url-pattern>
+</servlet-mapping>
 
 </web-app>
