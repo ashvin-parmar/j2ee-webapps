@@ -1,11 +1,10 @@
 <jsp:useBean id='designationBean' scope='request' class='com.ashvin.hr.nexus.beans.DesignationBean' />
-<jsp:useBean id='errorBean' scope='request' class='com.ashvin.hr.nexus.beans.ErrorBean' />
 <!DOCTYPE HTML>
 <html lang='en'>
 <head>
 <meta charset='utf-8'>
 <title>HR-Nexus</title>
-<script src='/styletwo/js/EditDesignation.js'></script>
+<script src='/styletwo/js/ConfirmDeleteDesignation.js'></script>
 <link rel='stylesheet' type='text/css' href='/styletwo/css/styles.css'>
 </head>
 <body>
@@ -28,16 +27,15 @@
 <!-- left panel ends here -->
 <!-- right panel start here -->
 <div class='content-right-panel'>
-<h2>Designation (Update Module)</h2>
-<span id='updateError' class='error'>${errorBean.error}</span>
-<form method='post' action='/styletwo/UpdateDesignation.jsp' onsubmit='return validateDesignation(this)'>
-Designation
-&nbsp;
+<h2>Designation (Delete Module)</h2>
+<form method='post' action='/styletwo/DeleteDesignation.jsp' onsubmit='return validateDesignation(this)'>
+Designation: ${designationBean.title}
+Are you sure, you want to delete designation <b>${designationBean.title}</b>'?<br>
 <input type='hidden' id='code' name='code' value='${designationBean.code}'>
-<input type='text' id='title' name='title' maxlength='35' size='36' value='${designationBean.title}'>
+<input type='hidden' id='title' name='title' maxlength='35' size='36' value='${designationBean.title}'>
 <span id='titleErrorSection' style='color:red'></span><br>
-<button type='submit'>Update</button>
-<button type='button' onclick='cancelEditing()'>Cancel</button>
+<button type='submit'>Yes</button>
+<button type='button' onclick='cancelDeletion()'>No</button>
 </form>
 </div>
 <!-- right panel ends here -->
@@ -50,7 +48,7 @@ Designation
 <!-- footer ends here -->
 </div>
 <!-- Main content ends here -->
-<form id='cancelEditionForm' action='/styletwo/Designations.jsp'>
+<form id='cancelDeletionForm' action='/styletwo/Designations.jsp'>
 </form>
 </body>
 </html>
