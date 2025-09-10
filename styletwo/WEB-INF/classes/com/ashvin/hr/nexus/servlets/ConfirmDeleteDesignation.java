@@ -29,7 +29,7 @@ designationBean=new DesignationBean();
 designationBean.setCode(designationDTO.getCode());
 designationBean.setTitle(designationDTO.getTitle());
 request.setAttribute("designationBean",designationBean);
-RequestDispatcher requestDispatcher=request.getRequestDispatcher("ConfirmDeleteDesignation.jsp");
+RequestDispatcher requestDispatcher=request.getRequestDispatcher("/ConfirmDeleteDesignation.jsp");
 requestDispatcher.forward(request,response);
 }catch(DAOException daoException)
 {

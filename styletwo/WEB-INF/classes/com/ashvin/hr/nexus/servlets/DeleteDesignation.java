@@ -28,7 +28,7 @@ messageBean.setMessage(message);
 messageBean.setHasToGenerateButtons(true);
 messageBean.setHasToGenerateTwoButtons(false);
 messageBean.setButtonOneText("OK");
-messageBean.setButtonOneAction("/Designations.jsp");
+messageBean.setButtonOneAction("Designations.jsp");
 request.setAttribute("messageBean",messageBean);
 RequestDispatcher requestDispatcher=request.getRequestDispatcher("/Notification.jsp");
 requestDispatcher.forward(request,response);
