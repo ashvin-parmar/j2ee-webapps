@@ -31,10 +31,10 @@ messageBean.setHasToGenerateTwoButtons(true);
 messageBean.setButtonOneText("Yes");
 messageBean.setButtonOneAction("AddDesignationForm.jsp");
 messageBean.setButtonTwoText("No");
-messageBean.setButtonTwoAction("/styletwo/Designations.jsp");
+messageBean.setButtonTwoAction("Designations.jsp");
 request.setAttribute("messageBean",messageBean);
 RequestDispatcher requestDispatcher;
-requestDispatcher=request.getRequestDispatcher("Notification.jsp");
+requestDispatcher=request.getRequestDispatcher("/Notification.jsp");
 requestDispatcher.forward(request,response);
 }catch(DAOException daoException)
 {
@@ -42,7 +42,7 @@ ErrorBean errorBean=new ErrorBean();
 errorBean.setError(daoException.getMessage());
 request.setAttribute("errorBean",errorBean);
 RequestDispatcher requestDispatcher;
-requestDispatcher=request.getRequestDispatcher("AddDesignationForm.jsp");
+requestDispatcher=request.getRequestDispatcher("/AddDesignationForm.jsp");
 requestDispatcher.forward(request,response);
 }
 }catch(Exception exception)
