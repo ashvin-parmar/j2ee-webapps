@@ -41,4 +41,14 @@
 	<rtexprvalue>true</rtexprvalue>		<!-- run time expression value allowed -->
     </attribute>
   </tag>
+
+  <tag>
+<name>Designations</name>
+<tag-class>com.ashvin.hr.nexus.tags.DesignationsTagHandler</tag-class>
+<description>
+Custom tag for iterate on DL Designations data
+</description>
+<attribute>
+</attribute>  
+</tag>
 </taglib>
