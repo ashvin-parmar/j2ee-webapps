@@ -1,5 +1,8 @@
 <jsp:useBean id='designationBean' scope='request' class='com.ashvin.hr.nexus.beans.DesignationBean' />
 <jsp:useBean id='errorBean' scope='request' class='com.ashvin.hr.nexus.beans.ErrorBean' />
+<jsp:useBean id='moduleManagementBean' scope='request' class='com.ashvin.hr.nexus.beans.ModuleManagementBean' />
+<jsp:setProperty name='moduleManagementBean' property='module' value='${moduleManagementBean.DESIGNATION}' />
+
 <script src='/styletwo/js/AddDesignation.js'></script>
 <jsp:include page='/MasterPageTopSection.jsp' />
 <h2>Designation (Add Module)</h2>

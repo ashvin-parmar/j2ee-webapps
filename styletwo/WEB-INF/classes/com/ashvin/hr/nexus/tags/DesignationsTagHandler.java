@@ -11,9 +11,21 @@ public class DesignationsTagHandler extends BodyTagSupport
 private List<DesignationBean> designations;
 private int index;
 private DesignationBean designationBean;
+public int DESIGNATION=1;
+public int EMPLOYEE=2;
+public int HOME=0;
+public int module;
 public DesignationsTagHandler()
 {
 reset();
+}
+public void setModule(int module)
+{
+this.module=module;
+}
+public int getModule()
+{
+return this.module;
 }
 public int doStartTag()
 {
