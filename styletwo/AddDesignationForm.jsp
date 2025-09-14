@@ -2,7 +2,7 @@
 <tm:Module name='DESIGNATION' />
 <jsp:useBean id='designationBean' scope='request' class='com.ashvin.hr.nexus.beans.DesignationBean' />
 <jsp:useBean id='errorBean' scope='request' class='com.ashvin.hr.nexus.beans.ErrorBean' />
-
+<jsp:useBean id='refreshBean' scope='session' class='com.ashvin.hr.nexus.beans.RefreshBean' />
 <script src='/styletwo/js/AddDesignation.js'></script>
 <jsp:include page='/MasterPageTopSection.jsp' />
 <h2>Designation (Add Module)</h2>
@@ -14,6 +14,8 @@
 <form method='post' action='/styletwo/AddDesignation.jsp' onsubmit='return validateDesignation(this)'>
 Designation
 &nbsp;
+<jsp:setProperty name='refreshBean' property='formId' />
+<input type='hidden' id='formId' name='formId' value='${refreshBean.formId}'>
 <input type='text' id='title' name='title' maxlength='35' size='36' value='${designationBean.title}'>
 <span id='titleErrorSection' class='error'></span><br>
 <button type='submit'>Add</button>

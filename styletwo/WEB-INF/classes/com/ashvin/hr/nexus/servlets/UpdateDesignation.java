@@ -10,6 +10,26 @@ public void doPost(HttpServletRequest request,HttpServletResponse response)
 {
 try
 {
+HttpSession hs=request.getSession();
+String formId=request.getParameter("formId");
+RefreshBean refreshBean=(RefreshBean)hs.getAttribute("refreshBean");
+String formIdFromSession;
+if(refreshBean==null || formId==null || (formIdFromSession=refreshBean.getFormId())==null || !formId.equals(formIdFromSession))
+{ 
+MessageBean messageBean=new MessageBean();
+messageBean.setHeading("Designation (Update Module)");
+messageBean.setMessage("Resubmission occured, do not resubmit.");
+messageBean.setHasToGenerateButtons(true);
+messageBean.setHasToGenerateTwoButtons(false);
+messageBean.setButtonOneText("OK");
+messageBean.setButtonOneAction("Designations.jsp");
+request.setAttribute("messageBean",messageBean);
+RequestDispatcher requestDispatcher;
+requestDispatcher=request.getRequestDispatcher("/Notification.jsp");
+requestDispatcher.forward(request,response);
+}
+refreshBean.setFormId("");
+hs.setAttribute("refreshBean",refreshBean);
 DesignationBean designationBean=(DesignationBean)request.getAttribute("designationBean");
 DesignationDTO designationDTO;
 DesignationDAO designationDAO=new DesignationDAO();
