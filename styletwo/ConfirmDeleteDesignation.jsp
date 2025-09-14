@@ -1,7 +1,8 @@
+<%@ taglib uri='/WEB-INF/taglib/tmtags.tld' prefix='tm' %>
+<tm:Module name='DESIGNATION' />
+
 <jsp:useBean id='designationBean' scope='request' class='com.ashvin.hr.nexus.beans.DesignationBean' />
-<jsp:useBean id='moduleManagementBean' scope='request' class='com.ashvin.hr.nexus.beans.ModuleManagementBean' />
 <script src='/styletwo/js/ConfirmDeleteDesignation.js'></script>
-<jsp:setProperty name='moduleManagementBean' property='module' value='${moduleManagementBean.DESIGNATION}' />
 <jsp:include page='/MasterPageTopSection.jsp' />
 <h2>Designation (Delete Module)</h2>
 <form method='post' action='/styletwo/DeleteDesignation.jsp' onsubmit='return validateDesignation(this)'>

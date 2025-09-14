@@ -1,6 +1,4 @@
 <%@ taglib uri='/WEB-INF/taglib/tmtags.tld' prefix='tm' %>
-<jsp:useBean id='moduleManagementBean' scope='request' class='com.ashvin.hr.nexus.beans.ModuleManagementBean' />
-
 <!DOCTYPE HTML>
 <html lang='en'>
 <head>
@@ -22,19 +20,19 @@
 <!-- left panel start here -->
 <div class='content-left-panel'>
 
-<tm:If condition='${moduleManagementBean.module==moduleManagementBean.DESIGNATION}'>
+<tm:If condition='${module==DESIGNATION}'>
 <b>Designations</b><br>
 </tm:If>
-<tm:If condition='${moduleManagementBean.module!=moduleManagementBean.DESIGNATION}'>
+<tm:If condition='${module!=DESIGNATION}'>
 <a href='/styletwo/Designations.jsp'>Designations</a><br>
 </tm:If>
-<tm:If condition='${moduleManagementBean.module==moduleManagementBean.EMPLOYEE}'>
+<tm:If condition='${module==EMPLOYEE}'>
 <b>Employees</b><br>
 </tm:If>
-<tm:If condition='${moduleManagementBean.module!=moduleManagementBean.EMPLOYEE}'>
+<tm:If condition='${module!=EMPLOYEE}'>
 <a href='/styletwo/Employees.jsp'>Employees</a><br>
 </tm:If>
-<tm:If condition='${moduleManagementBean.module!=moduleManagementBean.HOME}'>
+<tm:If condition='${module!=HOME}'>
 <a href='/styletwo/index.jsp'>Home</a>
 </tm:If>
 </div>

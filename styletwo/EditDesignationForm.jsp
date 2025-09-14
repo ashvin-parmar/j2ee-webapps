@@ -1,8 +1,8 @@
+<%@ taglib  uri='/WEB-INF/taglib/tmtags.tld' prefix='tm' %>
+<tm:Module name='DESIGNATION' />
 <jsp:useBean id='designationBean' scope='request' class='com.ashvin.hr.nexus.beans.DesignationBean' />
 <jsp:useBean id='errorBean' scope='request' class='com.ashvin.hr.nexus.beans.ErrorBean' />
-<jsp:useBean id='moduleManagementBean' scope='request' class='com.ashvin.hr.nexus.beans.ModuleManagementBean' />
 <script src='/styletwo/js/EditDesignation.js'></script>
-<jsp:setProperty name='moduleManagementBean' property='module' value='${moduleManagementBean.DESIGNATION}' />
 <jsp:include page='/MasterPageTopSection.jsp' />
 <h2>Designation (Update Module)</h2>
 <span id='updateError' class='error'>${errorBean.error}</span>

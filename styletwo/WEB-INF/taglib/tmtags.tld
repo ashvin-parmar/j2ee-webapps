@@ -43,6 +43,20 @@
   </tag>
 
   <tag>
+    <name>Module</name>
+    <tag-class>com.ashvin.hr.nexus.tags.ModuleTagHandler</tag-class>
+    <description>
+	To process the module
+</description>
+    <attribute>
+        <name>name</name>
+        <required>true</required>		<!-- mandatory to provide condition attribute while using If tag -->
+	<rtexprvalue>true</rtexprvalue>		<!-- run time expression value allowed -->
+    </attribute>
+  </tag>
+
+
+  <tag>
 <name>Designations</name>
 <tag-class>com.ashvin.hr.nexus.tags.DesignationsTagHandler</tag-class>
 <description>

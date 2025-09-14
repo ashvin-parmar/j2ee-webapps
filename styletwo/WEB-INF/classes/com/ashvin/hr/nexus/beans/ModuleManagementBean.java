@@ -3,9 +3,9 @@ package com.ashvin.hr.nexus.beans;
 public class ModuleManagementBean implements java.io.Serializable
 {
 private int module=0;
-public static int HOME=0;
-public static int DESIGNATION=1;
-public static int EMPLOYEE=2;
+private static int HOME=0;
+private static int DESIGNATION=1;
+private static int EMPLOYEE=2;
 public ModuleManagementBean()
 {
 this.module=0;
