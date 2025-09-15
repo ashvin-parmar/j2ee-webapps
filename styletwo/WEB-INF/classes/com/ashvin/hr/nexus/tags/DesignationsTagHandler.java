@@ -50,7 +50,7 @@ designations.add(designationBean);
 index=0;
 designationBean=designations.get(index);
 pageContext.setAttribute("designationBean",designationBean,PageContext.REQUEST_SCOPE);
-pageContext.setAttribute("serialNumber",new Integer(index+1),PageContext.REQUEST_SCOPE);
+pageContext.setAttribute("serialNumber",(index+1),PageContext.REQUEST_SCOPE);
 return super.EVAL_BODY_INCLUDE;
 }
 public int doAfterBody()
