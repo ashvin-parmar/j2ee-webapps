@@ -42,6 +42,18 @@
     </attribute>
   </tag>
 
+<tag>
+<name>FormID</name>
+<tag-class>com.ashvin.hr.nexus.tags.FormIDTagHandler</tag-class>
+<description>To create specific unique form id</description>
+</tag>
+
+<tag>
+<name>FormResubmitted</name>
+<tag-class>com.ashvin.hr.nexus.tags.FormResubmittedTagHandler</tag-class>
+<description>To trigger form resubmission based on same unique id from request and session object.</description>
+</tag>
+
   <tag>
     <name>Module</name>
     <tag-class>com.ashvin.hr.nexus.tags.ModuleTagHandler</tag-class>
@@ -54,7 +66,6 @@
 	<rtexprvalue>true</rtexprvalue>		<!-- run time expression value allowed -->
     </attribute>
   </tag>
-
 
   <tag>
 <name>Designations</name>
