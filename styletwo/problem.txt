@@ -1,0 +1,8 @@
+With MY solution: ModuleManagementBean.java, RefreshBean.java Solution
+## Problems: 
+1) We have to manually set or code in specific files for JSP and servlet seperately. Only designer does not have full freedom to change and manage.
+2) Too much repeatative code are written + some of the functionality are not work well. for RefreshBean -> For multi-form web page, Unique form id as variable name is also required to be saved in session object[which cause troblem in manage formId].
+
+## Solution: 
+We should have to move with the TM's Solution -> Create TagHandler classes for specific purpose such that Designer can manage all things as per thier requirement and we does not have to also manage them in specific servlet classes. We
+have to write the management code once in the tag handler classes and then we are free to run the same generalised code many time.
