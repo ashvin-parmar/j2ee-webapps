@@ -1,0 +1,59 @@
+.error
+{
+color:red;
+}
+.main-container
+{
+width:90hw;
+height:95vh;
+border:1px solid black;
+}
+.header
+{
+width:90hw;
+margin:5px;
+border:1px solid black;
+}
+.logo
+{
+width:30px;
+float:left;
+}
+.brand-name
+{
+margin:4px;
+font-size:15pt;
+}
+.content
+{
+width:90hw;
+height:72vh;
+margin:5px;
+border:1px solid white;
+}
+.content-left-panel
+{
+height:65vh;
+margin:5px;
+padding:5px;
+float:left;
+border:1px solid black;
+}
+.content-right-panel
+{
+height:65vh;
+margin-left:110px;
+margin-right:5px;
+margin-bottom:5px;
+margin-top:5px;
+padding:5px;
+overflow:scroll;
+border:1px solid black;
+}
+.footer
+{
+text-align:center;
+margin:5px;
+font-size:10pt;
+border:1px solid white;
+}
