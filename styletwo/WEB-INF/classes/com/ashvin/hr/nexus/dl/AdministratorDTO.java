@@ -20,4 +20,18 @@ public String getPassword()
 {
 return this.password;
 }
+public boolean equals(Object object)
+{
+if(!(object instanceof AdministratorDTO)) return false;
+AdministratorDTO other=(AdministratorDTO)object;
+return this.username.equals(other.username);
+}
+public int compareTo(AdministratorDTO other)
+{
+return this.password.compareToIgnoreCase(other.password);
+}
+public int hashCode()
+{
+return this.username.hashCode();
+}
 }

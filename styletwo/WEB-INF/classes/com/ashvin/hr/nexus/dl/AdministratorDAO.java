@@ -29,7 +29,7 @@ connection.close();
 throw new DAOException("Invalid username: "+username);
 }
 resultSet.getString("username");
-String password=resultSet.getString("password");
+String password=resultSet.getString("password").trim();
 AdministratorDTO administrator=new AdministratorDTO();
 administrator.setUsername(username);
 administrator.setPassword(password);

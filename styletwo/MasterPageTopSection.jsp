@@ -15,15 +15,13 @@
 <!-- header start here -->
 <div class='header'>
 <a href='/styletwo/index.jsp'><img src='/styletwo/images/hr_nexus_logo.png' class='logo'></a>
-
-<div style='float:right;display:flex;align-items:center;padding-left:2px;padding-right:2px;'> 
-<img src='/styletwo/images/admin.png' style='width:20px;'>
-${username}
-<a href='/styletwo/logout' style='padding:4px;margin-left:4px;'>logout</a>
-</div>
-
-
 <div class='brand-name'>HR-Nexus</div>
+
+<div class='user-field'> 
+<img src='/styletwo/images/admin.png' class='user-logo'>
+${username}
+<a href='/styletwo/logout' class='logout'>Logout</a>
+</div>
 </div>
 <!-- header ends here -->
 <!-- middle content start here -->

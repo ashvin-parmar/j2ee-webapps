@@ -9,7 +9,6 @@
 <!-- footer ends here -->
 </div>
 <!-- Main content ends here -->
-</form>
 </body>
 </html>
 

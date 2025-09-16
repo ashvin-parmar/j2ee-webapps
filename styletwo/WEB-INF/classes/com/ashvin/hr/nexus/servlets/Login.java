@@ -19,16 +19,20 @@ try
 {
 AdministratorDTO administratorDTO;
 administratorDTO=(new AdministratorDAO()).getByUsername(username);
-if(administratorDTO!=null && password!=null)
-{
-String pass=administratorDTO.getPassword();
-if(pass.equals(password))
+if(administratorDTO!=null && password!=null && password.equals(administratorDTO.getPassword()))
 {
 HttpSession hs=request.getSession();
 hs.setAttribute("username",username);
 RequestDispatcher requestDispatcher=request.getRequestDispatcher("/index.jsp");
 requestDispatcher.forward(request,response);
 }
+else
+{
+ErrorBean errorBean=new ErrorBean();
+errorBean.setError("Invalid username/password");
+request.setAttribute("errorBean",errorBean);
+RequestDispatcher requestDispatcher=request.getRequestDispatcher("/LoginPage.jsp");
+requestDispatcher.forward(request,response);
 }
 }catch(DAOException daoException)
 {
@@ -39,11 +43,11 @@ RequestDispatcher requestDispatcher=request.getRequestDispatcher("/LoginPage.jsp
 requestDispatcher.forward(request,response);
 }
 }
-ErrorBean errorBean=new ErrorBean();
-errorBean.setError("Invalid username/password");
-request.setAttribute("errorBean",errorBean);
+else
+{
 RequestDispatcher requestDispatcher=request.getRequestDispatcher("/LoginPage.jsp");
 requestDispatcher.forward(request,response);
+}
 }catch(Exception exception)
 {
 System.out.println(exception);	//remove after testing
