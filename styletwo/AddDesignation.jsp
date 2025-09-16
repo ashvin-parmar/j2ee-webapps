@@ -1,4 +1,7 @@
 <%@ taglib uri='/WEB-INF/taglib/tmtags.tld' prefix='tm' %>
+<tm:ValidateLogin>
+<jsp:forward page='/LoginPage.jsp' />
+</tm:ValidateLogin>
 <tm:FormResubmitted >
 <tm:Module name='HOME' />
 <jsp:forward page='/notifyFormResubmission' />

@@ -53,6 +53,11 @@
 <tag-class>com.ashvin.hr.nexus.tags.FormResubmittedTagHandler</tag-class>
 <description>To trigger form resubmission based on same unique id from request and session object.</description>
 </tag>
+<tag>
+<name>ValidateLogin</name>
+<tag-class>com.ashvin.hr.nexus.tags.ValidateLoginTagHandler</tag-class>
+<description>To check that user did login or not.</description>
+</tag>
 
   <tag>
     <name>Module</name>
