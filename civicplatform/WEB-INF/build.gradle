@@ -1,0 +1,31 @@
+plugins {
+    id 'java'
+    id 'war'
+}
+
+group = 'com.civic.platform'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Servlet API (provided by Tomcat)
+    providedCompile 'javax.servlet:javax.servlet-api:4.0.1'
+
+    // Jersey (JAX-RS implementation)
+    implementation 'org.glassfish.jersey.containers:jersey-container-servlet:3.1.5'
+    implementation 'org.glassfish.jersey.media:jersey-media-json-jackson:3.1.5'
+
+    // Logging
+    implementation 'ch.qos.logback:logback-classic:1.4.14'
+
+    // JUnit
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+}
+
+tasks.withType(Test) {
+    useJUnitPlatform()
+}
+
