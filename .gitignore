@@ -5,6 +5,10 @@
 /ROOT/
 build/
 .gradle/
+.vite/
+node_modules/
+package-lock.json
+
 
 *.class
 
