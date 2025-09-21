@@ -1,4 +1,3 @@
-<jsp:useBean id='administratorBean' scope='request' class='com.ashvin.hr.nexus.beans.AdministratorBean' />
 <jsp:useBean id='errorBean' scope='request' class='com.ashvin.hr.nexus.beans.ErrorBean' />
 
 <!DOCTYPE HTML>
@@ -27,11 +26,11 @@
 </span>
 <form method='post' action='/styletwo/Login.jsp' onsubmit='return validateLoginForm(this)'>
 <b>Username: </b>
-<input type='text' id='username' name='username' maxlength='16' size='16' value='${administratorBean.username}'><br>
+<input type='text' id='username' name='username' maxlength='16' size='16' ><br>
 <span id='usernameErrorSection' class='error'></span>
 <br>
 <b>Password: </b>
-<input type='password' id='password' name='password' maxlength='16' size='16' value='${administratorBean.password}'><br>
+<input type='password' id='password' name='password' maxlength='16' size='16'><br>
 <span id='passwordErrorSection' class='error'></span>
 <br>
 <center><button type='submit' class='login-button'>log-in</button></center>

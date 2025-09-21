@@ -16,14 +16,16 @@
 </tr>
 </thead>
 <tbody>
-<tm:Designations>
+<tm:EntityList populateClass='com.ashvin.hr.nexus.dl.DesignationDAO'
+	       populateMethod='getAll' 
+	       name='designationBean'>
 <tr>
 <td style='text-align:right'>${serialNumber}</td>
 <td>${designationBean.title}</td>
 <td style='text-align:center'><a href='/styletwo/editDesignation?code=${designationBean.code}'>edit</a></td>
 <td style='text-align:center'><a href='/styletwo/confirmDeleteDesignation?code=${designationBean.code}'>delete</a></td>
 </tr>
-</tm:Designations>
+</tm:EntityList>
 </tbody>
 </table>
 <jsp:include page='/MasterPageBottomSection.jsp' />
