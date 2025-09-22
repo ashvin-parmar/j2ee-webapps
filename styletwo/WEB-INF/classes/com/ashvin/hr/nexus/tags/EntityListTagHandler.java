@@ -88,9 +88,7 @@ System.out.println(ite);
 return super.SKIP_BODY;
 }
 if(list.size()==0) return super.SKIP_BODY;
-System.out.println("Size: "+list.size());
 index=0;
-System.out.println(list.get(index));
 pageContext.setAttribute("serialNumber",(index+1),PageContext.REQUEST_SCOPE);
 pageContext.setAttribute(this.name,list.get(index),PageContext.REQUEST_SCOPE);
 return super.EVAL_BODY_INCLUDE;
@@ -99,7 +97,6 @@ public int doAfterBody()
 {
 index++;
 if(index==list.size()) return super.SKIP_BODY;
-System.out.println(list.get(index));
 pageContext.setAttribute("serialNumber",(index+1),PageContext.REQUEST_SCOPE);
 pageContext.setAttribute(this.name,list.get(index),PageContext.REQUEST_SCOPE);
 return super.EVAL_BODY_AGAIN;

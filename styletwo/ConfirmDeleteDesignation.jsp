@@ -6,13 +6,13 @@
 <jsp:include page='/MasterPageTopSection.jsp' />
 <h2>Designation (Delete Module)</h2>
 <form method='post' action='/styletwo/DeleteDesignation.jsp' onsubmit='return validateDesignation(this)'>
-Designation: ${designationBean.title}
-Are you sure, you want to delete designation <b>${designationBean.title}</b>'?<br>
 <tm:FormID />
+<b>Designation: </b>${designationBean.title}<br><br>
+Are you sure, you want to delete designation <b>${designationBean.title}</b>'?
 <input type='hidden' id='code' name='code' value='${designationBean.code}'>
-<input type='hidden' id='title' name='title' maxlength='35' size='36' value='${designationBean.title}'>
-<span id='titleErrorSection' style='color:red'></span><br>
-<button type='submit'>Yes</button>
+<input type='hidden' id='code' name='title' value='${designationBean.title}'>
+<span id='titleErrorSection' class='error'></span><br>
+<button type='submit' >Yes</button>&nbsp;&nbsp;&nbsp;
 <button type='button' onclick='cancelDeletion()'>No</button>
 </form>
 <form id='cancelDeletionForm' action='/styletwo/Designations.jsp'>

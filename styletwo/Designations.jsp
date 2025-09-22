@@ -3,16 +3,17 @@
 <jsp:useBean id="designationBean" scope="request" class="com.ashvin.hr.nexus.beans.DesignationBean" />
 <jsp:include page='/MasterPageTopSection.jsp' />
 <h2>Designations</h2>
+<link rel='stylesheet' type='text/css' href='/styletwo/css/designation.css'>
 <table border='1'>
 <thead>
 <tr>
-<th colspan='4' style='text-align:right'><a href='/styletwo/AddDesignationForm.jsp'>Add new designation</a></th>
+<th colspan='4' class='designation-add-option'><a href='/styletwo/AddDesignationForm.jsp'>Add new designation</a></th>
 </tr>
 <tr>
-<th style='width:40px;text-align:center'>S.No.</th>
-<th style='width:200px;text-align:center'>Designation</th>
-<th style='width:80px;text-align:center'>Edit</th>
-<th style='width:80px;text-align:center'>Delete</th>
+<th class='designation-column-sno'>S.No.</th>
+<th class='designation-column-designation'>Designation</th>
+<th class='designation-column-edit'>Edit</th>
+<th class='designation-column-delete'>Delete</th>
 </tr>
 </thead>
 <tbody>
@@ -20,10 +21,10 @@
 	       populateMethod='getAll' 
 	       name='designationBean'>
 <tr>
-<td style='text-align:right'>${serialNumber}</td>
+<td class='designation-data-sno'>${serialNumber}</td>
 <td>${designationBean.title}</td>
-<td style='text-align:center'><a href='/styletwo/editDesignation?code=${designationBean.code}'>edit</a></td>
-<td style='text-align:center'><a href='/styletwo/confirmDeleteDesignation?code=${designationBean.code}'>delete</a></td>
+<td class='designation-data-edit'><a href='/styletwo/editDesignation?code=${designationBean.code}'>edit</a></td>
+<td class='designation-data-delete'><a href='/styletwo/confirmDeleteDesignation?code=${designationBean.code}'>delete</a></td>
 </tr>
 </tm:EntityList>
 </tbody>

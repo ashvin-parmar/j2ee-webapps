@@ -7,6 +7,17 @@ import com.ashvin.hr.nexus.beans.*;
 
 public class DeleteDesignation extends HttpServlet
 {
+public void doGet(HttpServletRequest request,HttpServletResponse response)
+{
+try
+{
+RequestDispatcher requestDispatcher=request.getRequestDispatcher("");
+requestDispatcher.forward(request,response);
+}catch(Exception exception)
+{
+//do nothing
+}
+}
 public void doPost(HttpServletRequest request,HttpServletResponse response)
 {
 try
