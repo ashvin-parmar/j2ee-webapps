@@ -7,8 +7,7 @@ public class EmployeeDTO implements java.io.Serializable,Comparable<EmployeeDTO>
 {
 private String employeeId;
 private String name;
-private int designationCode;
-private String designation;
+private DesignationDTO designation;
 private Date dateOfBirth;
 private String gender;
 private boolean isIndian;
@@ -19,8 +18,7 @@ public EmployeeDTO()
 {
 this.employeeId="";
 this.name="";
-this.designationCode=0;
-this.designation="";
+this.designation=null;
 this.dateOfBirth=null;
 this.gender="";
 this.isIndian=false;
@@ -44,19 +42,11 @@ public java.lang.String getName()
 {
 return this.name;
 }
-public void setDesignationCode(int designationCode)
-{
-this.designationCode=designationCode;
-}
-public int getDesignationCode()
-{
-return this.designationCode;
-}
-public void setDesignation(java.lang.String designation)
+public void setDesignation(DesignationDTO designation)
 {
 this.designation=designation;
 }
-public java.lang.String getDesignation()
+public DesignationDTO getDesignation()
 {
 return this.designation;
 }

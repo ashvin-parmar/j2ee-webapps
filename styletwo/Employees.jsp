@@ -22,7 +22,7 @@
 </thead>
 <tbody>
 
-<tm:EntityList populateClass='com.ashvin.hr.nexus.dl.EmployeeDAO' populateMethod='getAll' name='employee'>
+<tm:EntityList populateClass='com.ashvin.hr.nexus.bl.EmployeeBL' populateMethod='getAll' name='employee'>
 <tr class='employee-table-row' onclick='selectEmployee(this,"${employee.employeeId}")'>
 <td class='employee-data-sno'>${serialNumber}.</td>
 <td class='employee-data-id'>${employee.employeeId}</td>

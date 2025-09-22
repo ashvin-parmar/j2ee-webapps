@@ -88,11 +88,11 @@ public String getBasicSalary()
 {
 return this.basicSalary;
 }
-public void setPanNumber(java.lang.String panNumber)
+public void setPANNumber(java.lang.String panNumber)
 {
 this.panNumber=panNumber;
 }
-public java.lang.String getPanNumber()
+public java.lang.String getPANNumber()
 {
 return this.panNumber;
 }
