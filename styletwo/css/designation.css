@@ -1,7 +1,7 @@
 .designation-add-option
 {
 text-align:right;
-padding-right:5px;
+padding-right:15px;
 }
 .designation-column-sno
 {
@@ -30,6 +30,7 @@ text-align:right;
 .designation-data-title
 {
 text-align:left;
+padding-left:5px;
 }
 .designation-data-edit
 {

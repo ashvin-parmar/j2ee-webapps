@@ -1,6 +1,5 @@
 <%@ taglib uri='/WEB-INF/taglib/tmtags.tld' prefix='tm' %>
 <tm:Module name='DESIGNATION' />
-<jsp:useBean id="designationBean" scope="request" class="com.ashvin.hr.nexus.beans.DesignationBean" />
 <jsp:include page='/MasterPageTopSection.jsp' />
 <h2>Designations</h2>
 <link rel='stylesheet' type='text/css' href='/styletwo/css/designation.css'>
@@ -17,12 +16,12 @@
 </tr>
 </thead>
 <tbody>
-<tm:EntityList populateClass='com.ashvin.hr.nexus.dl.DesignationDAO'
+<tm:EntityList populateClass='com.ashvin.hr.nexus.bl.DesignationBL'
 	       populateMethod='getAll' 
 	       name='designationBean'>
 <tr>
 <td class='designation-data-sno'>${serialNumber}</td>
-<td>${designationBean.title}</td>
+<td class='designation-data-title'>${designationBean.title}</td>
 <td class='designation-data-edit'><a href='/styletwo/editDesignation?code=${designationBean.code}'>edit</a></td>
 <td class='designation-data-delete'><a href='/styletwo/confirmDeleteDesignation?code=${designationBean.code}'>delete</a></td>
 </tr>
