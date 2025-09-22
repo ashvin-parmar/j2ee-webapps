@@ -30,7 +30,7 @@ employee.setIsIndian(dlEmployee.getIsIndian());
 employee.setGender((dlEmployee.getGender().equals("M")?"Male":"Female"));
 employee.setDateOfBirth(sdf.format(dlEmployee.getDateOfBirth()));
 employee.setBasicSalary(dlEmployee.getBasicSalary().toPlainString());
-employee.setPANNumber(dlEmployee.getPANNumber());
+employee.setPanNumber(dlEmployee.getPANNumber());
 employee.setAadharCardNumber(dlEmployee.getAadharCardNumber());
 employees.add(employee);
 }

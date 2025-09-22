@@ -17,7 +17,7 @@ this.employeeId="";
 this.name="";
 this.designationCode=0;
 this.designation="";
-this.dateOfBirth="";
+this.dateOfBirth="1970-01-01";
 this.gender="";
 this.isIndian=false;
 this.basicSalary="";
@@ -88,11 +88,11 @@ public String getBasicSalary()
 {
 return this.basicSalary;
 }
-public void setPANNumber(java.lang.String panNumber)
+public void setPanNumber(java.lang.String panNumber)
 {
 this.panNumber=panNumber;
 }
-public java.lang.String getPANNumber()
+public java.lang.String getPanNumber()
 {
 return this.panNumber;
 }
