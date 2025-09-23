@@ -12,6 +12,13 @@ public void doGet(HttpServletRequest request,HttpServletResponse response)
 int code=0;
 try
 {
+HttpSession hs=request.getSession();
+if(hs.getAttribute("username")==null)
+{
+RequestDispatcher requestDispatcher=request.getRequestDispatcher("/LoginPage.jsp");
+requestDispatcher.forward(request,response);
+return;
+}
 try
 {
 code=Integer.parseInt(request.getParameter("code"));

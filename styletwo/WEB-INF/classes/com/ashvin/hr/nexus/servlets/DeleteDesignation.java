@@ -11,6 +11,13 @@ public void doGet(HttpServletRequest request,HttpServletResponse response)
 {
 try
 {
+HttpSession hs=request.getSession();
+if(hs.getAttribute("username")==null)
+{
+RequestDispatcher requestDispatcher=request.getRequestDispatcher("/LoginPage.jsp");
+requestDispatcher.forward(request,response);
+return;
+}
 RequestDispatcher requestDispatcher=request.getRequestDispatcher("");
 requestDispatcher.forward(request,response);
 }catch(Exception exception)

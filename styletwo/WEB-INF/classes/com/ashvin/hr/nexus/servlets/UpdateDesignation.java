@@ -10,6 +10,13 @@ public void doPost(HttpServletRequest request,HttpServletResponse response)
 {
 try
 {
+HttpSession hs=request.getSession();
+if(hs.getAttribute("username")==null)
+{
+RequestDispatcher requestDispatcher=request.getRequestDispatcher("/LoginPage.jsp");
+requestDispatcher.forward(request,response);
+return;
+}
 DesignationBean designationBean=(DesignationBean)request.getAttribute("designationBean");
 DesignationDTO designationDTO;
 DesignationDAO designationDAO=new DesignationDAO();
