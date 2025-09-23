@@ -95,6 +95,15 @@
 <url-pattern>/logout</url-pattern>
 </servlet-mapping>
 
+<servlet>
+<servlet-name>Employees</servlet-name>
+<servlet-class>com.ashvin.hr.nexus.servlets.Employees</servlet-class>
+</servlet>
+<servlet-mapping>
+<servlet-name>Employees</servlet-name>
+<url-pattern>/js/Employees.js</url-pattern>
+</servlet-mapping>
+
 <welcome-file-list>
 <welcome-file>LoginPage.jsp</welcome-file>
 </welcome-file-list>

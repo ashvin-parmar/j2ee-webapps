@@ -7,12 +7,11 @@ this.designation="";
 this.dateOfBirth="";
 this.gender="";
 this.isIndian=true;
-this.basicSalary=0;
+this.basicSalary="0";
 this.panNumber="";
 this.aadharCardNumber="";
 }
 var employees=[];
-
 var selectedRow=null;
 function selectEmployee(row,employeeId)
 {
@@ -44,4 +43,6 @@ document.getElementById('detailsPanel_basicSalary').innerHTML=emp.basicSalary;
 document.getElementById('detailsPanel_panNumber').innerHTML=emp.panNumber;
 document.getElementById('detailsPanel_aadharCardNumber').innerHTML=emp.aadharCardNumber;
 }
+
+
 
