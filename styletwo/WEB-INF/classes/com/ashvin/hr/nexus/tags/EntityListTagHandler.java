@@ -46,22 +46,21 @@ public void reset()
 if(list!=null) list.clear();
 list=null;
 index=0;
-populateClass="";
-populateMethod="";
-name="";
+populateClass=null;
+populateMethod=null;
+name=null;
 }
 public int doStartTag()
 {
 try
 {
+if(name==null || name.trim().length()==0) return super.SKIP_BODY;
 Class c=Class.forName(this.populateClass);
-if(c==null) return super.SKIP_BODY;
-Method m=c.getMethod(this.populateMethod);
-if(m==null) return super.SKIP_BODY;
-Class methodReturnType=m.getReturnType();
 Object obj=c.newInstance();
-Object listObject=m.invoke(obj);
-list=(List<Class>)listObject;
+Class parameters[]=new Class[0]; 
+Method method=c.getMethod(this.populateMethod,parameters);
+Object listObject=method.invoke(obj);
+list=(List)listObject;
 }catch(NoSuchMethodException nsme)		//line 23
 {
 System.out.println("Exception raise because no such type of methods exist against respective class");
@@ -87,10 +86,11 @@ catch(InvocationTargetException ite)	// when exception raise on calling some met
 System.out.println(ite);
 return super.SKIP_BODY;
 }
-if(list.size()==0) return super.SKIP_BODY;
+if(list==null || list.size()==0) return super.SKIP_BODY;
 index=0;
+Object bean=list.get(index);
 pageContext.setAttribute("serialNumber",(index+1),PageContext.REQUEST_SCOPE);
-pageContext.setAttribute(this.name,list.get(index),PageContext.REQUEST_SCOPE);
+pageContext.setAttribute(this.name,bean,PageContext.REQUEST_SCOPE);
 return super.EVAL_BODY_INCLUDE;
 }
 public int doAfterBody()

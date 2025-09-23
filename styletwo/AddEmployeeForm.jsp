@@ -23,15 +23,13 @@
 <tm:EntityList populateClass='com.ashvin.hr.nexus.bl.DesignationBL' 
 	       populateMethod='getAll'
 	       name='designation' >
-<option value='${designation.code}'>${designation.title}</option>
-<%--
-<tm:If condition='(${designation.code})==(${employeeBean.designationCode})'>
+<tm:If condition='${designation.code==employeeBean.designationCode}'>
 <option selected value='${designation.code}'>${designation.title}</option>
 </tm:If>
-<tm:If condition='${designation.code==employeeBean.designationCode}'>
+<tm:If condition='${designation.code!=employeeBean.designationCode}'>
 <option value='${designation.code}'>${designation.title}</option>
 </tm:If>
---%>
+
 </tm:EntityList>
 </select>
 &nbsp;<span id='designationCodeErrorSection' style='color:red'></span>
@@ -45,25 +43,28 @@
 <tr>
 <td>Gender: </td>
 <td>
-<%-- tm:If tags are required --%>
-<input type='radio' id='male' name='gender' value='Male'>Male
+<tm:If condition='${!employeeBean.isFemale()}'>
+<input checked type='radio' id='male' name='gender' value='Male'>Male
 &nbsp;&nbsp;
-<input type='radio' id='female' name='gender' value=''>Female
+<input type='radio' id='female' name='gender' value='Female'>Female
+</tm:If>
+<tm:If condition='${employeeBean.isFemale()}'>
+<input type='radio' id='male' name='male' value='Male'>Male
+&nbsp;&nbsp;      
+<input checked type='radio' id='female' name='gender' value='Female'>Female
+</tm:If>
 <span id='genderErrorSection' style='color:red'></span>
 </td>
 </tr>
 <tr>
 <td>Indian? : </td>
 <td>
-<%--
 <tm:If condition='${employeeBean.isIndian}'>
-<input type='checkbox' id='isIndian' name='isIndian' value='Y'>
+<input checked type='checkbox' id='isIndian' name='isIndian' value='Y'>
 </tm:If>
-<tm:If condition='!${employeeBean.isIndian}'>
+<tm:If condition='${!employeeBean.isIndian}'>
 <input type='checkbox' id='isIndian' name='isIndian' value='N'>
 </tm:If>
---%>
-<input type='checkbox' id='isIndian' name='isIndian'>
 </td>
 </tr>
 <tr>

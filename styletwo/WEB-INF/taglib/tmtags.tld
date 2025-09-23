@@ -80,14 +80,17 @@
 <attribute>
 	<name>populateClass</name>
 	<required>true</required>
+	<rtexprvalue>true</rtexprvalue>
 </attribute>
 <attribute>
 	<name>populateMethod</name>
 	<required>true</required>
+	<rtexprvalue>true</rtexprvalue>
 </attribute>
 <attribute>
 	<name>name</name>
 	<required>true</required>
+	<rtexprvalue>true</rtexprvalue>
 </attribute>
 </tag>
 

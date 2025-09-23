@@ -24,6 +24,18 @@ this.basicSalary="";
 this.panNumber="";
 this.aadharCardNumber="";
 }
+public boolean isMale()
+{
+return this.gender.equals("Male");
+}
+public boolean isFemale()
+{
+return this.gender.equals("Female");
+}
+public boolean isIndian()
+{
+return this.isIndian;
+}
 public void setEmployeeId(java.lang.String employeeId)
 {
 this.employeeId=employeeId;
