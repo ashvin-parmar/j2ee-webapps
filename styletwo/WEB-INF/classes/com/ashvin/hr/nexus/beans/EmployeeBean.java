@@ -1,5 +1,5 @@
 package com.ashvin.hr.nexus.beans;
-public class EmployeeBean implements java.io.Serializable
+public class EmployeeBean implements java.io.Serializable,Comparable<EmployeeBean>
 {
 private String employeeId;
 private String name;
@@ -115,5 +115,19 @@ this.aadharCardNumber=aadharCardNumber;
 public java.lang.String getAadharCardNumber()
 {
 return this.aadharCardNumber;
+}
+public boolean equals(Object object)
+{
+if(!(object instanceof EmployeeBean)) return false;
+EmployeeBean other=(EmployeeBean)object;
+return this.employeeId.equals(other.employeeId);
+}
+public int compareTo(EmployeeBean other)
+{
+return this.employeeId.compareTo(other.employeeId);
+}
+public int hashCode()
+{
+return this.employeeId.hashCode();
 }
 }

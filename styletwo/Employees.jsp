@@ -2,6 +2,7 @@
 <tm:Module name='EMPLOYEE' />
 <jsp:include page='/MasterPageTopSection.jsp' />
 <script src='/styletwo/js/Employees.js'></script>
+<jsp:include page='EmployeeJS.jsp' />
 <b>Employees</b><br>
 <!-- table division start here -->
 <link rel='stylesheet' type='text/css' href='/styletwo/css/employee.css'>
