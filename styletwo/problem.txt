@@ -6,3 +6,34 @@ With MY solution: ModuleManagementBean.java, RefreshBean.java Solution
 ## Solution: 
 We should have to move with the TM's Solution -> Create TagHandler classes for specific purpose such that Designer can manage all things as per thier requirement and we does not have to also manage them in specific servlet classes. We
 have to write the management code once in the tag handler classes and then we are free to run the same generalised code many time.
+
+
+-------------------------------------------------------------------------------
+
+For JavaScript Solutions : 
+Solution 01: Uses JSP to write <script> tag and uses jsp:include tags to directly call that script jsp from whenever we want.
+Issue: Client can view source to see the complete HTML -> Bad Approuch
+
+Solution 02: Uses Servlet to write from <javascript> -> .js  + more using dynamic from servlet using pw.println() + [ServletContext.getRealPath("")+WEB-INF/js/Employees.js]
+***
+Trick: 	Uses <url-pattern>/js/Employees.js</url-pattern> for respective servlet 
+***
+Problem/Issue: Two times loop/traversal are used for  ->
+	 Firstly: In servlet -> for javascript employees DS creation
+	Secondly: In JSP for Table creation
+
+Solution 03:
+1) Uses Servlet url-pattern Trick for reference
+2) Dynamically uses template given by user for table  in <script> tag to generate same formate data for all employees to populate Data Structures from JavaScripts DS/DOM.
+
+1) Initially -> Try in main JSP, After finalize move this to [com.ashvin.hr.nexus.servlets.Employees.java -> <url-pattern>/js/Employees.js</url-pattern>] servlet.
+*** Uses alert('element') to get whatever element invalid or something. [Good habit]
+2) Each element from table are fetched based on thier TagName. 
+3) Uses remove to remove template -> cloneNode -> appendChild [again and again] to store all DS in template with actual data.
+
+4) Uses window.addEventListener('load',populateEmployeeGridTable);	
+5) Provide id,names to all tags seperately such that they can used wisely.
+
+
+--------------------------------------------------------------------------------
+
