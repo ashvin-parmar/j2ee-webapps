@@ -2,15 +2,16 @@
 <jsp:useBean id='employeeBean' scope='request' class='com.ashvin.hr.nexus.beans.EmployeeBean' />
 <jsp:useBean id='errorBean' scope='request' class='com.ashvin.hr.nexus.beans.ErrorBean' />
 <tm:Module name='EMPLOYEE' />
-<script src='/styletwo/js/AddEmployee.js'></script>
+<script src='js/EditEmployee.js'></script>
 <jsp:include page='/MasterPageTopSection.jsp' />
-<b>Employee (Add Module)</b><br>
-<form method='post' action='/styletwo/AddEmployee.jsp' onsubmit='return validateEmployee(this)'>
+<b>Employee (Update Module)</b>
+<form method='post' action='/styletwo/UpdateEmployee.jsp' onsubmit='return validateEmployee(this)'>
 <tm:FormID />
 <span class='error'>
 <jsp:getProperty name='errorBean' property='error'/>
 </span>
 <table>
+<input type='hidden' id='employeeId' name='employeeId' value='${employeeBean.employeeId}'>
 <tr>
 <td>Name: </td>
 <td>
@@ -18,7 +19,6 @@
 <span id='nameErrorSection' style='color:red'></span>
 </td>
 </tr>
-
 <tr>
 <td>Designation: </td>
 <td>
@@ -66,7 +66,7 @@
 <input checked type='checkbox' id='isIndian' name='isIndian' value='true'>
 </tm:If>
 <tm:If condition='${!employeeBean.isIndian}'>
-<input type='checkbox' id='isIndian' name='isIndian' >
+<input type='checkbox' id='isIndian' name='isIndian'>
 </tm:If>
 </td>
 </tr>
@@ -86,18 +86,18 @@
 </td>
 </tr>
 <tr>
-<td>Aadhar card number: </td>
+<td>Aadhar card number:</td>
 <td>
 <input type='text' id='aadharCardNumber' name='aadharCardNumber' maxlength='15' size='16' value='${employeeBean.aadharCardNumber}'>
 <span id='aadharCardNumberErrorSection' style='color:red'></span>
 </td>
 </tr>
 <td colspan='2'>
-<button type='submit'>Add</button> &nbsp;&nbsp;
-<button type='button' onclick='cancelAddition()'>Cancel</button>
+<button type='submit'>Update</button> &nbsp;&nbsp;
+<button type='button' onclick='cancelEditing()'>Cancel</button>
 </td>
 </table>
 </form>
-<form id='cancelAdditionForm' action='/styletwo/Employees.jsp'>
+<form id='cancelEditingForm'>
 </form>
 <jsp:include page='/MasterPageBottomSection.jsp' />

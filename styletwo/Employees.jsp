@@ -53,15 +53,10 @@ if(placeHolderFor=="basicSalary") cellTemplate.innerHTML=employees[i].basicSalar
 if(placeHolderFor=="isIndian") cellTemplate.innerHTML=employees[i].isIndian;
 if(placeHolderFor=="panNumber") cellTemplate.innerHTML=emloyees[i].panNumber;
 if(placeHolderFor=="aadharCardNumber") cellTemplate.innerHTML=employees[i].aadharCardNumber;
-if(placeHolderFor=="editOption") cellTemplate.innerHTML="<a href='/styletwo/editEmployee?"+employees[i].employeeId+"'>Edit</a>";
-if(placeHolderFor=="deleteOption") cellTemplate.innerHTML="<a href='/styletwo/confirmDeleteEmployee?"+employees[i].employeeId+"'>Delete</a>";
+if(placeHolderFor=="editOption") cellTemplate.innerHTML="<a href='/styletwo/editEmployee?employeeId="+employees[i].employeeId+"'>Edit</a>";
+if(placeHolderFor=="deleteOption") cellTemplate.innerHTML="<a href='/styletwo/confirmDeleteEmployee?employeeId="+employees[i].employeeId+"'>Delete</a>";
 }
 }
-
-
-
-
-
 }
 window.addEventListener('load',populateEmployeesGridTable);
 </script>
