@@ -131,6 +131,24 @@
 <url-pattern>/updateEmployee</url-pattern>
 </servlet-mapping>
 
+<servlet>
+<servlet-name>ConfirmDeleteEmployee</servlet-name>
+<servlet-class>com.ashvin.hr.nexus.servlets.ConfirmDeleteEmployee</servlet-class>
+</servlet>
+<servlet-mapping>
+<servlet-name>ConfirmDeleteEmployee</servlet-name>
+<url-pattern>/confirmDeleteEmployee</url-pattern>
+</servlet-mapping>
+
+<servlet>
+<servlet-name>DeleteEmployee</servlet-name>
+<servlet-class>com.ashvin.hr.nexus.servlets.DeleteEmployee</servlet-class>
+</servlet>
+<servlet-mapping>
+<servlet-name>DeleteEmployee</servlet-name>
+<url-pattern>/deleteEmployee</url-pattern>
+</servlet-mapping>
+
 <welcome-file-list>
 <welcome-file>LoginPage.jsp</welcome-file>
 </welcome-file-list>

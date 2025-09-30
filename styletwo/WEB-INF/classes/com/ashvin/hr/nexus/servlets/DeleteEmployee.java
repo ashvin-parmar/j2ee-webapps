@@ -5,13 +5,13 @@ import javax.servlet.http.*;
 import com.ashvin.hr.nexus.dl.*;
 import com.ashvin.hr.nexus.beans.*;
 
-public class DeleteDesignation extends HttpServlet
+public class DeleteEmployee extends HttpServlet
 {
 public void doGet(HttpServletRequest request,HttpServletResponse response)
 {
 try
 {
-RequestDispatcher requestDispatcher=request.getRequestDispatcher("/Designations.jsp");
+RequestDispatcher requestDispatcher=request.getRequestDispatcher("/Employees.jsp");
 requestDispatcher.forward(request,response);
 }catch(Exception exception)
 {
@@ -29,25 +29,24 @@ RequestDispatcher requestDispatcher=request.getRequestDispatcher("/LoginPage.jsp
 requestDispatcher.forward(request,response);
 return;
 }
-
-DesignationBean designationBean=(DesignationBean)request.getAttribute("designationBean");
+EmployeeBean employeeBean=(EmployeeBean)request.getAttribute("employeeBean");
 String message="";
-DesignationDAO designationDAO=new DesignationDAO();
+EmployeeDAO employeeDAO=new EmployeeDAO();
 try
 {
-designationDAO.deleteByCode(designationBean.getCode());
-message="Designation: "+designationBean.getTitle()+" deleted";
+employeeDAO.deleteByEmployeeId(employeeBean.getEmployeeId());
+message="Employee: "+employeeBean.getName()+" deleted";
 }catch(DAOException daoException)
 {
 message=daoException.getMessage();
 }
 MessageBean messageBean=new MessageBean();
-messageBean.setHeading("Designation (Delete Module)");
+messageBean.setHeading("Employee (Delete Module)");
 messageBean.setMessage(message);
 messageBean.setHasToGenerateButtons(true);
 messageBean.setHasToGenerateTwoButtons(false);
 messageBean.setButtonOneText("OK");
-messageBean.setButtonOneAction("Designations.jsp");
+messageBean.setButtonOneAction("Employees.jsp");
 request.setAttribute("messageBean",messageBean);
 RequestDispatcher requestDispatcher=request.getRequestDispatcher("/Notification.jsp");
 requestDispatcher.forward(request,response);

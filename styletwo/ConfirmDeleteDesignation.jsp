@@ -11,7 +11,6 @@
 Are you sure, you want to delete designation <b>${designationBean.title}</b>'?
 <input type='hidden' id='code' name='code' value='${designationBean.code}'>
 <input type='hidden' id='code' name='title' value='${designationBean.title}'>
-<span id='titleErrorSection' class='error'></span><br>
 <button type='submit' >Yes</button>&nbsp;&nbsp;&nbsp;
 <button type='button' onclick='cancelDeletion()'>No</button>
 </form>
