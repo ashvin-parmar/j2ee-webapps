@@ -3,6 +3,14 @@
 <jsp:include page='/MasterPageTopSection.jsp' />
 <script src='/styletwo/js/Employees.js'></script>
 <script>
+function createDynamicRowClickHandler(rowAddress,employeeId)
+{
+return function()
+{
+selectEmployee(rowAddress,employeeId);
+};
+}
+
 function populateEmployeesGridTable()
 {
 //alert("Something");
@@ -31,7 +39,9 @@ dynamicRowTemplate=employeesGridTableRowTemplate.cloneNode(true);
 //alert(dynamicRowTemplate.innerHTML);
 employeesGridTableBodyTemplate.appendChild(dynamicRowTemplate);
 //alert(employees[i].employeeId);
-dynamicRowTemplate.setAttribute("onclick","selectEmployee(this,'"+employees[i].employeeId+"')");
+//dynamicRowTemplate.setAttribute("onclick","selectEmployee(this,'"+employees[i].employeeId+"')");
+//Dynamically set onclick attribute to a 'tr' tag
+dynamicRowTemplate.onclick=createDynamicRowClickHandler(dynamicRowTemplate,employees[i].employeeId);
 dynamicRowCells=dynamicRowTemplate.getElementsByTagName("td");
 for(k=0;k<dynamicRowCells.length;k++)
 {
