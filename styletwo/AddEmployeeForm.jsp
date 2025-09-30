@@ -66,7 +66,7 @@
 <input checked type='checkbox' id='isIndian' name='isIndian' value='true'>
 </tm:If>
 <tm:If condition='${!employeeBean.isIndian}'>
-<input type='checkbox' id='isIndian' name='isIndian' >
+<input type='checkbox' id='isIndian' name='isIndian' value='true'>
 </tm:If>
 </td>
 </tr>

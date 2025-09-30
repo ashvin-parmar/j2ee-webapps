@@ -49,10 +49,10 @@ for(EmployeeBean employee:employees)
 pw.println("employee=new Employee();");
 pw.println("employee.employeeId=\""+employee.getEmployeeId()+"\";");
 pw.println("employee.name=\""+employee.getName()+"\";");
-pw.println("employee.designationCode=\""+employee.getDesignationCode()+"\";");
+pw.println("employee.designationCode="+employee.getDesignationCode()+";");
 pw.println("employee.designation=\""+employee.getDesignation()+"\";");
 pw.println("employee.gender=\""+employee.getGender()+"\";");
-pw.println("employee.isIndian=\""+employee.getIsIndian()+"\";");
+pw.println("employee.isIndian="+employee.getIsIndian()+";");
 pw.println("employee.dateOfBirth=\""+employee.getDateOfBirth()+"\";");
 pw.println("employee.basicSalary=\""+employee.getBasicSalary()+"\";");
 pw.println("employee.panNumber=\""+employee.getPanNumber()+"\";");

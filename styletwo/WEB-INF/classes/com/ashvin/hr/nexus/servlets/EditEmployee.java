@@ -22,9 +22,7 @@ requestDispatcher.forward(request,response);
 return;
 }
 String employeeId=request.getParameter("employeeId");
-System.out.println("Employee Id: "+employeeId);
 SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd");
-
 EmployeeBean employeeBean;
 EmployeeDTO employeeDTO;
 EmployeeDAO employeeDAO=new EmployeeDAO();
