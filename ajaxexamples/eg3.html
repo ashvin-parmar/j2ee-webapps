@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<title>AJAX Examples</title>
+<meta charset='utf-8'>
+<script>
+function saveEnquiry()
+{
+var firstName=document.getElementById("firstName").value.trim();
+var lastName=document.getElementById("lastName").value.trim();
+var age=document.getElementById("age").value.trim();
+
+var requestString;
+requestString="firstName="+encodeURI(firstName);
+requestString=requestString+"&lastName="+encodeURI(lastName);
+requestString=requestString+"&age="+encodeURI(age);
+alert(requestString);
+var whatever=document.getElementById("whatever");
+var xmlHttpRequest=new XMLHttpRequest();
+xmlHttpRequest.onreadystatechange=function()
+{
+if(this.readyState==4)
+{
+if(this.status==200)
+{
+var responseData=this.responseText;
+//alert(responseData);
+if(responseData.length>3)whatever.innerHTML=responseData;
+else whatever.innerHTML="";
+}
+else
+{
+alert("Some problem");
+}
+}
+};
+var requestURL=
+xmlHttpRequest.open("POST","servletThree",true);
+xmlHttpRequest.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+xmlHttpRequest.send(requestString);
+}
+window.addEventListener('load',saveEnquiry);
+</script>
+</head>
+<body>
+<h2>Learning POST type request with parameters using java-script</h2>
+
+<table>
+<tr>
+<td>
+First name: 
+</td>
+<td>
+<input type='text' id='firstName' name='firstName' >
+</td>
+</tr>
+<tr>
+<td>
+Last name: 
+</td>
+<td>
+<input type='text' id='lastName' name='lastName'>
+</td>
+</tr>
+<tr>
+<td>
+Age: 
+</td>
+<td>
+<input type='number' id='age' name='age'>
+</td>
+</tr>
+<tr>
+<td colspan='2' style='text-align:center'>
+<button onclick='saveEnquiry()'>Save</button>
+</td>
+</tr>
+</table>
+<br>
+Data: <label id='whatever'></div>
+<br>
+<a href='index.html'>HOME</a>
+</body>
+</html>

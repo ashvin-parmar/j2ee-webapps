@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html lang='en'>
+<head>
+<title></title>
+<meta charset='utf-8'>
+<script>
+function getDesignation()
+{
+var code=document.getElementById("code").value.trim();
+if(code<=0) alert("Invalid code");
+var designation=document.getElementById("designation");
+designation.innerHTML="";
+var xmlHttpRequest=new XMLHttpRequest();
+xmlHttpRequest.onreadystatechange=function()
+{
+if(this.readyState==4)
+{
+if(this.status==200)
+{
+var responseData=this.responseText;
+//alert(responseData);
+var splits=responseData.split(",");
+//alert(splits.length);
+if(splits[0]=="INVALID") 
+{
+alert("Invalid code");
+}
+else
+{
+designation.innerHTML=splits[1];
+}
+}
+else
+{
+alert("Some problem");
+}
+}
+};
+var requestURL="servletTwo?code="+code;
+xmlHttpRequest.open("GET",requestURL,true);
+xmlHttpRequest.send();
+}
+</script>
+</head>
+<body>
+<h2>Learning to send GET request with parameters using java-script </h2>
+
+<b>Enter code: </b><input type='text' id='code' name='code'><br>
+<button type='button' onclick='getDesignation()'>Get</button>
+<br>
+<br>
+
+<b>Designation: </b>
+<span id='designation'></span>
+<br>
+
+<br>
+<a href='index.html'>HOME</a>
+</body>
+</html>
