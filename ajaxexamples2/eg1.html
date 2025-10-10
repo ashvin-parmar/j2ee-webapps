@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AJAX Example</title>
+<meta charset='utf-8'>
+<script>
+function populateDesignations()
+{
+//Over here all the things that has to be done once.
+var designationComboBox=document.getElementById("designations");
+var obj;
+
+var xmlHttpRequest=new XMLHttpRequest();
+xmlHttpRequest.onreadystatechange=function(){
+if(this.readyState==4)
+{
+if(this.status==200)
+{
+var designations=JSON.parse(this.responseText);
+obj=document.createElement("option");
+obj.value=-1;
+obj.innerHTML="&lt; Select &gt;";
+designationComboBox.append(obj);
+for(var i=0;i<designations.length;i++)
+{
+obj=document.createElement("option");
+obj.value=designations[i].code;
+obj.innerHTML=designations[i].title;
+designationComboBox.append(obj)
+}
+}
+else
+{
+alert("Some problem")
+}
+}
+};
+xmlHttpRequest.open("GET","servletOne",true);
+xmlHttpRequest.send();
+}
+window.addEventListener('load',populateDesignations);
+</script>
+</head>
+<body>
+<h3>Learning GET request sending without parameters using java-script</h3>
+
+<b>Designations:</b>&nbsp;&nbsp;
+<select id='designations' name='designations'></select><br>
+
+<br>
+<a href='index.html'>HOME</a>
+</body>
+</html>

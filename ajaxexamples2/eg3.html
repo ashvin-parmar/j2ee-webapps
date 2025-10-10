@@ -9,13 +9,17 @@ function saveEnquiry()
 var firstName=document.getElementById("firstName").value.trim();
 var lastName=document.getElementById("lastName").value.trim();
 var age=document.getElementById("age").value.trim();
-
-var requestString;
-requestString="firstName="+encodeURI(firstName);
-requestString=requestString+"&lastName="+encodeURI(lastName);
-requestString=requestString+"&age="+encodeURI(age);
-alert(requestString);
-var whatever=document.getElementById("whatever");
+var customer={
+"firstName":firstName,
+"lastName":lastName,
+"age":age
+};
+var dataFirstName=document.getElementById("dataFirstName");
+//Var dataLastName=document.getElementById("dataLastName");
+var dataAge=document.getElementById("dataAge");
+dataFirstName.innerHTML="";
+dataLastName.innerHTML="";
+dataAge.innerHTML="124";
 var xmlHttpRequest=new XMLHttpRequest();
 xmlHttpRequest.onreadystatechange=function()
 {
@@ -23,10 +27,19 @@ if(this.readyState==4)
 {
 if(this.status==200)
 {
-var responseData=this.responseText;
-//alert(responseData);
-if(responseData.length>3)whatever.innerHTML=responseData;
-else whatever.innerHTML="";
+var cus=JSON.parse(this.responseText);
+//alert(this.responseText);
+//alert(cus);
+if(cus.firstName!=null) 
+{
+dataFirstName.innerHTML=cus.firstName;
+dataLastName.innerHTML=cus.lastName;
+dataAge.innerHTML=cus.age;
+}
+else
+{
+alert("Some problem");
+}
 }
 else
 {
@@ -34,10 +47,9 @@ alert("Some problem");
 }
 }
 };
-var requestURL=
 xmlHttpRequest.open("POST","servletThree",true);
-xmlHttpRequest.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
-xmlHttpRequest.send(requestString);
+xmlHttpRequest.setRequestHeader("Content-Type","application/json");
+xmlHttpRequest.send(JSON.stringify(customer));
 }
 </script>
 </head>
@@ -76,7 +88,16 @@ Age:
 </tr>
 </table>
 <br>
-Data: <label id='whatever'></div>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Data</b><br>
+First name: 
+<span id='dataFirstName'></span><br>
+Last name: 
+<span id='dataLastName'></span><br>
+Age: 
+<span id='dataAge'></span><br><br>
+
+</div>
 <br>
 <a href='index.html'>HOME</a>
 </body>
