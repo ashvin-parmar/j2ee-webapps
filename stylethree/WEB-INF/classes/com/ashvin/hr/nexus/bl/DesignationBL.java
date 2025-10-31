@@ -127,7 +127,7 @@ DesignationDAO designationDAO=new DesignationDAO();
 try
 {
 //Over here everywhere dl method are called, unless use data-structures to maintain all data in it and respectively search and update in DS
-designationDAO.delete(code);
+designationDAO.deleteByCode(code);
 }catch(DAOException daoException)
 {
 blException.setGenericException(daoException.getMessage());
