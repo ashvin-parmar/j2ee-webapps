@@ -1,52 +1,11 @@
-
 <!DOCTYPE HTML>
 <html lang='en'>
 <head>
 <meta charset='utf-8'>
 <title>HR-Nexus</title>
-<script src='/styletwo/js/Login.js'></script>
-<link rel='stylesheet' type='text/css' href='/styletwo/css/styles.css'>
+<script src='/stylethree/js/Login.js'></script>
+<link rel='stylesheet' type='text/css' href='/stylethree/css/styles.css'>
 </head>
-<script>
-function performLoginChecks()
-{
-//if(validateLoginForm()==false) return ;
-var username=document.getElementById("username").value.trim();
-var password=document.getElementById("password").value.trim();
-var errorSection=document.getElementById("errorSection");
-errorSection.innerHTML="";
-var loginCredentials={
-"username":username,
-"password":password
-};
-var xmlHttpRequest=new XMLHttpRequest();
-xmlHttpRequest.onreadystatechange=function(){
-if(this.readyState==4)
-{
-if(this.status==200)
-{
-responseData=JSON.parse(this.responseText);
-if(responseData.error!=null)
-{
-errorSection.innerHTML=responseData.error;
-}
-else
-{
-alert(this.responseText);
-window.location.href="index.jsp";
-}
-}
-else
-{
-alert("Some problem");
-}
-}
-};
-xmlHttpRequest.open("POST","login",true);
-xmlHttpRequest.setRequestHeader("Content-Type","application/json");
-xmlHttpRequest.send(JSON.stringify(loginCredentials));
-}
-</script>
 <body>
 <div class='main-container'>
 <!-- header start here -->
@@ -86,4 +45,3 @@ xmlHttpRequest.send(JSON.stringify(loginCredentials));
 <!-- Main content ends here -->
 </body>
 </html>
-

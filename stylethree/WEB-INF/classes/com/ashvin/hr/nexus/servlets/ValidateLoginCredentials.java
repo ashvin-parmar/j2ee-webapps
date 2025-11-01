@@ -13,15 +13,14 @@ public void doGet(HttpServletRequest request,HttpServletResponse response)
 {
 try
 {
-
+response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
 }catch(Exception exception)
 {
 try
 {
-response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 }catch(Exception e)
 {
-
 }
 }
 }
@@ -33,8 +32,15 @@ HttpSession httpSession=request.getSession();
 String username=(String)httpSession.getAttribute("username");
 response.setContentType("application/json");
 PrintWriter pw=response.getWriter();
-Gson gson=new Gson();
-String jsonUsername=gson.toJson(username);
+String jsonUsername="";
+if(username==null)
+{
+jsonUsername="{\"error\":\"User not available\"}";
+}
+else
+{
+jsonUsername="{\"username\":\""+username+"\"}";
+}
 pw.print(jsonUsername);
 pw.flush();
 }catch(Exception exception)
