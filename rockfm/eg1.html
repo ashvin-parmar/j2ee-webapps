@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ROCKFM Example</title>
+<meta charset='utf-8'>
+<script>
+function trigger(a)
+{
+//alert(a.url);
+//alert(a.methodType);
+//alert(a.success);
+//alert(a.failure);
+var xmlHttpRequest=new XMLHttpRequest();
+xmlHttpRequest.onreadystatechange=function(){
+if(this.readyState==4)
+{
+if(this.status==200)
+{
+a.success(this.responseText);
+}
+else
+{
+a.failure();
+}
+}
+};
+xmlHttpRequest.open(a.methodType,a.url,true);
+xmlHttpRequest.send();
+}
+var $$$=
+{
+"ajax":function(data)
+{
+trigger(data);
+}
+};
+function populateDesignations()
+{
+$$$.ajax({
+"url":"servletOne",
+"methodType":"GET",
+"success":function(responseText){
+var responseData=JSON.parse(responseText)
+var designationComboBox=document.getElementById("designations");
+var obj;
+var designations=responseData;
+obj=document.createElement("option");
+obj.value=-1;
+obj.innerHTML="&lt; Select &gt;";
+designationComboBox.append(obj);
+for(var i=0;i<designations.length;i++)
+{
+obj=document.createElement("option");
+obj.value=designations[i].code;
+obj.innerHTML=designations[i].title;
+designationComboBox.append(obj)
+}
+},
+"failure":function(){
+alert("Some problem");
+}
+});
+}
+window.addEventListener('load',populateDesignations);
+</script>
+</head>
+<body>
+<h3>Learning GET request sending without parameters using java-script</h3>
+
+<b>Designations:</b>&nbsp;&nbsp;
+<select id='designations' name='designations'></select><br>
+
+<br>
+<a href='index.html'>HOME</a>
+</body>
+</html>
