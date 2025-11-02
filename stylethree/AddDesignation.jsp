@@ -13,7 +13,6 @@ if(validateDesignation()==false) return ;
 var title=document.getElementById("title").value.trim();
 var errorSection=document.getElementById("errorSection");
 errorSection.innerHTML="";
-alert(title);
 var designation={
 "code":0,
 "title":title
@@ -25,17 +24,19 @@ if(this.readyState==4)
 {
 if(this.status==200)
 {
-alert(this.responseText);
-var responseData=JSON.parse(this.responseText);
+var textResponseData=this.responseText;
+var responseData=JSON.parse(textResponseData);
 if(responseData.error!=null)
 {
-alert(this.responseText);
 errorSection.innerHTML=responseData.error;
 }
 else
 {
-alert(this.responseText);
-window.location.href="Notification.jsp";
+var message=textResponseData;
+alert(message);
+localStorage.setItem("message",message);
+alert("Message send");
+window.location.replace("Notification.jsp");
 }
 }
 else

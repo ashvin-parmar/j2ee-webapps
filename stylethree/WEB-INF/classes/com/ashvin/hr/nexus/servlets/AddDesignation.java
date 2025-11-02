@@ -22,13 +22,13 @@ public void doPost(HttpServletRequest request,HttpServletResponse response)
 {
 try
 {
-//HttpSession hs=request.getSession();
-//if(hs.getAttribute("username")==null)
-//{
-//RequestDispatcher requestDispatcher=request.getRequestDispatcher("/LoginPage.jsp");
-//requestDispatcher.forward(request,response);
-//return;
-//}
+HttpSession hs=request.getSession();
+if(hs.getAttribute("username")==null)
+{
+RequestDispatcher requestDispatcher=request.getRequestDispatcher("/LoginPage.jsp");
+requestDispatcher.forward(request,response);
+return;
+}
 PrintWriter pw=response.getWriter();
 response.setContentType("application/json");
 
@@ -55,13 +55,14 @@ designationDAO.add(designationDTO);
 designationBean.setCode(designationDTO.getCode());
 MessageBean message=new MessageBean();
 message.setHeading("Designation (Add Module)");
-message.setMessage("Designation added, add more?");
+message.setMessage("Designation "+designationBean.getTitle()+"added, add more?");
 message.setHasToGenerateButtons(true);
 message.setHasToGenerateTwoButtons(true);
 message.setButtonOneText("Yes");
 message.setButtonOneAction("AddDesignationForm.jsp");
 message.setButtonTwoText("No");
 message.setButtonTwoAction("Designations.jsp");
+/*
 pw.print("{\"designation\":");
 pw.flush();
 pw.print(gson.toJson(designationBean)+",");
@@ -69,6 +70,9 @@ pw.flush();
 pw.print("\"message\":");
 pw.flush();
 pw.print(gson.toJson(message)+"}");
+pw.flush();
+*/
+pw.print(gson.toJson(message));
 pw.flush();
 //request.setAttribute("messageBean",message);
 //RequestDispatcher requestDispatcher;
