@@ -2,11 +2,11 @@
 <tm:Module name='DESIGNATION' />
 <jsp:include page='/MasterPageTopSection.jsp' />
 <h2>Designations</h2>
-<link rel='stylesheet' type='text/css' href='/styletwo/css/designation.css'>
+<link rel='stylesheet' type='text/css' href='/stylethree/css/designation.css'>
 <table id='designationsGridTable' border='1'>
 <thead>
 <tr>
-<th colspan='4' class='designation-add-option'><a href='/styletwo/AddDesignationForm.jsp'>Add new designation</a></th>
+<th colspan='4' class='designation-add-option'><a href='/stylethree/AddDesignation.jsp'>Add new designation</a></th>
 </tr>
 <tr>
 <th class='designation-column-sno'>S.No.</th>

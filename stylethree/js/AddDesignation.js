@@ -13,6 +13,6 @@ return true;
 }
 function cancelAddition()
 {
-document.getElementById('cancelAdditionForm').submit();
+window.location.href='/stylethree/Designations.jsp';
 }
 
