@@ -3,9 +3,46 @@
 <head>
 <title>ROCKFM Example</title>
 <meta charset='utf-8'>
+</head>
+<body>
+<h3>Learning GET request sending without parameters using java-script</h3>
+<b>Designations:</b>&nbsp;&nbsp;
+<select id='designations' name='designations'></select><br>
+<br>
+<a href='index.html'>HOME</a>
+</body>
+</html>
 <script>
-function trigger(a)
+function $$$(arg)
 {
+var element=document.getElementById(arg);
+return element;
+}
+var elem="designations";
+$$$(elem).fillComboBox=function(data){
+var comboBox=document.getElementById(elem);
+var value=data.value;
+var text=data.text;
+var dataSource=data.dataSource;
+var firstOption=data.firstOption;
+var obj;
+if(firstOption!=null)
+{
+obj=document.createElement("option");
+obj.value=firstOption.value;
+obj.innerHTML=firstOption.text;
+comboBox.append(obj);
+}
+for(var i=0;i<dataSource.length;i++)
+{
+obj=document.createElement("option");
+obj.value=dataSource[i][value];
+obj.innerHTML=dataSource[i][text];
+comboBox.append(obj)
+}
+};
+
+$$$.ajax=function(a){
 //alert(a.url);
 //alert(a.methodType);
 //alert(a.success);
@@ -26,35 +63,24 @@ a.failure();
 };
 xmlHttpRequest.open(a.methodType,a.url,true);
 xmlHttpRequest.send();
-}
-var $$$=
-{
-"ajax":function(data)
-{
-trigger(data);
-}
 };
+
 function populateDesignations()
 {
 $$$.ajax({
 "url":"servletOne",
 "methodType":"GET",
 "success":function(responseText){
-var responseData=JSON.parse(responseText)
-var designationComboBox=document.getElementById("designations");
-var obj;
-var designations=responseData;
-obj=document.createElement("option");
-obj.value=-1;
-obj.innerHTML="&lt; Select &gt;";
-designationComboBox.append(obj);
-for(var i=0;i<designations.length;i++)
-{
-obj=document.createElement("option");
-obj.value=designations[i].code;
-obj.innerHTML=designations[i].title;
-designationComboBox.append(obj)
+var designations=JSON.parse(responseText);
+$$$("designations").fillComboBox({
+"dataSource":designations,
+"text":"title",
+"value":"code",
+"firstOption":{
+"text":"< Select Option >",
+"value":"-1"
 }
+});
 },
 "failure":function(){
 alert("Some problem");
@@ -63,14 +89,4 @@ alert("Some problem");
 }
 window.addEventListener('load',populateDesignations);
 </script>
-</head>
-<body>
-<h3>Learning GET request sending without parameters using java-script</h3>
 
-<b>Designations:</b>&nbsp;&nbsp;
-<select id='designations' name='designations'></select><br>
-
-<br>
-<a href='index.html'>HOME</a>
-</body>
-</html>

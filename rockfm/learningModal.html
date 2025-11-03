@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ROCKFM Example</title>
+<meta charset='utf-8'>
+<script>
+function sendModal()
+{
+var divisionOne=document.getElementById("divisionOne");
+divisionOne.style.visibility='visible';
+}
+function unsendModal()
+{
+var divisionOne=document.getElementById("divisionOne");
+divisionOne.style.visibility='hidden';
+
+}
+</script>
+</head>
+<body>
+
+<h4>Learning Modal</h4>
+<button onclick='sendModal()'>Click Me</button>
+<br>
+<br>
+There are many things to Add
+Name: <input type='text' id='name' name='name'>
+<br>
+<a href='index.html'>HOME</a>
+<div id='divisionOne' style='position:absolute;width:100%;height:100vh;left:0%;top:0%;background-color:rgba(32,32,32,0.5);visibility:hidden;'>
+<div id='divisionTwo' style='position:absolute;top:30%;left:50%;width:50%;height:40vh;transform:translate(-50%,-20%);background-color:rgba(32,32,32,1.0);border:1px solid black;'>
+<center>
+<button onclick='unsendModal()'>Again</button>
+</center>
+</div>
+</div>
+
+</body>
+</html>

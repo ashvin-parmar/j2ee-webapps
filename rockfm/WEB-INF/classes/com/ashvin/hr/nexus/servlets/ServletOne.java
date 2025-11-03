@@ -23,7 +23,6 @@ public void doGet(HttpServletRequest request,HttpServletResponse response)
 {
 try
 {
-System.out.println("Over here");
 List<DesignationDTO> designations;
 DesignationDAO designationDAO=new DesignationDAO();
 designations=designationDAO.getAll();
@@ -35,7 +34,6 @@ try
 {
 Gson gson=new Gson();
 d=gson.toJson(designations);
-System.out.println("Designations: "+designations);
 }catch(Exception e)
 {
 
