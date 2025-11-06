@@ -33,7 +33,7 @@ PrintWriter pw=response.getWriter();
 response.setContentType("application/json");
 
 BufferedReader bufferedReader=request.getReader();
-StringBuffer sb=new StringBuffer();
+StringBuilder sb=new StringBuilder();
 String b;
 Gson gson=new Gson();
 while(true)
@@ -55,11 +55,11 @@ designationDAO.add(designationDTO);
 designationBean.setCode(designationDTO.getCode());
 MessageBean message=new MessageBean();
 message.setHeading("Designation (Add Module)");
-message.setMessage("Designation "+designationBean.getTitle()+"added, add more?");
+message.setMessage("Designation "+designationBean.getTitle()+" added, add more?");
 message.setHasToGenerateButtons(true);
 message.setHasToGenerateTwoButtons(true);
 message.setButtonOneText("Yes");
-message.setButtonOneAction("AddDesignationForm.jsp");
+message.setButtonOneAction("AddDesignation.jsp");
 message.setButtonTwoText("No");
 message.setButtonTwoAction("Designations.jsp");
 /*
@@ -72,8 +72,10 @@ pw.flush();
 pw.print(gson.toJson(message)+"}");
 pw.flush();
 */
-pw.print(gson.toJson(message));
+String jsonString=gson.toJson(message);
+pw.print(jsonString);
 pw.flush();
+
 //request.setAttribute("messageBean",message);
 //RequestDispatcher requestDispatcher;
 //requestDispatcher=request.getRequestDispatcher("/Notification.jsp");
@@ -90,7 +92,13 @@ pw.flush();
 }
 }catch(Exception exception)
 {
-System.out.println(exception.getMessage());
+try
+{
+response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+}catch(Exception e)
+{
+
+}
 }
 }
 }

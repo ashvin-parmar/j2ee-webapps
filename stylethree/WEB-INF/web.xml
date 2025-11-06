@@ -78,6 +78,14 @@
 <url-pattern>/addDesignation</url-pattern>
 </servlet-mapping>
 
+<servlet>
+<servlet-name>NotificationResubmission</servlet-name>
+<servlet-class>com.ashvin.hr.nexus.servlets.NotificationResubmission</servlet-class>
+</servlet>
+<servlet-mapping>
+<servlet-name>NotificationResubmission</servlet-name>
+<url-pattern>/notificationResubmission</url-pattern>
+</servlet-mapping>
 
 <welcome-file-list>
 <welcome-file>LoginPage.jsp</welcome-file>
