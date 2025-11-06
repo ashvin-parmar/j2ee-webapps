@@ -5,7 +5,103 @@
 <title>AJAX Example</title>
 <script>
 //ROCK-FM library part starts here
+function $$$()
+{
 
+}
+$$$.validateRequired=function(value)
+{
+//alert(value);
+if(value==null || value.trim().length<=0) return false;
+return true;
+};
+$$$.validateInputSize=function(value,inputSize)
+{
+if(value==null || value.trim().length>inputSize) return false;
+return true;
+};
+$$$.checkInvalid=function(value,invalid)
+{
+if(value==null) return false;
+return value.trim()==invalid;
+};
+$$$.validate=function(domObj,obj)
+{
+if(domObj==null) return false;
+var value=domObj.value;
+var valid=true;
+if(obj.required && $$$.validateRequired(value)==false)
+{
+valid=false;
+errorSection=document.getElementById(obj["error-pane"]);
+errorSection.innerHTML=obj.errors.required;
+}
+else if(obj["input-size"]!=null && $$$.validateInputSize(value,obj["input-size"])==false)
+{
+valid=false;
+errorSection=document.getElementById(obj["error-pane"]);
+errorSection.innerHTML=obj.errors["input-size"];
+}
+else if(obj.invalid!=null && $$$.checkInvalid(value,obj.invalid))
+{
+valid=false;
+errorSection=document.getElementById(obj["error-pane"]);
+errorSection.innerHTML=obj.errors.invalid;
+}
+else if(obj["required-state"]!=null && (obj["required-state"]!=domObj.checked))
+{
+valid=false;
+if(obj["display-alert"]) alert(obj.errors["required-state"]);
+}
+return valid;
+};
+$$$.isValid=function(objs)
+{
+var keys=Object.keys(objs);
+var obj;
+var objKeys=[];
+var domObjs=[];
+var domObj;
+var errorDomObj
+var valid=true;
+var x;
+var firstInvalid=null;
+for(var i=0;i<keys.length;i++)
+{
+domObjs=document.getElementsByName(keys[i]);
+obj=objs[keys[i]];
+errorDomObj=null;
+if(obj["error-pane"]) (errorDomObj=document.getElementById(obj["error-pane"])).innerHTML="";
+if(domObjs.length==1)
+{
+domObj=domObjs[0];
+x=$$$.validate(domObj,obj);
+}
+else
+{
+var isChecked=false;
+for(var j=0;j<domObjs.length;j++)
+{
+domObj=domObjs[j];
+if(domObj.checked)
+{
+isChecked=true;
+break;
+}
+}
+if(!isChecked)
+{
+if(errorDomObj) 
+{
+errorDomObj.innerHTML=obj.errors["required"];
+}
+valid=false;
+}
+}
+if(valid) valid=x;
+}
+return valid;
+};
 //ROCK-FM library part ends here
 //USER declarations for validating what?
 
@@ -15,10 +111,12 @@ return $$$.isValid({
 "nm":{
 "required":true,
 "input-size":20,
+"invalid":"Ashvin",
 "error-pane":"nmErrorSection",
 "errors":{
 "required":"Name required",
-"input-size":"Name cannot longer than 20 characters"
+"input-size":"Name cannot longer than 20 characters",
+"invalid":"Name cannot be ashvin"
 }
 },
 "ad":{
@@ -45,7 +143,7 @@ return $$$.isValid({
 "agree":{
 "required-state":true,
 "display-alert":true,
-"error":{
+"errors":{
 "required-state":"Select: I agree checkbox"
 }
 }
@@ -55,7 +153,7 @@ return $$$.isValid({
 </head>
 <body>
 <h2>ROCK-FM Validation Feature</h2>
-<form id='someForm' action='whatever' onclick='return doSomething()'>
+<form id='someForm' action='whatever' onsubmit='return doSomething()'>
 
 Name: <input type='text' id='nm' name='nm'>
 <span id='nmErrorSection'></span><br>
@@ -74,12 +172,13 @@ City: <select id='ct' name='ct'>
 </select>
 <span id='ctErrorSection'></span><br>
 
-Gender: &nbsp;&nbsp;&nbsp;
-<input type='radio' id='ml' name='gender'> &nbsp;&nbsp;&nbsp;
-<input type='radio' id='fe' name='gender'> &nbsp;&nbsp;&nbsp;
-<span id='genderErrorSection'> </span><br>
+Gender: 
+<input type='radio' id='ml' name='gender' value='M'>
+<input type='radio' id='fe' name='gender' value='F'>
+<span id='genderErrorSection'></span><br>
 
-Agree: <input type='checkbox' id='ag' name='ag' value='Y'><br>
+
+Agree: <input type='checkbox' id='agree' name='agree' value='Y'><br>
 
 <button type='submit'>Register</button>
 </form>
