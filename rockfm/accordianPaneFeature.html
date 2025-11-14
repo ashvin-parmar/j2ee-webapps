@@ -3,8 +3,47 @@
 <head>
 <meta charset='utf-8'>
 <title>Accordian Example</title>
-
 <script>
+//Over here we have to write methods for library such that its work
+function $$$()
+{
+
+}
+$$$.accordianDS={};
+$$$.toAccordian=function(elementId){
+var mainDivision=document.getElementById(elementId);
+if(mainDivision==null) return;
+var headings=mainDivision.getElementsByTagName("h2");
+var respectiveAccordians=mainDivision.getElementsByTagName("div");
+var heading,respectiveAccordian;
+for(var i=0;i<headings.length && i<respectiveAccordians.length;i++)
+{
+respectiveAccordian=respectiveAccordians[i];
+respectiveAccordian.style.display='none';
+respectiveAccordian.style.visibility='hidden';
+heading=headings[i];
+$$$.accordianDS[heading.innerHTML]=respectiveAccordian;
+heading.onclick=function(){
+//alert(this.innerHTML);
+accordian=$$$.accordianDS[this.innerHTML];
+if(accordian.style.visibility=='hidden')
+{
+ accordian.style.visibility='visible';
+ accordian.style.display='block';
+}
+else 
+{
+ accordian.style.visibility='hidden';
+ accordian.style.display='none';
+}
+};
+}
+};
+
+$$$.onDocumentLoaded=function(func){
+window.addEventListener('load',func);
+};
+
 $$$.onDocumentLoaded(function(){
 $$$.toAccordian("mymy");
 });
@@ -14,33 +53,37 @@ $$$.toAccordian("mymy");
 <div id='mymy'>
 <h2>Heading 1</h2>
 <div>
-Content 1 Content 1 Content 1
-Content 1 Content 1 Content 1
-Content 1 Content 1 Content 1
-Content 1 Content 1 Content 1
-Content 1 Content 1 Content 1
-Content 1 Content 1 Content 1
-Content 1 Content 1 Content 1
+Content 1 Content 1 Content 1<br>
+Content 1 Content 1 Content 1<br>
+Content 1 Content 1 Content 1<br>
+Content 1 Content 1 Content 1<br>
+Content 1 Content 1 Content 1<br>
+Content 1 Content 1 Content 1<br>
+Content 1 Content 1 Content 1<br>
+Content 1 Content 1 Content 1<br>
+Content 1 Content 1 Content 1<br>
 </div>
 <h2>Heading 2</h2>
 <div>
-Content 2 Content 2 Content 2
-Content 2 Content 2 Content 2
-Content 2 Content 2 Content 2
-Content 2 Content 2 Content 2
-Content 2 Content 2 Content 2
-Content 2 Content 2 Content 2
-Content 2 Content 2 Content 2
-Content 2 Content 2 Content 2
+Content 2 Content 2 Content 2<br>
+Content 2 Content 2 Content 2<br>
+Content 2 Content 2 Content 2<br>
+Content 2 Content 2 Content 2<br>
+Content 2 Content 2 Content 2<br>
+Content 2 Content 2 Content 2<br>
+Content 2 Content 2 Content 2<br>
+Content 2 Content 2 Content 2<br>
 </div>
 <h2>Heading 3</h2>
 <div>
-Content 3 Content 3 Content 3
-Content 3 Content 3 Content 3
-Content 3 Content 3 Content 3
-Content 3 Content 3 Content 3
-Content 3 Content 3 Content 3
-Content 3 Content 3 Content 3
+Content 3 Content 3 Content 3<br>
+Content 3 Content 3 Content 3<br>
+Content 3 Content 3 Content 3<br>
+Content 3 Content 3 Content 3<br>
+Content 3 Content 3 Content 3<br>
+Content 3 Content 3 Content 3<br>
+Content 3 Content 3 Content 3<br>
+Content 3 Content 3 Content 3<br>
 </div>
 </div>
 </body>

@@ -3,47 +3,69 @@
 <head>
 <meta charset='utf-8'>
 <title>Search by attribute feature</title>
-<script>
-//Write code to serach tm attribute and alert those innerHTMLs 
-
-</script>
 </head>
 <body>
+
 God is great.
+<br>
 <div id='wahtever' tm='yes'>
-Whatever whatever whatever
-Whatever whatever whatever
-Whatever whatever whatever
-Whatever whatever whatever
-Whatever whatever whatever
+Whatever whatever whatever<br>
+Whatever whatever whatever<br>
+Whatever whatever whatever<br>
+Whatever whatever whatever<br>
+Whatever whatever whatever<br>
+Whatever whatever whatever<br>
+Whatever whatever whatever<br>
 </div>
-
+<br>
 <span id='abc' tm='yes'>
-Something something something
-Something something something
-Something something something
-Something something something
-Something something something
-Something something somethini
-Something something something
+Something something something<br>
+Something something something<br>
+Something something something<br>
+Something something something<br>
+Something something something<br>
+Something something something<br>
+Something something something<br>
+Something something something<br>
+Something something something<br>
 </span>
-
+<br>
 <div id='nothing' >
-Nothing nothing nothing
-Nothing nothing nothing
-Nothing nothing nothing
-Nothing nothing nothing
-Nothing nothing nothing
-Nothing nothing nothing
+Nothing nothing nothing<br>
+Nothing nothing nothing<br>
+Nothing nothing nothing<br>
+Nothing nothing nothing<br>
+Nothing nothing nothing<br>
+Nothing nothing nothing<br>
+Nothing nothing nothing<br>
+Nothing nothing nothing<br>
 </div>
-
-<div id='cool' tm='yes'>
-Cool cool cool cool cool cool
-Cool cool cool cool cool cool
-Cool cool cool cool cool cool
-Cool cool cool cool cool cool
-Cool cool cool cool cool cool
-Cool cool cool cool cool cool
+<br>
+<div id='cool' tm='no'>
+Cool cool cool cool cool cool<br>
+Cool cool cool cool cool cool<br>
+Cool cool cool cool cool cool<br>
+Cool cool cool cool cool cool<br>
+Cool cool cool cool cool cool<br>
+Cool cool cool cool cool cool<br>
+Cool cool cool cool cool cool<br>
 <div>
 </body>
+<script>
+//Write code to serach tm attribute and alert those innerHTMLs 
+function searchByAttribute(toSearch)
+{
+var elements=document.querySelectorAll(toSearch);
+//alert(elements);
+//if(elements) alert(elements.length);
+var element;
+for(var i=0;i<elements.length;i++)
+{
+element=elements[i];
+alert(element.innerHTML);
+}
+}
+window.addEventListener('load',searchByAttribute('[tm="yes"]'))
+</script>
+
 </html>
