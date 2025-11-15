@@ -3,6 +3,7 @@
 <head>
 <meta charset='utf-8'>
 <title>Grid table feature</title>
+<link rel='stylesheet' type='text/css'href='/rockfm/gridTableFeature.css'>
 <script>
 //Here the ROCK-FM Libarary functionality written 
 function $$$()
@@ -48,6 +49,8 @@ var i,j;
 
 gridTable=document.createElement('table');
 gridTable.border='1';
+gridTable.lastClickedRow=null;
+
 
 gridTableHeadTemplate=document.createElement('thead');
 gridTableRowTemplate=document.createElement('tr');
@@ -56,6 +59,7 @@ for(i=0;i<model.getColumnCount();i++)
 {
 gridTableHeadThSectionTemplate=document.createElement('th');
 gridTableHeadThSectionTemplate.innerHTML=model.getColumnName(i);
+gridTableHeadThSectionTemplate.scope='col';
 gridTableRowTemplate.append(gridTableHeadThSectionTemplate);
 }
 gridTableHeadTemplate.append(gridTableRowTemplate);
@@ -71,7 +75,19 @@ gridTableBodyTdSectionTemplate=document.createElement('td');
 gridTableBodyTdSectionTemplate.innerHTML=model.getValueAt(j,i);
 gridTableRowTemplate.append(gridTableBodyTdSectionTemplate);
 }
-//gridTableRowTemplate.style.selectionEnabled='true';		//Something like that
+if(rowSelectionEnable)
+{
+gridTableRowTemplate.addEventListener('click',function(){
+if(gridTable.lastClickedRow!=null)
+{
+gridTable.lastClickedRow.classList.remove('selected-row');
+gridTable.lastClickedRow.classList.add('default-row');
+}
+gridTable.lastClickedRow=this;
+gridTable.lastClickedRow.classList.remove('default-row');
+gridTable.lastClickedRow.classList.add('selected-row');
+});
+}
 gridTableBodyTemplate.append(gridTableRowTemplate);
 }
 gridTable.append(gridTableBodyTemplate);
@@ -102,6 +118,7 @@ function DataModel()
 {
 this.data=null;
 this.title=null;
+
 this.getRowCount=function(){
 if(this.data==null) return 0;
 else return this.data.length;

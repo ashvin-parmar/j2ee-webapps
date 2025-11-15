@@ -1,0 +1,20 @@
+/*
+tr:nth-of-type(odd) {
+  background-color: #eeeeee;
+}
+
+tr th[scope="col"] {
+  background-color: #505050;
+  color: white;
+}
+
+tr th[scope="row"] {
+  background-color: #d6ecd4;
+}
+*/
+.default-row {
+background-color: white;
+}
+.selected-row {
+background-color: #e0e0e0;
+}
