@@ -4,7 +4,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
 import com.google.gson.*;
-public class ServletThree extends HttpServlet
+public class ServletFour extends HttpServlet
 {
 public void doGet(HttpServletRequest request,HttpServletResponse response)
 {
@@ -20,19 +20,14 @@ public void doPost(HttpServletRequest request,HttpServletResponse response)
 {
 try
 {
-String req="";
-BufferedReader br=request.getReader();
-StringBuffer sb=new StringBuffer();
-String d;
-while(true)
-{
-d=br.readLine();
-if(d==null) break;
-sb.append(d);
-}
+String firstName=request.getParameter("firstName");
+String lastName=request.getParameter("lastName");
+int age=Integer.parseInt(request.getParameter("age"));
 Gson gson=new Gson();
-Customer customer=(Customer)gson.fromJson(sb.toString(),Customer.class);
-//System.out.println(sb.toString());
+Customer customer=new Customer();
+customer.firstName=firstName;
+customer.lastName=lastName;
+customer.age=age;
 PrintWriter pw=response.getWriter();
 response.setContentType("application/json");
 
