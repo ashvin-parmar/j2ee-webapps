@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>TMJROCK Example</title>
+<meta charset='utf-8'>
+<script>
+//Over here the TMJRock Library developer works
+function $$$(cei)	//componenetElementId
+{
+}
+
+$$$.ajax=function(jsonObject){
+if(jsonObject==null) throw "missing argument in call to ajax";
+if(!jsonObject["url"]) throw "url property is missing in call to ajax";
+let url=jsonObject["url"];
+if((typeof url)!="string") throw "url property is missing in call to ajax";
+
+
+let methodType="GET";
+if(jsonObject["methodType"])
+{
+methodType=jsonObject["methodType"];
+if((typeof methodType)!="string") throw "methodType is of string type in call to ajax";
+if(["GET","POST"].includes(methodType)==false) throw "methodType is from GET/POST in call to ajax";
+}
+let onSuccess=null;
+if(jsonObject["success"])
+{
+onSuccess=jsonObject["success"];
+if((typeof onSuccess)!="function") throw "success is of function type in call to ajax";
+}
+
+let onFailure=null;
+if(jsonObject["failure"])
+{
+onFailure=jsonObject["failure"];
+if((typeof onFailure)!="function") throw "failure is of function type in call to ajax";
+}
+if(methodType=="GET")
+{
+let xmlHttpRequest=new XMLHttpRequest();
+xmlHttpRequest.onreadystatechange=function(){
+if(this.readyState==4)
+{
+if(this.status==200)
+{
+let responseData=JSON.parse(this.responseText);
+if(onSuccess) onSuccess(responseData);
+}
+else
+{
+if(onFailure) onFailure();
+}
+}
+};
+xmlHttpRequest.open(methodType,url,true);
+xmlHttpRequest.send();
+}
+if(methodType=="POST")
+{
+
+}
+};
+//TMJRock Library developer works ends
+
+//TMJRock Library user's work start here
+function populateDesignations()
+{
+$$$.ajax({
+"url":"servletOne",
+"methodType":"GET",
+"success":function(responseData){
+var designations=responseData;
+var designationComboBox=document.getElementById("designations");
+obj=document.createElement("option");
+obj.value=-1;
+obj.innerHTML="&lt; Select &gt;";
+designationComboBox.append(obj);
+for(var i=0;i<designations.length;i++)
+{
+obj=document.createElement("option");
+obj.value=designations[i].code;
+obj.innerHTML=designations[i].title;
+designationComboBox.append(obj)
+}
+},
+"failure":function(){
+alert("Some problem");
+}
+});
+}
+//TMJRock Library user's work start here
+
+window.addEventListener('load',populateDesignations);
+</script>
+</head>
+<body>
+<h3>Learning GET request sending without parameters using java-script</h3>
+<b>Designations:</b>&nbsp;&nbsp;
+<select id='designations' name='designations'></select><br>
+<br>
+<a href='index.html'>HOME</a>
+</body>
+</html>
