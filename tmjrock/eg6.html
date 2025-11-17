@@ -41,6 +41,27 @@ return this.element.value;
 }
 return null;
 };
+this.fillComboBox=function(jsonObject){
+//alert(typeof this.element.nodeName);
+//alert(this.element.nodeName);
+if(this.element.nodeName!="SELECT") throw "fillComboBox can be called on a SELECT type object only";
+//Assignment:
+/*
+	Validate if dataSource, text, and value properties exists
+if dataSource existst then there should a collection against it. 
+if value and text prop exists, it should be of string type.
+if value and text prop exist and if it is of string type then 
+	that should be part of or matched with dataSource text/value part.
+if firstOption is specified then there are Two properties of string type text and value are assigned. Check out for them too.
+	Main Work
+
+clear all existing options from select and option select
+Now, Add firstOption intially.
+Traverse the dataSource array and on every cycle create option and append it to SELECT 
+Fill ComboBOX
+
+
+};
 }
 $$$.ajax=function(jsonObject){
 if(jsonObject==null) throw "missing argument in call to ajax";
@@ -167,102 +188,37 @@ xmlHttpRequest.send(queryString);
 };
 //TMJRock Library developer works ends
 //TMJRock Library user
-function saveEnquiry()
+function populateDesignations()
 {
-let firstName=$$$("firstName").value();
-let lastName=$$$("lastName").value();
-let age=$$$("age").value();
-let customer={
-"firstName":firstName,
-"lastName":lastName,
-"age":age
-};
-let dataFirstName=$$$("dataFirstName");
-let dataLastName=$$$("dataLastName");
-let dataAge=$$$("dataAge");
-dataFirstName.html("");
-dataLastName.html("");
-dataAge.html("");		
-	//First try [servletThree and sendJSON: true] combination -> go with send
-	//Then try [servletFour and sendJSON: false] combination -> go with queryString
 $$$.ajax({
-"methodType":"POST",
-//"url":"servletThree",
-//"sendJSON":true,
-"url":"servletFour",
-"sendJSON":false,
-"data":customer,
+"url":"servletOne",
+"methodType":"GET",
 "success":function(responseData){
-let cus=responseData;
-//alert(JSON.stringify(responseData));
-if(cus.firstName!=null) 
-{
-dataFirstName.html(cus.firstName);
-dataLastName.html(cus.lastName);
-dataAge.html(cus.age);
+let designations=responseData;
+$$$("designations").fillComboBox({
+"dataSouce":designations,
+"text":"title",
+"value":"code",
+"firstOption":{
+"text":"\<Select Option\>",
+"value":"-1"
 }
-else
-{
-/*
-dataFirstName.html("");
-dataLastName.html("");
-dataAge.html("");
-*/
-alert("Data not found");
-}
+});
 },
 "failure":function(){
 alert("Some problem");
 }
 });
 }
+window.addEventListener('load',populateDesignations);
 </script>
 </head>
 <body>
-<h2>Learning POST type request with parameters using java-script</h2>
-<table>
-<tr>
-<td>
-First name: 
-</td>
-<td>
-<input type='text' id='firstName' name='firstName' >
-</td>
-</tr>
-<tr>
-<td>
-Last name: 
-</td>
-<td>
-<input type='text' id='lastName' name='lastName'>
-</td>
-</tr>
-<tr>
-<td>
-Age: 
-</td>
-<td>
-<input type='number' id='age' name='age'>
-</td>
-</tr>
-<tr>
-<td colspan='2' style='text-align:center'>
-<button onclick='saveEnquiry()'>Save</button>
-</td>
-</tr>
-</table>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<b>Data</b><br>
-First name: 
-<span id='dataFirstName'></span><br>
-Last name: 
-<span id='dataLastName'></span><br>
-Age: 
-<span id='dataAge'></span><br><br>
-
-</div>
+<h3>Learning GET request sending without parameters using java-script</h3>
+<b>Designations:</b>&nbsp;&nbsp;
+<select id='designations' name='designations'></select><br>
 <br>
 <a href='index.html'>HOME</a>
 </body>
 </html>
+</head>
