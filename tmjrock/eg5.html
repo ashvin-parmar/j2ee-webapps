@@ -88,6 +88,7 @@ if(onFailure) onFailure();
 
 if(jsonObject["data"])
 {
+
 let jsonData=jsonObject["data"];
 let queryString="";
 let qsName;
@@ -128,42 +129,23 @@ if(onFailure) onFailure();
 }
 }
 };
-if(jsonObject["jsonData"])
-{
 let jsonData={};
+let queryString="";
+let sendJSON=jsonObject["sendJSON"];
+if(!sendJSON) sendJSON=false;
+if((typeof sendJSON)!="boolean") throw "sendJSON property should be of boolean type in call to ajax";
 if(jsonObject["data"])
 {
 jsonData=jsonObject["data"];
-/*
-let queryString="";
-let qsName;
-let qsValue;
-let x=0;
-for(k in jsonData)
-{
-if(x>0) queryString+="&";
-if(x==0) 
-{
-queryString="?";
-x++;
 }
-qsName=k;
-qsValue=jsonData[k];
-queryString=queryString+qsName+"="+qsValue;
-}
-*/
-}
-alert(url);
 xmlHttpRequest.open(methodType,url,true);
+if(sendJSON)
+{
 xmlHttpRequest.setRequestHeader("Content-Type","application/json");
 xmlHttpRequest.send(JSON.stringify(jsonData));
 }
 else
 {
-if(jsonObject["data"])
-{
-let jsonData=jsonObject["data"];
-let queryString="";
 let qsName;
 let qsValue;
 let x=0;
@@ -172,18 +154,16 @@ for(k in jsonData)
 if(x>0) queryString+="&";
 if(x==0) 
 {
-queryString="?";
+//queryString="?";
 x++;
 }
 qsName=k;
 qsValue=jsonData[k];
 queryString=queryString+qsName+"="+qsValue;
 }
-url=url+queryString;
-}
-alert(url);
-xmlHttpRequest.open(methodType,url,true);
-xmlHttpRequest.send();
+//url=url+queryString;
+xmlHttpRequest.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+xmlHttpRequest.send(queryString);
 }
 }
 };
@@ -205,14 +185,14 @@ let dataAge=$$$("dataAge");
 dataFirstName.html("");
 dataLastName.html("");
 dataAge.html("");		
-	//First try [servletThree and jsonData: true] combination -> go with send
-	//Then try [servletFour and jsonData: false] combination -> go with queryString
+	//First try [servletThree and sendJSON: true] combination -> go with send
+	//Then try [servletFour and sendJSON: false] combination -> go with queryString
 $$$.ajax({
-//"url":"servletThree",
-//"jsonData":true,
-"url":"servletFour",
 "methodType":"POST",
-"jsonData":false,
+//"url":"servletThree",
+//"sendJSON":true,
+"url":"servletFour",
+"sendJSON":false,
 "data":customer,
 "success":function(responseData){
 let cus=responseData;
