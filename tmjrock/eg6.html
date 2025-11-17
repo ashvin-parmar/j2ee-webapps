@@ -59,12 +59,72 @@ clear all existing options from select and option select
 Now, Add firstOption intially.
 Traverse the dataSource array and on every cycle create option and append it to SELECT 
 Fill ComboBOX
+*/
+this.element.selectedIndex=-1;
+this.element.value="";
+this.element.innerHTML="";
+let firstOption=jsonObject["firstOption"];
+let opt;
+let text;
+let value;
+if(firstOption)
+{
+if((typeof firstOption)!="object") throw "'firstOption' should be of object type in call to fillComboBox for element '"+this.element.name+"'";
+text=firstOption["text"];
+if(!text) throw "missing 'text' property against firstOption in call to fillComboBox for element '"+this.element.name+"'";
+if((typeof text)!="string") throw "'text' property is of string type against firstOption in call to fillComboBox for element '"+this.element.name+"'";
+value=firstOption["value"];
+if(!value) throw "missing 'value' property against firstOption in call to fillComboBox for element '"+this.element.name+"'";
+if((typeof value)!="string") throw "'value' property is of string type against firstOption in call to fillComboBox for element '"+this.element.name+"'";
+opt=document.createElement("option");
+opt.value=value;
+opt.innerHTML=text;
+this.element.append(opt);
+}
 
+//alert(typeof jsonObject);
+let dataSource={};
+dataSource=jsonObject["dataSource"];
+//alert(JSON.stringify(dataSource));
+//alert(typeof dataSource);
+//alert(dataSource);
+if(!dataSource) return;
+if((typeof dataSource)!="object") throw "dataSource is of object type in call to fillComboBox for element '"+this.element.name+"'";
+let dataSourceText;
+let dataSourceValue;
+
+dataSourceText=jsonObject["text"];
+if(!dataSourceText) throw "missing 'text' property in call to fillComboBox for element '"+this.element.name+"'";
+if((typeof dataSourceText)!="string") throw "'text' property is of string type in call to fillComboBox for element '"+this.element.name+"'";
+
+dataSourceValue=jsonObject["value"];
+if(!dataSourceValue) throw "missing 'value' property in call to fillComboBox for element '"+this.element.name+"'";
+if((typeof dataSourceValue)!="string") throw "'value' property is of string type in call to fillComboBox for element '"+this.element.name+"'";
+let i;
+let data={};
+for(i=0;i<dataSource.length;i++)
+{
+data=dataSource[i];
+if((typeof data)!="object") throw "data against dataSource is of object type in call to fillComboBox for element '"+this.element.name+"'";
+//alert(JSON.stringify(data));
+text=data[dataSourceText];
+if(!text) throw "missing '"+dataSourceText+"' property against dataSource in call to fillComboBox for element '"+this.element.name+"'";
+if((typeof text)!="string") throw "'"+dataSourceText+"' property is of string type against dataSource in call to fillComboBox for element '"+this.element.name+"'";
+value=data[dataSourceValue];
+if(!value) throw "missing '"+dataSourceValue+"' property against dataSource in call to fillComboBox for element '"+this.element.name+"'";
+//alert(typeof value);
+if((typeof value)!="string" && (typeof value)!="number") throw "'"+dataSourceValue+"' property is of string type against dataSource in call to fillComboBox for element '"+this.element.name+"'";
+
+opt=document.createElement("option");
+opt.value=value
+opt.innerHTML=text;
+this.element.append(opt);
+}
 
 };
 }
 $$$.ajax=function(jsonObject){
-if(jsonObject==null) throw "missing argument in call to ajax";
+if(jsonObject==null) throw "missing 1 argument in call to ajax";
 if(!jsonObject["url"]) throw "url property is missing in call to ajax";
 let url=jsonObject["url"];
 if((typeof url)!="string") throw "url property is missing in call to ajax";
@@ -196,11 +256,11 @@ $$$.ajax({
 "success":function(responseData){
 let designations=responseData;
 $$$("designations").fillComboBox({
-"dataSouce":designations,
+"dataSource":designations,
 "text":"title",
 "value":"code",
 "firstOption":{
-"text":"\<Select Option\>",
+"text":" Select option ",
 "value":"-1"
 }
 });
@@ -216,7 +276,8 @@ window.addEventListener('load',populateDesignations);
 <body>
 <h3>Learning GET request sending without parameters using java-script</h3>
 <b>Designations:</b>&nbsp;&nbsp;
-<select id='designations' name='designations'></select><br>
+<select id='designations' name='designations'>
+</select><br>
 <br>
 <a href='index.html'>HOME</a>
 </body>
