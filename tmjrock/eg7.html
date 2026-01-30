@@ -1,0 +1,98 @@
+//Accodian panel management system feature design and implemented.
+
+<!DOCTYPE HTML>
+<html lang='en'>
+<head>
+<title>Ajax Style Learning</title>
+<meta charset='utf-8'>
+<script>
+let panels=[];
+let expandedIndex=-1;
+function panelClicked(panelIndex)
+{
+if(expandedIndex!=-1) panels[expandedIndex].style.display="none";
+panels[panelIndex+1].style.display=panels[panelIndex+1].oldDisplay;
+expandedIndex=panelIndex+1;
+}
+function doit(elementId)
+{
+let accord=document.getElementById(elementId);
+let tags=accord.getElementsByTagName("*");
+alert(tags.length);
+let x;
+//for(x=0;x<tags.length;x++) alert(tags[x].nodeName);
+for(x=0;x<tags.length;x++)
+{
+if(tags[x].nodeName=="H3")
+{
+panels[panels.length]=tags[x];
+}
+if(tags[x].nodeName=="DIV")
+{
+panels[panels.length]=tags[x];
+}
+}
+alert(panels.length);
+if(panels.length%2!=0) throw "Malformed format provided towards accordian";
+for(x=0;x<panels.length;x+=2)
+{
+if(panels[x].nodeName!="H3") throw "Malformed format provided";
+if(panels[x+1].nodeName!="DIV") throw "Malformed format provided";
+}
+function panelClickHandler(panelIndex)
+{
+return function(){
+panelClicked(panelIndex);
+}
+}
+for(x=0;x<panels.length;x+=2)
+{
+panels[x].onclick=panelClickHandler(x);
+panels[x+1].oldDisplay=panels[x+1].style.display;
+panels[x+1].style.display="none";
+}
+}
+window.addEventListener('load',function(){
+doit("mymy");
+});
+</script>
+</head>
+<body>
+<div id='mymy'>
+<h3>Heading 1</h3>
+<div>
+Something Something Something
+Something Something Something
+Something Something Something
+Something Something Something
+Something Something Something
+Something Something Something
+</div>
+<h3>Heading 2</h3>
+<div>
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+</div>
+<h3>Heading 3</h3>
+<div>
+Data 3 Data 3 Data 3
+Data 3 Data 3 Data 3
+Data 3 Data 3 Data 3
+Data 3 Data 3 Data 3
+Data 3 Data 3 Data 3
+Data 3 Data 3 Data 3
+Data 3 Data 3 Data 3
+</div>
+</div>
+</body>
+</html>
