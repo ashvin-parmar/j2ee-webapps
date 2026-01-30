@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<title>AJAX Example</title>
+<meta charset='utf-8'>
+<script>
+//Over here the TMJRock Library developer works
+function $$$(cei)
+{
+let element=document.getElementById(cei);
+if(!element) return null;
+return new TMJRockElement(element);
+}
+
+$$$.model={
+"onStartup":[],
+"accordians":[]
+};
+$$$.accordianHeadingClicked=function(accordianIndex,panelIndex){
+if($$$.model.accordians[accordianIndex].expandedIndex!=-1) $$$.model.accordians[accordianIndex].panels[$$$.model.accordians[accordianIndex].expandedIndex].style.display="none";
+$$$.model.accordians[accordianIndex].panels[panelIndex+1].style.display=$$$.model.accordians[accordianIndex].panels[panelIndex+1].oldDisplay;
+$$$.model.accordians[accordianIndex].expandedIndex=panelIndex+1;
+};
+$$$.toAccordian=function(elementId)
+{
+let panels=[];
+let expandedIndex=-1;
+let accord=document.getElementById(elementId);
+let tags=accord.getElementsByTagName("*");
+//alert(tags.length);
+let x;
+//for(x=0;x<tags.length;x++) alert(tags[x].nodeName);
+for(x=0;x<tags.length;x++)
+{
+if(tags[x].nodeName=="H3")
+{
+panels[panels.length]=tags[x];
+}
+if(tags[x].nodeName=="DIV")
+{
+panels[panels.length]=tags[x];
+}
+}
+//alert(panels.length);
+if(panels.length%2!=0) throw "Heading and division malformed to create accordian";
+for(x=0;x<panels.length;x+=2)
+{
+if(panels[x].nodeName!="H3") throw "Heading and division malformed to create accordian";
+if(panels[x+1].nodeName!="DIV") throw "Heading and division malformed to create accordian";
+}
+function createClickHandler(accordianIndex,panelIndex)
+{
+return function(){
+$$$.accordianHeadingClicked(accordianIndex,panelIndex);
+};
+}
+let accordianIndex=$$$.model.accordians.length;
+for(x=0;x<panels.length;x+=2)
+{
+panels[x].onclick=createClickHandler(accordianIndex,x);
+panels[x+1].oldDisplay=panels[x+1].style.display;
+panels[x+1].style.display="none";
+}
+$$$.model.accordians[accordianIndex]={
+"panels":panels,
+"expandedIndex":-1
+};
+}
+
+$$$.onDocumentLoaded=function(func)
+{
+if((typeof func)!="function") throw "Expected function, found "+(typeof func)+" is call to onDocumentLoaded";
+$$$.model.onStartup[$$$.model.onStartup.length]=func;
+}
+$$$.initFramework=function(){
+let x=0;
+while(x<$$$.model.onStartup.length)
+{
+$$$.model.onStartup[x]();
+x++;
+}
+}
+window.addEventListener("load",function(){
+$$$.initFramework();
+});
+function TMJRockElement(element)
+{
+this.element=element;
+this.html=function(content){
+if((typeof this.element.innerHTML)=="string")
+{
+//alert((typeof content)+(content.toString()));
+if((typeof content)=="string")
+{
+this.element.innerHTML=content;
+}
+if((typeof content)=="number")
+{
+this.element.innerHTML=content;
+}
+return this.element.innerHTML;
+}
+return null;
+};
+this.value=function(content){
+if((typeof this.element.value)=="string")
+{
+if((typeof content)=="string")
+{
+this.element.value=content;
+}
+return this.element.value;
+}
+return null;
+};
+this.fillComboBox=function(jsonObject){
+//alert(typeof this.element.nodeName);
+//alert(this.element.nodeName);
+if(this.element.nodeName!="SELECT") throw "fillComboBox can be called on a SELECT type object only";
+this.element.selectedIndex=-1;
+this.element.value="";
+this.element.innerHTML="";
+let firstOption=jsonObject["firstOption"];
+let opt;
+let text;
+let value;
+if(firstOption)
+{
+if((typeof firstOption)!="object") throw "'firstOption' should be of object type in call to fillComboBox for element '"+this.element.name+"'";
+text=firstOption["text"];
+if(!text) throw "missing 'text' property against firstOption in call to fillComboBox for element '"+this.element.name+"'";
+if((typeof text)!="string") throw "'text' property is of string type against firstOption in call to fillComboBox for element '"+this.element.name+"'";
+value=firstOption["value"];
+if(!value) throw "missing 'value' property against firstOption in call to fillComboBox for element '"+this.element.name+"'";
+if((typeof value)!="string") throw "'value' property is of string type against firstOption in call to fillComboBox for element '"+this.element.name+"'";
+opt=document.createElement("option");
+opt.value=value;
+opt.innerHTML=text;
+this.element.append(opt);
+}
+
+//alert(typeof jsonObject);
+let dataSource={};
+dataSource=jsonObject["dataSource"];
+//alert(JSON.stringify(dataSource));
+//alert(typeof dataSource);
+//alert(dataSource);
+if(!dataSource) return;
+if((typeof dataSource)!="object") throw "dataSource is of object type in call to fillComboBox for element '"+this.element.name+"'";
+let dataSourceText;
+let dataSourceValue;
+
+dataSourceText=jsonObject["text"];
+if(!dataSourceText) throw "missing 'text' property in call to fillComboBox for element '"+this.element.name+"'";
+if((typeof dataSourceText)!="string") throw "'text' property is of string type in call to fillComboBox for element '"+this.element.name+"'";
+
+dataSourceValue=jsonObject["value"];
+if(!dataSourceValue) throw "missing 'value' property in call to fillComboBox for element '"+this.element.name+"'";
+if((typeof dataSourceValue)!="string") throw "'value' property is of string type in call to fillComboBox for element '"+this.element.name+"'";
+let i;
+let data={};
+for(i=0;i<dataSource.length;i++)
+{
+data=dataSource[i];
+if((typeof data)!="object") throw "data against dataSource is of object type in call to fillComboBox for element '"+this.element.name+"'";
+//alert(JSON.stringify(data));
+text=data[dataSourceText];
+if(!text) throw "missing '"+dataSourceText+"' property against dataSource in call to fillComboBox for element '"+this.element.name+"'";
+if((typeof text)!="string") throw "'"+dataSourceText+"' property is of string type against dataSource in call to fillComboBox for element '"+this.element.name+"'";
+value=data[dataSourceValue];
+if(!value) throw "missing '"+dataSourceValue+"' property against dataSource in call to fillComboBox for element '"+this.element.name+"'";
+//alert(typeof value);
+if((typeof value)!="string" && (typeof value)!="number") throw "'"+dataSourceValue+"' property is of string type against dataSource in call to fillComboBox for element '"+this.element.name+"'";
+
+opt=document.createElement("option");
+opt.value=value
+opt.innerHTML=text;
+this.element.append(opt);
+}
+
+};
+}
+$$$.ajax=function(jsonObject){
+if(jsonObject==null) throw "missing 1 argument in call to ajax";
+if(!jsonObject["url"]) throw "url property is missing in call to ajax";
+let url=jsonObject["url"];
+if((typeof url)!="string") throw "url property is missing in call to ajax";
+
+let methodType="GET";
+if(jsonObject["methodType"])
+{
+methodType=jsonObject["methodType"];
+if((typeof methodType)!="string") throw "methodType is of string type in call to ajax";
+if(["GET","POST"].includes(methodType)==false) throw "methodType is from GET/POST in call to ajax";
+}
+let onSuccess=null;
+if(jsonObject["success"])
+{
+onSuccess=jsonObject["success"];
+if((typeof onSuccess)!="function") throw "success is of function type in call to ajax";
+}
+
+let onFailure=null;
+if(jsonObject["failure"])
+{
+onFailure=jsonObject["failure"];
+if((typeof onFailure)!="function") throw "failure is of function type in call to ajax";
+}
+if(methodType=="GET")
+{
+let xmlHttpRequest=new XMLHttpRequest();
+xmlHttpRequest.onreadystatechange=function(){
+if(this.readyState==4)
+{
+if(this.status==200)
+{
+let responseData=JSON.parse(this.responseText);
+if(onSuccess) onSuccess(responseData);
+}
+else
+{
+if(onFailure) onFailure();
+}
+}
+};
+if(jsonObject["data"])
+{
+let jsonData=jsonObject["data"];
+let queryString="";
+let qsName;
+let qsValue;
+let x=0;
+for(k in jsonData)
+{
+if(x>0) queryString+="&";
+if(x==0) 
+{
+queryString="?";
+x++;
+}
+qsName=k;
+qsValue=jsonData[k];
+queryString=queryString+qsName+"="+qsValue;
+}
+url+=queryString;
+}
+//alert(url);
+xmlHttpRequest.open(methodType,url,true);
+xmlHttpRequest.send();
+}
+if(methodType=="POST")
+{
+let xmlHttpRequest=new XMLHttpRequest();
+xmlHttpRequest.onreadystatechange=function(){
+if(this.readyState==4)
+{
+if(this.status==200)
+{
+let responseData=JSON.parse(this.responseText);
+if(onSuccess) onSuccess(responseData);
+}
+else
+{
+if(onFailure) onFailure();
+}
+}
+};
+let jsonData={};
+let queryString="";
+let sendJSON=jsonObject["sendJSON"];
+if(!sendJSON) sendJSON=false;
+if((typeof sendJSON)!="boolean") throw "sendJSON property should be of boolean type in call to ajax";
+if(jsonObject["data"])
+{
+jsonData=jsonObject["data"];
+}
+xmlHttpRequest.open(methodType,url,true);
+if(sendJSON)
+{
+xmlHttpRequest.setRequestHeader("Content-Type","application/json");
+xmlHttpRequest.send(JSON.stringify(jsonData));
+}
+else
+{
+let qsName;
+let qsValue;
+let x=0;
+for(k in jsonData)
+{
+if(x>0) queryString+="&";
+if(x==0) 
+{
+//queryString="?";
+x++;
+}
+qsName=k;
+qsValue=jsonData[k];
+queryString=queryString+qsName+"="+qsValue;
+}
+//url=url+queryString;
+xmlHttpRequest.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+xmlHttpRequest.send(queryString);
+}
+}
+};
+
+/*
+*/
+
+//TMJRock Library developer works ends
+//TMJRock Library user
+$$$.onDocumentLoaded(function(){
+$$$.toAccordian("mymy");
+$$$.toAccordian("gogo");
+});
+</script>
+</head>
+<body>
+<div id='mymy'>
+<h3>Heading 1</h3>
+<div>
+Something Something Something
+Something Something Something
+Something Something Something
+Something Something Something
+Something Something Something
+Something Something Something
+</div>
+<h3>Heading 2</h3>
+<div>
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+</div>
+<h3>Heading 3</h3>
+<div>
+Data 3 Data 3 Data 3
+Data 3 Data 3 Data 3
+Data 3 Data 3 Data 3
+Data 3 Data 3 Data 3
+Data 3 Data 3 Data 3
+Data 3 Data 3 Data 3
+Data 3 Data 3 Data 3
+</div>
+</div>
+
+
+<div id='gogo'>
+<h3>Heading 1 Accord 2</h3>
+<div>
+Something Something Something
+Something Something Something
+Something Something Something
+Something Something Something
+Something Something Something
+Something Something Something
+</div>
+<h3>Heading 2 Accord 2</h3>
+<div>
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+Nothing Nothing Nothing
+</div>
+<h3>Heading 2 Accord 2</h3>
+<div>
+Data 3 Data 3 Data 3
+Data 3 Data 3 Data 3
+Data 3 Data 3 Data 3
+Data 3 Data 3 Data 3
+Data 3 Data 3 Data 3
+Data 3 Data 3 Data 3
+Data 3 Data 3 Data 3
+</div>
+</div>
+
+</body>
+</html>
+</head>
