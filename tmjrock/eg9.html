@@ -1,0 +1,132 @@
+<!-- Example for implementing modal in generalised way -->
+
+<!DOCTYPE HTML>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<title>Helper html related to Styling</title>
+<style>
+.mainFrame
+{
+width:100%;
+height:100%;
+top:0;
+left:0;
+background:grey;
+position:fixed;
+opacity:70%;
+}
+.modalFrame
+{
+width:400px;
+height:300px;
+min-width:400px;
+min-height:300px;
+margin:auto;
+top:0;
+bottom:0;
+left:0;
+right:0;
+position:fixed;
+background:blue;
+overflow:auto;
+}
+.closeModalFrameButton
+{
+float:right;
+padding: 5px 5px;
+pointer:cursor;
+}
+</style>
+<script>
+function showIt()
+{
+let d=document.createElement("div");
+d.classList.add("mainFrame");
+document.body.appendChild(d);
+let p=document.createElement("div");
+p.classList.add("modalFrame");
+document.body.appendChild(p);
+let s=document.createElement("span");
+let t=document.createTextNode("X");
+s.appendChild(t);
+p.appendChild(s);
+s.classList.add("closeModalFrameButton");
+}
+
+//The following is class
+function Modal(cid)		
+{
+//Over here, Assignment
+//Some properties that can be used to change if the modal should be 
+// closed if the user clicks outside the modal area. [Implement it]
+//There are Two function have to write -> onOpen and onClose which has been called using modal objects. For each modal [multiple modal can be generated generically...], there are an object created of modal class and respective method whould manage their working. 
+this.modalElement=document.getElementById(cid);
+this.modalElement.remove();
+this.show=function(){
+};
+}
+
+function createModal1()
+{
+var modal=new Modal("modalDisplay");
+modal.show();
+modal.onOpen=function(){
+p.append(this.modalElement);
+alert("Modal opened");
+};
+modal.onClose=function(){
+alert("Modal closed");
+p.removeChild(this.modalElement);
+};
+}
+function createModal2()
+{
+var modal=new Modal("mainDisplay");
+modal.show();
+}
+</script>
+</head>
+<body>
+<!--
+<button onclick='showIt()'>Show it</button>
+-->
+
+<button onclick='createModal1("mainDisplay")'>Show first modal</button>
+<button onclick='createModal2("modalDisplay")'>Show second modal</button>
+
+<div id='mainDisplay'>
+Something<br>
+<br>
+Nothing<br>
+</div>
+<div id='modalDisplay'>
+There are some data<br>
+God is greate<br>
+Nothing is impossible<br>
+<br>
+<br>
+There are some data<br>
+God is greate<br>
+Nothing is impossible<br>
+<br>
+<br>
+There are some data<br>
+God is greate<br>
+Nothing is impossible<br>
+<br>
+<br>
+There are some data<br>
+God is greate<br>
+Nothing is impossible<br>
+<br>
+<br>
+There are some data<br>
+God is greate<br>
+Nothing is impossible<br>
+<br>
+<br>
+
+</div>
+</body>
+</html>
