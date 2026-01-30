@@ -21,24 +21,21 @@ if($$$.model.accordians[accordianIndex].expandedIndex!=-1) $$$.model.accordians[
 $$$.model.accordians[accordianIndex].panels[panelIndex+1].style.display=$$$.model.accordians[accordianIndex].panels[panelIndex+1].oldDisplay;
 $$$.model.accordians[accordianIndex].expandedIndex=panelIndex+1;
 };
-$$$.toAccordian=function(elementId)
+$$$.toAccordian=function(accord)
 {
 let panels=[];
 let expandedIndex=-1;
-let accord=document.getElementById(elementId);
-let tags=accord.getElementsByTagName("*");
-//alert(tags.length);
+let children=accord.childNodes;
 let x;
-//for(x=0;x<tags.length;x++) alert(tags[x].nodeName);
-for(x=0;x<tags.length;x++)
+for(x=0;x<children.length;x++)
 {
-if(tags[x].nodeName=="H3")
+if(children[x].nodeName=="H3")
 {
-panels[panels.length]=tags[x];
+panels[panels.length]=children[x];
 }
-if(tags[x].nodeName=="DIV")
+if(children[x].nodeName=="DIV")
 {
-panels[panels.length]=tags[x];
+panels[panels.length]=children[x];
 }
 }
 //alert(panels.length);
@@ -73,7 +70,22 @@ if((typeof func)!="function") throw "Expected function, found "+(typeof func)+" 
 $$$.model.onStartup[$$$.model.onStartup.length]=func;
 }
 $$$.initFramework=function(){
+let allTags=document.getElementsByTagName("*");
+let t=null;
+let a=null;
 let x=0;
+for(x=0;x<allTags.length;x++)
+{
+t=allTags[x];
+if(t.hasAttribute("accordian"))
+{
+a=t.getAttribute("accordian");
+if(a=="true")
+{
+$$$.toAccordian(t);
+}
+}
+}
 while(x<$$$.model.onStartup.length)
 {
 $$$.model.onStartup[x]();
@@ -303,20 +315,12 @@ xmlHttpRequest.send(queryString);
 }
 }
 };
-
-/*
-*/
-
 //TMJRock Library developer works ends
 //TMJRock Library user
-$$$.onDocumentLoaded(function(){
-$$$.toAccordian("mymy");
-$$$.toAccordian("gogo");
-});
 </script>
 </head>
 <body>
-<div id='mymy'>
+<div accordian="true">
 <h3>Heading 1</h3>
 <div>
 Something Something Something
@@ -354,7 +358,7 @@ Data 3 Data 3 Data 3
 </div>
 
 
-<div id='gogo'>
+<div id='gogo' accordian=true>
 <h3>Heading 1 Accord 2</h3>
 <div>
 Something Something Something
