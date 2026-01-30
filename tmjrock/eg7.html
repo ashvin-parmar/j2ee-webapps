@@ -1,5 +1,6 @@
-//Accodian panel management system feature design and implemented.
-
+<!-- 
+	Accodian panel management system feature design and implemented.
+-->
 <!DOCTYPE HTML>
 <html lang='en'>
 <head>
@@ -18,7 +19,7 @@ function doit(elementId)
 {
 let accord=document.getElementById(elementId);
 let tags=accord.getElementsByTagName("*");
-alert(tags.length);
+//alert(tags.length);
 let x;
 //for(x=0;x<tags.length;x++) alert(tags[x].nodeName);
 for(x=0;x<tags.length;x++)
@@ -32,7 +33,7 @@ if(tags[x].nodeName=="DIV")
 panels[panels.length]=tags[x];
 }
 }
-alert(panels.length);
+//alert(panels.length);
 if(panels.length%2!=0) throw "Malformed format provided towards accordian";
 for(x=0;x<panels.length;x+=2)
 {

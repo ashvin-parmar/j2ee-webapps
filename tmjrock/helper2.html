@@ -1,0 +1,43 @@
+<!-- 
+When we are using modal's, there are only one respective element present in the DOM when used. There are no copy of those modal panels are present, only single copy which has been appended in when required and removed when not required. 
+Complete Modal is created using java-script
+We have to learn this approuch to implement in our framework.
+-->
+<!DOCTYPE HTML>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<title>Helper for Modal designing understanding's</title>
+<script>
+function clickToMove()
+{
+let a=document.getElementById("positionA");
+let b=document.getElementById("myTable");
+b.remove();
+a.append(b);
+}
+function revertBack()
+{
+let a=document.getElementById("positionB");
+let b=document.getElementById("myTable");
+b.remove();
+a.append(b);
+}
+</script>
+</head>
+<body>
+<button type='button' onclick='clickToMove()'>Click to move</button>
+<button type='button' onclick='revertBack()'>Revert back</button>
+<br>
+<br>
+<span id='positionA'></span>
+<br>
+<br>
+God is greate<br>
+Ujjain is the city of Gods<br>
+<br>
+<div id='positionB'>
+<table id='myTable' border='1'><tbody><tr><td>God is</td><td>Great</td></tr></tbody></table>
+</div>
+</body>
+</html>

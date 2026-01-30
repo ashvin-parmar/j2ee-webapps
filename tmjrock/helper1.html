@@ -1,0 +1,47 @@
+<!--
+	Helper function to get all the tag names and traverse to find what we are looking for, There are one more advantage that we can use that we can find the attribute on those tags that respective attribute available on that page or not. 
+	For example, 'accordian' attribute added against any tag <div> then we can check out for those division and generalised way to make accordian. -> Implemented next to it.
+-->
+<!DOCTYPE HTML>
+<head>
+<title>Helper function for Tag name finding in document</title>
+<meta charset='utf-8'>
+<script>
+window.addEventListener('load',function(){
+let elements=document.getElementsByTagName("td");
+alert("Length of td tags: "+elements.length);
+let x;
+/*
+for(x=0;x<elements.length;x++)
+{
+alert(elements[x].innerHTML);
+}
+*/
+
+elements=document.getElementsByTagName("*");
+alert("length of all tags available in document: "+elements.length);
+for(x=0;x<elements.length;x++)
+{
+//alert(elements[x].nodeName);
+}
+
+let myId=document.getElementById("myId");
+elements=myId.getElementsByTagName("*");
+alert("Length of tags available against id 'myId'"+elements.length);
+for(x=0;x<elements.length;x++)
+{
+alert(elements[x].nodeName);
+}
+
+
+});
+</script>
+</head>
+<body>
+<h2>Heading</h2>
+<i>nothing</i><br><br>		<!-- italic part -->
+<u>Something</u>	<!-- underline -->
+<table id='myId'><tbody><tr><td>God is</td><td>Great</td></tr></tbody></table>
+<span>Space</span>
+</body>
+</html>
