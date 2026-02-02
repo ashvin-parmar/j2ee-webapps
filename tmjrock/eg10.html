@@ -1,0 +1,167 @@
+<!-- Modal implementation with specified guidelines --> 
+<!DOCTYPE HTML>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<title>Helper html related to Styling</title>
+<style>
+.modalMask
+{
+width:100%;
+height:100%;
+top:0;
+left:0;
+background:grey;
+position:fixed;
+opacity:70%;
+}
+.modal
+{
+width:400px;
+height:300px;
+min-width:400px;
+min-height:300px;
+margin:auto;
+top:0;
+bottom:0;
+left:0;
+right:0;
+position:fixed;
+background:blue;
+overflow:auto;
+}
+.closeButton
+{
+float:right;
+padding: 5px 5px;
+pointer:cursor;
+}
+</style>
+<script>
+function ds=
+{
+"modals":[]
+};
+//The following is class
+function Modal(cid)
+{
+var objectAddress=this;
+var contentId=cid;
+var onOpen=null;
+var onClose=null;
+var contentReference=document.getElementById(contentId);
+var contentParentReference=contentReference.parentElement;
+var contentIndex=0;
+while(contentIndex<contentParentReference.children.length)
+{
+if(contentReference==contentParentReference.children[contentIndex]) break;
+contentIndex++;
+}
+var modalMaskDivision=document.createElement("div");
+modalMaskDivision.classList.add("modalMask");
+var modalDivision=document.createElement("div");
+modalDivision.classList.add("modal");
+var closeButtonSpan=document.createElement("span");
+closeButtonSpan.classList.add("closeButton");
+var closeButtonMarker=document.createTextNode("X");
+closeButtonSpan.appendChild(closeButtonMarker);
+modalDivision.appendChild(closeButtonSpan);
+contentReference.remove();
+modalDivision.appendChild(contentReference)
+
+this.show=function(){
+document.body.appendChild(modalMaskDivision);
+document.body.appendChild(modalDivision);
+if(this.onOpen!=null) this.onOpen();
+};
+closeButtonSpan.onclick=function(){
+contentReference.remove();
+modalDivision.remove();
+modalMaskDivision.remove();
+if(objectAddress.onClose!=null) objectAddress.onClose();
+};
+}
+function createModal1(id)
+{
+var modal=new Modal(id);
+modal.onOpen=function(){
+alert("Modal A opened");
+};
+modal.onClose=function(){
+alert("Modal A closed");
+};
+modal.show();
+}
+function createModal2(id)
+{
+var modal=new Modal(id);
+modal.onOpen=function(){
+alert("Modal B opened");
+};
+modal.onClose=function(){
+alert("Modal B closed")
+};
+modal.show();
+}
+function loader()
+{
+/*
+	over here, we have to traverse on all tags and search for forModal attribute, if available and its true then we have to hide or remove from the HTML and add create's its modal.
+	we have to save all the modal's in the DS.
+*/
+}
+window.addEventListener('load',loader);
+
+/*
+	We have to provide more features like 
+	size -> python feature
+var modal=new Modal({
+"contentId":"Modal1",
+"header":"Some heading",
+"footer":"some footer",
+"size":"200x300",
+"closeButton":false,
+"maskColor":"#121332",
+"modalBackgroundColor":"#549933"
+});
+*/
+</script>
+</head>
+<body>
+<button onclick='createModal1("ModalA")'>Show Modal 1</button>
+<button onclick='createModal2("ModalB")'>Show Modal 2</button>
+<div id='ModalA' forModal='true'>
+Something<br>
+<br>
+Nothing<br>
+</div>
+<div id='ModalB'>
+There are some data<br>
+God is greate<br>
+Nothing is impossible<br>
+<br>
+<br>
+There are some data<br>
+God is greate<br>
+Nothing is impossible<br>
+<br>
+<br>
+There are some data<br>
+God is greate<br>
+Nothing is impossible<br>
+<br>
+<br>
+There are some data<br>
+God is greate<br>
+Nothing is impossible<br>
+<br>
+<br>
+There are some data<br>
+God is greate<br>
+Nothing is impossible<br>
+<br>
+<br>
+
+</div>
+</body>
+</html>
