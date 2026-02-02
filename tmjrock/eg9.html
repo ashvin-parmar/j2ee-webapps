@@ -1,4 +1,8 @@
-<!-- Example for implementing modal in generalised way -->
+<!-- 
+Learning the way to move an object from DOM random position to DS and show it when required.
+when a button clicked -> remove from DOM and add to modal 
+when close button clicked -> remove from modal and add to DOM
+ -->
 
 <!DOCTYPE HTML>
 <html lang='en'>
@@ -6,7 +10,7 @@
 <meta charset='utf-8'>
 <title>Helper html related to Styling</title>
 <style>
-.mainFrame
+.modalMask
 {
 width:100%;
 height:100%;
@@ -16,7 +20,7 @@ background:grey;
 position:fixed;
 opacity:70%;
 }
-.modalFrame
+.modal
 {
 width:400px;
 height:300px;
@@ -31,7 +35,7 @@ position:fixed;
 background:blue;
 overflow:auto;
 }
-.closeModalFrameButton
+.closeButton
 {
 float:right;
 padding: 5px 5px;
@@ -39,68 +43,85 @@ pointer:cursor;
 }
 </style>
 <script>
-function showIt()
+//The following is class
+function Modal(cid)
 {
-let d=document.createElement("div");
-d.classList.add("mainFrame");
-document.body.appendChild(d);
-let p=document.createElement("div");
-p.classList.add("modalFrame");
-document.body.appendChild(p);
-let s=document.createElement("span");
-let t=document.createTextNode("X");
-s.appendChild(t);
-p.appendChild(s);
-s.classList.add("closeModalFrameButton");
+var objectAddress=this;
+var contentId=cid;
+var onOpen=null;
+var onClose=null;
+var contentReference=document.getElementById(contentId);
+var contentParentReference=contentReference.parentElement;
+var contentIndex=0;
+while(contentIndex<contentParentReference.children.length)
+{
+if(contentReference==contentParentReference.children[contentIndex]) break;
+contentIndex++;
 }
 
-//The following is class
-function Modal(cid)		
-{
-//Over here, Assignment
-//Some properties that can be used to change if the modal should be 
-// closed if the user clicks outside the modal area. [Implement it]
-//There are Two function have to write -> onOpen and onClose which has been called using modal objects. For each modal [multiple modal can be generated generically...], there are an object created of modal class and respective method whould manage their working. 
-this.modalElement=document.getElementById(cid);
-this.modalElement.remove();
+//Over here we are going to create modal elements and not using already build elements
+var modalMaskDivision=document.createElement("div");
+modalMaskDivision.classList.add("modalMask");
+var modalDivision=document.createElement("div");
+modalDivision.classList.add("modal");
+var closeButtonSpan=document.createElement("span");
+closeButtonSpan.classList.add("closeButton");
+var closeButtonMarker=document.createTextNode("X");
+closeButtonSpan.appendChild(closeButtonMarker);
+modalDivision.appendChild(closeButtonSpan);
+contentReference.remove();
+modalDivision.appendChild(contentReference)
+
 this.show=function(){
+document.body.appendChild(modalMaskDivision);
+document.body.appendChild(modalDivision);
+if(this.onOpen!=null) this.onOpen();
+};
+
+closeButtonSpan.onclick=function(){
+contentReference.remove();
+modalDivision.remove();
+modalMaskDivision.remove();
+if(contentParentReference.children.length==contentIndex)
+	contentParentReference.appendChild(contentReference);
+else 
+	contentParentReference.insertBefore(contentReference,contentParentReference.children[contentIndex]);
+if(objectAddress.onClose!=null) objectAddress.onClose();
 };
 }
-
-function createModal1()
+function createModal1(id)
 {
-var modal=new Modal("modalDisplay");
-modal.show();
+var modal=new Modal(id);
 modal.onOpen=function(){
-p.append(this.modalElement);
-alert("Modal opened");
+alert("Modal A opened");
 };
 modal.onClose=function(){
-alert("Modal closed");
-p.removeChild(this.modalElement);
+alert("Modal A closed");
 };
+modal.show();
 }
-function createModal2()
+function createModal2(id)
 {
-var modal=new Modal("mainDisplay");
+var modal=new Modal(id);
+modal.onOpen=function(){
+alert("Modal B opened");
+};
+modal.onClose=function(){
+alert("Modal B closed")
+};
 modal.show();
 }
 </script>
 </head>
 <body>
-<!--
-<button onclick='showIt()'>Show it</button>
--->
-
-<button onclick='createModal1("mainDisplay")'>Show first modal</button>
-<button onclick='createModal2("modalDisplay")'>Show second modal</button>
-
-<div id='mainDisplay'>
+<button onclick='createModal1("ModalA")'>Show Modal 1</button>
+<button onclick='createModal2("ModalB")'>Show Modal 2</button>
+<div id='ModalA' forModal='true'>
 Something<br>
 <br>
 Nothing<br>
 </div>
-<div id='modalDisplay'>
+<div id='ModalB'>
 There are some data<br>
 God is greate<br>
 Nothing is impossible<br>
