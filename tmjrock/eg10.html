@@ -38,18 +38,16 @@ pointer:cursor;
 }
 </style>
 <script>
-function ds=
-{
-"modals":[]
+var ds={
+"modals":{}
 };
 //The following is class
-function Modal(cid)
+function Modal(contentReference)
 {
 var objectAddress=this;
-var contentId=cid;
 var onOpen=null;
 var onClose=null;
-var contentReference=document.getElementById(contentId);
+var contentReference=contentReference;
 var contentParentReference=contentReference.parentElement;
 var contentIndex=0;
 while(contentIndex<contentParentReference.children.length)
@@ -67,12 +65,12 @@ var closeButtonMarker=document.createTextNode("X");
 closeButtonSpan.appendChild(closeButtonMarker);
 modalDivision.appendChild(closeButtonSpan);
 contentReference.remove();
-modalDivision.appendChild(contentReference)
 
 this.show=function(){
+modalDivision.appendChild(contentReference)
 document.body.appendChild(modalMaskDivision);
 document.body.appendChild(modalDivision);
-if(this.onOpen!=null) this.onOpen();
+if(objectAddress.onOpen!=null) objectAddress.onOpen();
 };
 closeButtonSpan.onclick=function(){
 contentReference.remove();
@@ -81,40 +79,43 @@ modalMaskDivision.remove();
 if(objectAddress.onClose!=null) objectAddress.onClose();
 };
 }
-function createModal1(id)
-{
-var modal=new Modal(id);
-modal.onOpen=function(){
-alert("Modal A opened");
-};
-modal.onClose=function(){
-alert("Modal A closed");
-};
-modal.show();
-}
-function createModal2(id)
-{
-var modal=new Modal(id);
-modal.onOpen=function(){
-alert("Modal B opened");
-};
-modal.onClose=function(){
-alert("Modal B closed")
-};
-modal.show();
-}
 function loader()
 {
+var childrens=document.body.children;
+var x=0;
+var attr=null;
+var modal=null;
+var id;
+for(x=0;x<childrens.length;x++)
+{
+if(childrens[x].nodeName=="DIV" && childrens[x].hasAttribute("forModal"))
+{
+attr=childrens[x].getAttribute("forModal");
+if(attr=="true")
+{
+//alert(childrens[x].id);		
+//We have to fetch the data before calling to modal
+id=childrens[x].id;
+modal=new Modal(childrens[x]);
+
+ds.modals[id]=modal;
+}
+}
+}
+
 /*
 	over here, we have to traverse on all tags and search for forModal attribute, if available and its true then we have to hide or remove from the HTML and add create's its modal.
 	we have to save all the modal's in the DS.
 */
 }
-window.addEventListener('load',loader);
-
+function callToShow(id)
+{
+var modal=ds.modals[id];
+modal.show();
+}
 /*
 	We have to provide more features like 
-	size -> python feature
+`	size -> python feature
 var modal=new Modal({
 "contentId":"Modal1",
 "header":"Some heading",
@@ -125,17 +126,19 @@ var modal=new Modal({
 "modalBackgroundColor":"#549933"
 });
 */
+window.addEventListener('load',loader);
 </script>
 </head>
 <body>
-<button onclick='createModal1("ModalA")'>Show Modal 1</button>
-<button onclick='createModal2("ModalB")'>Show Modal 2</button>
+<button onclick='callToShow("ModalA")'>Show Modal 1</button>
+<button onclick='callToShow("ModalB")'>Show Modal 2</button>
 <div id='ModalA' forModal='true'>
 Something<br>
 <br>
 Nothing<br>
 </div>
-<div id='ModalB'>
+<br>
+<div id='ModalB' forModal='true'>
 There are some data<br>
 God is greate<br>
 Nothing is impossible<br>
