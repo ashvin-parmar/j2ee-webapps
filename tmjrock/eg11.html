@@ -1,4 +1,5 @@
 <!-- Modal implementation with specified guidelines --> 
+
 <!DOCTYPE HTML>
 <html lang='en'>
 <head>
@@ -38,16 +39,49 @@ pointer:cursor;
 }
 </style>
 <script>
-var ds={		/* problem over here is that, if we are using multiple modals with same id then theier would be problem to identify the data based on id, so we have to correct it.   */
-"modals":{}
+var ds={
+"modals":[]
 };
 //The following is class
-function Modal(contentReference)
+function Modal(modalConf)
 {
 var objectAddress=this;
-var onOpen=null;
-var onClose=null;
-var contentReference=contentReference;
+let onOpen=modalConf.onOpen;
+let onClose=modalConf.onClose;
+var contentId=modalConf.contentId;
+var header=modalConf.header;
+var footer=modalConf.footer;
+var size=modalConf.size;
+var width;
+var height;
+var closeButton=modalConf.closeButton;
+var maskColor=modalConf.maskColor;
+var modalBackgroundColor=modalConf.modalBackgroundColor;
+//validations over here
+if(modalConf==null) throw "Modal configuration required, See the documentation for configuration(s)";
+
+if(typeof(contentId)!="string") throw "Modal content id must be of 'string' type";
+var contentReference=document.getElementById(contentId);
+if(contentReference==null) throw "Invalid contentId passed: "+contentId;
+if(header==null) throw "Modal header required";
+if(typeof(header)!="string") throw "Modal header property required to be of 'string' type";
+if(footer==null) throw "Modal footer required";
+if(typeof(footer)!="string") throw "Modal footer property required to be of 'string' type";
+if(size==null || typeof(size)!="string" || size.indexOf('x')==-1) throw "Modal size property required in format 'widthxheight' format";
+//width=parseInt(size.substring(0,size.indexOf('x')));
+width=parseInt(size);
+height=parseInt(size.substring(size.indexOf('x')+1));
+//alert(width+","+height);
+if(width<=399 || height<=299) throw "Modal width and height must be positive and greater than equal to 400x300";
+if(closeButton!=null && typeof(closeButton)!="boolean") throw "Modal closeButton property required to be of 'boolean' type";
+if(maskColor!=null && typeof(maskColor)!="string") throw "Modal maskColor property required to be of 'string' type";
+if(modalBackgroundColor!=null && typeof(modalBackgroundColor)!="string") throw "Modal modalBackgroundColor property required to be of 'string' type";
+if(onOpen!=null && typeof(onOpen)!="function") throw "Modal onOpen property required to be of 'function' type";
+if(onClose!=null && typeof(onClose)!="function") throw "Modal onClose property required to be of 'function' type";
+
+//Now use all of those properties
+
+var contentReference=document.getElementById(contentId);
 var contentParentReference=contentReference.parentElement;
 var contentIndex=0;
 while(contentIndex<contentParentReference.children.length)
@@ -96,7 +130,22 @@ if(attr=="true")
 //alert(childrens[x].id);		
 //We have to fetch the data before calling to modal
 id=childrens[x].id;
-modal=new Modal(childrens[x]);
+//modal=new Modal(childrens[x]);
+modal=new Modal({
+"contentId":id,
+"header":"Some heading",
+"footer":"some footer",
+"size":"450x300",
+"closeButton":false,
+"maskColor":"#121332",
+"modalBackgroundColor":"#549933",
+"onOpen":function(){
+alert(id+" Opened");
+},
+"onClose":function(){
+alert(id+" Closed");
+}
+});
 
 ds.modals[id]=modal;
 }
