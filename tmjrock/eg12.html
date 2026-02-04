@@ -1,4 +1,5 @@
 <!-- As per TM's Modal implementation with specified guidelines [Perfect]--> 
+<!-- The best programm of all time  with using attribute's we are creating the modal without even calling anything. Everything is auto-mated. -->
 
 <!DOCTYPE HTML>
 <html lang='en'>
@@ -13,7 +14,7 @@ height:100%;
 top:0;
 left:0;
 background:grey;
-position:fied;
+position:fixed;
 opacity:70%;
 }
 .modal
@@ -29,7 +30,7 @@ left:0;
 right:0;
 position:fixed;
 background:blue;
-overflow:auto;
+border:2px solid white;
 }
 .closeButton
 {
@@ -43,48 +44,31 @@ var ds={
 "modals":[]
 };
 //We are going to modified as per requirement
-
-
+var $$$={
+"modals":{}
+};
+$$$.modals.show=function(contentId)
+{
+for(var i=0;i<ds.modals.length;i++)
+{
+if(ds.modals[i].getContentId()==contentId)
+{
+ds.modals[i].show();
+break;
+}
+}
+}
 //The following is class
-function Modal(modalConf)
+function Modal(ctrf)
 {
 var objectAddress=this;
-let onOpen=modalConf.onOpen;
-let onClose=modalConf.onClose;
-var contentId=modalConf.contentId;
-var header=modalConf.header;
-var footer=modalConf.footer;
-var size=modalConf.size;
-var width;
-var height;
-var closeButton=modalConf.closeButton;
-var maskColor=modalConf.maskColor;
-var modalBackgroundColor=modalConf.modalBackgroundColor;
-//validations over here
-if(modalConf==null) throw "Modal configuration required, See the documentation for configuration(s)";
-
-if(typeof(contentId)!="string") throw "Modal content id must be of 'string' type";
-var contentReference=document.getElementById(contentId);
-if(contentReference==null) throw "Invalid contentId passed: "+contentId;
-if(header==null) throw "Modal header required";
-if(typeof(header)!="string") throw "Modal header property required to be of 'string' type";
-if(footer==null) throw "Modal footer required";
-if(typeof(footer)!="string") throw "Modal footer property required to be of 'string' type";
-if(size==null || typeof(size)!="string" || size.indexOf('x')==-1) throw "Modal size property required in format 'widthxheight' format";
-//width=parseInt(size.substring(0,size.indexOf('x')));
-width=parseInt(size);
-height=parseInt(size.substring(size.indexOf('x')+1));
-//alert(width+","+height);
-if(width<=399 || height<=299) throw "Modal width and height must be positive and greater than equal to 400x300";
-if(closeButton!=null && typeof(closeButton)!="boolean") throw "Modal closeButton property required to be of 'boolean' type";
-if(maskColor!=null && typeof(maskColor)!="string") throw "Modal maskColor property required to be of 'string' type";
-if(modalBackgroundColor!=null && typeof(modalBackgroundColor)!="string") throw "Modal modalBackgroundColor property required to be of 'string' type";
-if(onOpen!=null && typeof(onOpen)!="function") throw "Modal onOpen property required to be of 'function' type";
-if(onClose!=null && typeof(onClose)!="function") throw "Modal onClose property required to be of 'function' type";
-
-//Now use all of those properties
-
-var contentReference=document.getElementById(contentId);
+let onOpen=null;
+let onClose=null;
+var contentReference=ctrf;
+var contentId=contentReference.id;
+this.getContentId=function(){
+return contentId;
+};
 var contentParentReference=contentReference.parentElement;
 var contentIndex=0;
 while(contentIndex<contentParentReference.children.length)
@@ -96,101 +80,174 @@ var modalMaskDivision=document.createElement("div");
 modalMaskDivision.classList.add("modalMask");
 var modalDivision=document.createElement("div");
 modalDivision.classList.add("modal");
-var closeButtonSpan=document.createElement("span");
+
+var headerDivision=document.createElement("div");
+//headerDivision.style.width='98%';
+headerDivision.style.height="40px";
+//headerDivision.style.rightMargin="0px";
+headerDivision.style.right="0";
+headerDivision.style.padding="5px";
+headerDivision.style.background="red";
+modalDivision.appendChild(headerDivision);
+
+if(contentReference.hasAttribute("size"))
+{
+var sz=contentReference.getAttribute("size");
+var xpos=sz.indexOf('x');
+if(xpos==-1) throw "In case of modal, size attribute has been specified as widthxheight";
+if(xpos==0 || xpos==sz.length-1) throw "In case of modal, size attribute has been specified as widthxheight";
+var width=sz.substring(0,xpos);
+var height=sz.substring(xpos+1);
+modalDivision.style.width=width+"px";
+modalDivision.style.height=height+"px";
+}
+else	//default
+{
+modalDivision.style.width="400px";
+modalDivision.style.height="300px";
+}
+
+if(contentReference.hasAttribute("header"))
+{
+var hd=contentReference.getAttribute("header");
+headerDivision.innerHTML=hd;
+}
+if(contentReference.hasAttribute("maskColor"))
+{
+var mc=contentReference.getAttribute("maskColor");
+modalMaskDivision.style.background=mc;
+}
+if(contentReference.hasAttribute("modalBackgroundColor"))
+{
+var mkc=contentReference.getAttribute("modalBackgroundColor");
+modalDivision.style.background=mkc;
+}
+var contentDivision=document.createElement("div");
+//contentDivision.style.border="1px Solid Black";
+//contentDivision.style.width="98%";
+contentDivision.style.left="0";
+contentDivision.style.right="0";
+contentDivision.style.padding="5px";
+contentDivision.style.height=(parseInt(modalDivision.style.height)-110)+"px";
+contentDivision.style.background="green";
+contentDivision.style.overflow="auto";
+
+contentReference.remove();
+contentDivision.appendChild(contentReference);
+modalDivision.appendChild(contentDivision);
+
+var footerDivision=document.createElement("div");
+//footerDivision.style.width="98%";
+footerDivision.style.height="40px";
+footerDivision.style.padding="5px";
+footerDivision.style.background="pink";
+footerDivision.style.left="0";
+footerDivision.style.right="0";		//because width is managed auto [commented]
+footerDivision.style.position="absolute";
+footerDivision.style.bottom="0";
+modalDivision.appendChild(footerDivision);
+if(contentReference.hasAttribute("footer"))
+{
+var ft=contentReference.getAttribute("footer");
+footerDivision.innerHTML=ft;
+}
+
+
+var closeButtonSpan=null;
+if(contentReference.hasAttribute("closeButton"))
+{
+var cb=contentReference.getAttribute("closeButton");
+if(cb.toUpperCase()!="FALSE")
+{
+closeButtonSpan=document.createElement("span");
 closeButtonSpan.classList.add("closeButton");
 var closeButtonMarker=document.createTextNode("X");
 closeButtonSpan.appendChild(closeButtonMarker);
-modalDivision.appendChild(closeButtonSpan);
-contentReference.remove();
-modalDivision.appendChild(contentReference)
+headerDivision.appendChild(closeButtonSpan);
+}
+else
+{
+//Over here, user provided the case to close the modal, or forward to somewhere else.
+}
+}
+else
+{
+closeButtonSpan=document.createElement("span");
+closeButtonSpan.classList.add("closeButton");
+var closeButtonMarker=document.createTextNode("X");
+closeButtonSpan.appendChild(closeButtonMarker);
+headerDivision.appendChild(closeButtonSpan);
+}
+if(contentReference.hasAttribute("onOpen"))
+{
+var oo=contentReference.getAttribute("onOpen");
+this.onOpen=oo;
+}
+if(contentReference.hasAttribute("onClose"))
+{
+var oc=contentReference.getAttribute("onClose");
+this.onClose=oc;
+}
 
 this.show=function(){
 document.body.appendChild(modalMaskDivision);
 document.body.appendChild(modalDivision);
-if(objectAddress.onOpen!=null) objectAddress.onOpen();
+if(objectAddress.onOpen!=null) setTimeout(function(){eval(objectAddress.onOpen),100});
 };
+if(closeButtonSpan!=null)
+{
 closeButtonSpan.onclick=function(){
 modalDivision.remove();
 modalMaskDivision.remove();
-if(objectAddress.onClose!=null) objectAddress.onClose();
+if(objectAddress.onClose!=null) setTimeout(function(){eval(objectAddress.onClose),100});
 };
+}
 }
 function loader()
 {
-var childrens=document.body.children;
+var childrens=document.getElementsByTagName("*");
 var x=0;
 var attr=null;
 var modal=null;
-var id;
 for(x=0;x<childrens.length;x++)
 {
 if(childrens[x].nodeName=="DIV" && childrens[x].hasAttribute("forModal"))
 {
 attr=childrens[x].getAttribute("forModal");
-if(attr=="true")
+if(attr.toUpperCase()=="TRUE")
 {
-//alert(childrens[x].id);		
-//We have to fetch the data before calling to modal
-id=childrens[x].id;
-//modal=new Modal(childrens[x]);
-modal=new Modal({			
-/*We have implements this feature, but we cannot implement this in our project because this all factors has to be filled by user, So we are going to change the design as per user perspective 
-User can provide the respective attribute in same forModal attribute's available tag. Also, those are available in documentation.
-*/	
-"contentId":id,
-"header":"Some heading",
-"footer":"some footer",
-"size":"450x300",
-"closeButton":false,
-"maskColor":"#121332",
-"modalBackgroundColor":"#549933",
-"onOpen":function(){
-alert(id+" Opened");
-},
-"onClose":function(){
-alert(id+" Closed");
-}
-});
+modal=new Modal(childrens[x]);
 x--;
-ds.modals[id]=modal;
+ds.modals[ds.modals.length]=modal;
+}
 }
 }
 }
 
-/*
-	over here, we have to traverse on all tags and search for forModal attribute, if available and its true then we have to hide or remove from the HTML and add create's its modal.
-	we have to save all the modal's in the DS.
-*/
+function onOpened()
+{
+alert(" Opened");
+}
+function onClosed()
+{
+alert(" Closed");
 }
 function callToShow(id)
 {
 $$$.modals.show(id);
 }
-/*
-	We have to provide more features like 
-`	size -> python feature
-var modal=new Modal({
-"contentId":"Modal1",
-"header":"Some heading",
-"footer":"some footer",
-"size":"200x300",
-"closeButton":false,
-"maskColor":"#121332",
-"modalBackgroundColor":"#549933"
-});
-*/
 window.addEventListener('load',loader);
 </script>
 </head>
 <body>
 <button onclick='callToShow("ModalA")'>Show Modal 1</button>
 <button onclick='callToShow("ModalB")'>Show Modal 2</button>
-<div id='ModalA' forModal='true'>
+<div id='ModalA' forModal='true' header="Some heading" footer="some footer" size="600x400" maskColor="#123243" modalBackgroundColor="#543344" onOpen=onOpened() onClose=onClosed() >
 Something<br>
 <br>
 Nothing<br>
 </div>
-<div id='ModalB' forModal='true'>
+<div id='ModalB' forModal='true' header="Some heading 2 " footer="some footer 2 " size="400x400" closeButton="false" maskColor="#124123" modalBackgroundColor="#123344" onOpen="onOpened()" onClose="onClosed()" >
 There are some data<br>
 God is greate<br>
 Nothing is impossible<br>
