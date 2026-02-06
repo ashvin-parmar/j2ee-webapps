@@ -148,6 +148,7 @@ contentDivision.style.background="green";
 contentDivision.style.overflow="auto";
 
 contentReference.remove();
+contentReference.style.display="block";
 contentDivision.appendChild(contentReference);
 modalDivision.appendChild(contentDivision);
 
@@ -634,7 +635,7 @@ Data 3 Data 3 Data 3
 </div>
 
 
-<div id='gogo' accordian=true>
+<div id='gogo' accordian="true">
 <h3>Heading 1 Accord 2</h3>
 <div>
 Something Something Something
@@ -672,14 +673,14 @@ Data 3 Data 3 Data 3
 </div>
 <button onclick='callToShow("ModalA")'>Show Modal 1</button>
 <button onclick='callToShow("ModalB")'>Show Modal 2</button>
-<div id='ModalA'  forModal='true' header="Some heading" footer="some footer" size="600x400" maskColor="#123243" modalBackgroundColor="#543344" beforeOpening="beforeOpened()" afterOpening="onOpened()" beforeClosing="beforeClosed()" afterClosing="onClosed()" >
+<div id='ModalA' style="display:none;" forModal='true' header="Some heading" footer="some footer" size="600x400" maskColor="#123243" modalBackgroundColor="#543344" beforeOpening="beforeOpened()" afterOpening="onOpened()" beforeClosing="beforeClosed()" afterClosing="onClosed()" >
 Something<br>
 <br>
 <input type='text' id="myTextArea" value="Something"><br>
 Nothing<br>
 </div>
 <button onclick="javascript:doSomething()">Testing</button>
-<div id='ModalB' forModal='true' header="Some heading 2 " footer="some footer 2 " size="400x400" closeButton="false" maskColor="#124123" modalBackgroundColor="#123344" afterOpening="onOpened()" afterClosing="onClosed()" >
+<div id='ModalB' forModal='true' style="display:none;" header="Some heading 2 " footer="some footer 2 " size="400x400" closeButton="false" maskColor="#124123" modalBackgroundColor="#123344" afterOpening="onOpened()" afterClosing="onClosed()" >
 There are some data<br>
 God is greate<br>
 Nothing is impossible<br>
