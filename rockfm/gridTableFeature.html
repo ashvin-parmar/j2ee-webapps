@@ -1,0 +1,171 @@
+<!DOCTYPE HTML>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<title>Grid table feature</title>
+<link rel='stylesheet' type='text/css'href='/rockfm/gridTableFeature.css'>
+<script>
+//Here the ROCK-FM Libarary functionality written 
+function $$$()
+{
+
+}
+$$$.grid=function(elementId,info){
+var gridInsertAt=document.getElementById(elementId);
+if(gridInsertAt==null) return;
+var model=info.model;
+if(model==null) return ;
+var pageSize=null;
+var pagination=null;
+if(info.pagination==null) 
+{
+pagination=false;
+pageSize=null
+}
+else
+{
+pagination=info.pagination;
+//pageSize=info.pageSize;
+pageSize=2;
+if(pageSize==null) return ;
+}
+var rowSelectionEnable=info.rowSelectionEnable;
+if(rowSelectionEnable==null) rowSelectionEnable=false;
+
+//alert(gridInsertAt);
+//alert(model);
+//alert(model.data);
+//alert(pagination);
+//alert(pageSize);
+//alert(rowSelectionEnable);
+//alert(model.data);
+var gridTable;
+var gridTableHeadTemplate;
+var gridTableRowTemplate;
+var gridTableHeadThSectionTemplate;
+var gridTableBodyTemplate;
+var gridTableBodyTdSectionTemplate;
+var i,j;
+
+gridTable=document.createElement('table');
+gridTable.border='1';
+gridTable.lastClickedRow=null;
+
+
+gridTableHeadTemplate=document.createElement('thead');
+gridTableRowTemplate=document.createElement('tr');
+//alert(model.getColumnCount());
+for(i=0;i<model.getColumnCount();i++)
+{
+gridTableHeadThSectionTemplate=document.createElement('th');
+gridTableHeadThSectionTemplate.innerHTML=model.getColumnName(i);
+gridTableHeadThSectionTemplate.scope='col';
+gridTableRowTemplate.append(gridTableHeadThSectionTemplate);
+}
+gridTableHeadTemplate.append(gridTableRowTemplate);
+gridTable.append(gridTableHeadTemplate);
+
+gridTableBodyTemplate=document.createElement('tbody');
+for(j=0;j<model.getRowCount();j++)
+{
+gridTableRowTemplate=document.createElement('tr');
+for(i=0;i<model.getColumnCount();i++)
+{
+gridTableBodyTdSectionTemplate=document.createElement('td');
+gridTableBodyTdSectionTemplate.innerHTML=model.getValueAt(j,i);
+gridTableRowTemplate.append(gridTableBodyTdSectionTemplate);
+}
+if(rowSelectionEnable)
+{
+gridTableRowTemplate.addEventListener('click',function(){
+if(gridTable.lastClickedRow!=null)
+{
+gridTable.lastClickedRow.classList.remove('selected-row');
+gridTable.lastClickedRow.classList.add('default-row');
+}
+gridTable.lastClickedRow=this;
+gridTable.lastClickedRow.classList.remove('default-row');
+gridTable.lastClickedRow.classList.add('selected-row');
+});
+}
+gridTableBodyTemplate.append(gridTableRowTemplate);
+}
+gridTable.append(gridTableBodyTemplate);
+gridInsertAt.append(gridTable);
+
+/*
+alert(JSON.stringify(gridTableRowTemplate.style.height));
+i=gridTableRowTemplate.style.height;
+i=i*pageSize+i;
+gridTableBodyTemplate.style.maxHeight=i;
+gridTableBodyTemplate.style.minHeight=i;
+
+gridTableBodyTemplate.style.overflow='scroll';
+alert(JSON.stringify(gridTableBodyTemplate.style.height));
+gridTableBodyTemplate.style.height=i+"vh";
+gridTableBodyTemplate.style.overflow='scroll';
+gridInsertAt.append(gridTable);
+};
+*/
+
+};
+$$$.onDocumentLoaded=function(func){
+window.addEventListener('load',func);
+};
+
+//Over here, the following code snippet is written by Library User
+function DataModel()
+{
+this.data=null;
+this.title=null;
+
+this.getRowCount=function(){
+if(this.data==null) return 0;
+else return this.data.length;
+};
+this.getColumnCount=function(){
+if(this.title==null) return 0;
+else return this.title.length;
+};
+this.getColumnName=function(i){
+if(i<0 || i>=this.title.length) return "";
+else return this.title[i];
+};
+this.getValueAt=function(i,j){
+if(i<0 || i>=this.data.length || j<0 || j>=this.title.length) return "";
+else return this.data[i][this.title[j]];
+}
+this.isCellEditable=function(i,j){
+return false;
+};
+//Here more functions related to data model
+}
+var myDataModel=new DataModel();
+function whatever()
+{
+var employees=[{"id":101,"name":"Babu"},{"id":102,"name":"Lokesh"},{"id":103,"name":"Bal Krishna"}];
+//alert(employees);
+myDataModel.data=employees;
+myDataModel.title=Object.keys(employees[0]);
+//Over here code to populate myDataModel with data (list of objects)
+}
+function doSomething()
+{
+whatever();
+$$$.grid("someId",{
+"model":myDataModel,
+"pagination":true,
+"pageSize":10,
+"rowSelectionEnable":true
+});
+}
+$$$.onDocumentLoaded(doSomething);
+</script>
+</head>
+<body>
+<div id='someId'>
+
+</div>
+</body>
+</html>
+
