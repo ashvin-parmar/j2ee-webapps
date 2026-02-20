@@ -1,0 +1,25 @@
+<!-- The '$' function is used to pass a function and call it when document completely loaded -->
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>JQuery Examples</title>
+<script src='jquery/jquery.js'></script>
+<script>
+function great()
+{
+var a=document.getElementById('xyz');
+alert('JQuery is cool');
+alert(a);
+}
+$(great);
+</script>
+</head>
+<body>
+<div id='xyz'>Cool JQuery</div>
+<script>
+alert('Cool stuff');
+</script>
+</body>
+</html>

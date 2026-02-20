@@ -1,0 +1,35 @@
+<!-- 
+	This is for the features used case, Different use pf '$' function
+	Trying different ways to fetch data using '$' function.
+ -->
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>JQuery Examples</title>
+<style>
+.abcd
+{
+border:1px solid red;
+}
+</style>
+<script src='jquery/jquery.js'></script>
+<script>
+function justDoIt()
+{
+$("#cool").css("background","lightgrey");
+$("span").css("border","2px groove #00ffad");
+$(".abcd").css("font-size","10pt");
+}
+$(justDoIt);
+</script>
+</head>
+<body>
+<div id='xyz'>Cool JQuery</div>
+<div class='abcd'> Something</div><br>
+<div id='cool'>Cool features</div>
+<br>
+<span>God is great.</span>
+</body>
+</html>
