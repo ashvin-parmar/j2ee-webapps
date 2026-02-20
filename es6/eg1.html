@@ -1,0 +1,25 @@
+<!DOCTYPE HTML>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<title>ES6 Examples</title>
+<style>
+</style>
+<script>
+function doIt1()
+{
+var m={
+};
+var v=m.k || function(){
+alert("function got called");
+return 3000;
+}
+alert(v);
+if(typeof(v)=="function") alert(v());
+}
+</script>
+</head>
+<body>
+<button onclick='doIt1()'>1.</button>
+</body>
+</html>

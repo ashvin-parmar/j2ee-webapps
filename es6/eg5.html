@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<title>ES6 Examples</title>
+<style>
+</style>
+<script>
+function sam(...a)
+{
+var i;
+for(i=0;i<a.length;i++)
+{
+alert(a[i]);
+}
+}
+function doIt1()
+{
+sam(10,20,30,"Something","Nothing");
+sam(function(){
+alert("func1");
+},function(){
+alert("func2");
+});
+}
+</script>
+</head>
+<body>
+<button onclick='doIt1()'>1.</button>
+</body>
+</html>

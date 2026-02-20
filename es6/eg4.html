@@ -1,0 +1,24 @@
+<!DOCTYPE HTML>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<title>ES6 Examples</title>
+<style>
+</style>
+<script>
+function sam(a,b,c)
+{
+alert(a+","+b+","+c);
+}
+function doIt1()
+{
+var a=[10,20,30];
+sam(a);
+sam(...a);		//Spreading the list based arguments into parameters seperately.
+}
+</script>
+</head>
+<body>
+<button onclick='doIt1()'>1.</button>
+</body>
+</html>
