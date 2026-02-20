@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<title>ES6 Examples</title>
+<style>
+</style>
+<script>
+function sam()
+{
+return [1000,2000,3000];
+}
+function doIt1()
+{
+var [a,b,c]=sam();		//WAY 1
+alert(a+","+b+","+c);
+
+var [d,,e]=sam();		//WAY 2
+alert(d+","+e);
+	
+var [f,]=sam();			//WAY 3
+alert(f);
+}
+</script>
+</head>
+<body>
+<button onclick='doIt1()'>1.</button>
+</body>
+</html>

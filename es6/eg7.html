@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<title>ES6 Examples</title>
+<style>
+</style>
+<script>
+function doIt1()
+{
+var b={
+wattage:60,
+setWattage(wattage)
+{
+this.wattage=wattage;
+},
+getWattage()
+{
+return this.wattage;
+}
+};
+alert(b.wattage);
+b.setWattage(100);
+alert(b.getWattage());
+}
+</script>
+</head>
+<body>
+<button onclick='doIt1()'>1.</button>
+</body>
+</html>
