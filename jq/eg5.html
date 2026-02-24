@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>JQuery Selector Example(s)</title>
+<script src='jquery/jquery.js'></script>
+<script>
+$(()=>{
+$("input[abcd]").css("color","blue");
+$("input[abcd=ok]").css("color","red");
+$("input[abcd^=god]").css("font-size","30pt");
+$("input[abcd$=bad]").css("background","lightgray").css("font-size","20pt");
+$("input[abcd*=city]").css("color","yellow");
+$("input[abcd*=City]").css("color","magenta");    //Wrong words are not found.
+
+});
+</script>
+</head>
+<body>
+<input type='text' abcd='ok' value='One'><br>
+<input type='text' value='Two'><br>
+<input type='text' abcd='god is great' value='Three'> <br>
+<input type='text' abcd='dogs are bad' value='Four'><br>
+<input type='text' abcd='ujjain is the city of gods' value='Five'><br>
+
+</body>
+</html>
