@@ -1,0 +1,43 @@
+<!-- Keyboard Down key example , Refer: JQuery_notes.odt -->
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>JQuery Example(s)</title>
+<script src='jquery/jquery.js'></script>
+<style>
+.boardStyle
+{
+background:lightgray;
+color:white;
+border:1px groove black;
+font-size:20pt;
+overflow:auto;
+}
+</style>
+<script>
+jQuery(($)=>{
+$(document).keyup(function(ev){   //Event happening at the time when finger from any key is up -> removed 
+  $("#board").append(ev.which+","+ev.key+","+ev.code+"<br>"); //over here, all keys are processed.
+  
+  if(ev.metaKey) $("#board").append("Meta Key<br>");    //This works over here,
+/*
+  if(ev.ctrlKey) $("#board").append("CTRL Key<br>");    //This 3 are not working --> limited to keys for keyup,   not availabel to event poitner.
+  if(ev.altKey) $("#board").append("ALT Key<br>");
+  if(ev.shiftKey) $("#board").append("SHIFT key<br>");
+
+//  ev.preventDefault();    //This too
+*/
+});
+});
+jQuery.noConflict();
+</script>
+</head>
+<body>
+
+<div id='board' class='boardStyle'>
+</div>
+
+</body>
+</html>

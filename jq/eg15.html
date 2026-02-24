@@ -1,0 +1,42 @@
+<!-- Keyboard Down key example  -->
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>JQuery Example(s)</title>
+<script src='jquery/jquery.js'></script>
+<style>
+.boardStyle
+{
+background:lightgray;
+color:white;
+border:1px groove black;
+font-size:20pt;
+overflow:auto;
+}
+</style>
+<script>
+jQuery(($)=>{
+$(window).keydown(function(ev){
+  $("#board").append(ev.which+","+ev.key+","+ev.code+"<br>");
+  
+  if(ev.ctrlKey) $("#board").append("CTRL Key<br>");
+  if(ev.altKey) $("#board").append("ALT Key<br>");
+  if(ev.metaKey) $("#board").append("Meta Key<br>");
+  if(ev.shiftKey) $("#board").append("SHIFT key<br>");
+//Over here, for which -> its provide UPPERCASE ASCAII code always 
+  ev.preventDefault();
+
+});
+});
+jQuery.noConflict();
+</script>
+</head>
+<body>
+
+<div id='board' class='boardStyle'>
+</div>
+
+</body>
+</html>
