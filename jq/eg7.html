@@ -22,6 +22,7 @@ $(()=>{
   $("table tbody td:nth-child(1)").css("text-align","right");
   $("table tbody td:contains('Ankit')").css("color","red");
   $("table tbody tr").filter(":even").css("background","cyan");
+  $("table tbody tr:odd").css("background","#FFB33F");
   $("table tbody td:contains('Solanki')").css("color","green"); //Case sensitive contains
   $("table tbody td:contains('A10002')").next().css("background","yellow"); //next element to the current if available, excluding current
   $("table tbody td:contains('A10003')").nextAll().css("font-size","40pt"); //All next elements if available, excluding current

@@ -1,0 +1,28 @@
+<!-- Resolve conflicts -->
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>JQuery Selector Example(s)</title>
+<script src='jquery/jquery.js'></script>
+<script>
+function $()
+{
+  alert("$ function added");
+}
+function doIt()
+{
+//$("#abcd").css("background","green").css("color","white");    //Conflict created.
+jQuery("#abcd").css("background","green").css("color","white");   // Use 'jQuery' to used as '$' function of jQuery without conflicts.
+}
+jQuery.noConflict();
+</script>
+</head>
+<body>
+<div id='abcd'>
+Something
+</div>
+<button type='button' onclick='doIt()'>Click me</button>
+</body>
+</html>

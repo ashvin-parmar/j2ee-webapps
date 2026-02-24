@@ -1,0 +1,25 @@
+<!-- Trick to Resolve conflicts -->
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>JQuery Selector Example(s)</title>
+<script src='jquery/jquery.js'></script>
+<script>
+function $()
+{
+  alert("$ function added");
+}
+jQuery(($)=>{
+$("#abcd").css("background","green").css("color","white");   //We have created a local variable with name as '$' and used it instead of jQuery. This local variable creat no conflicts.
+});
+jQuery.noConflict();
+</script>
+</head>
+<body>
+<div id='abcd'>
+Something
+</div>
+</body>
+</html>
