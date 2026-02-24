@@ -8,3 +8,7 @@ eg7.html: '$' function for table and specific selector + functionality
 
 eg8.html: Conflict resolved for '$' function -> 'jQuery' Use + jQuery.noConflict() 
 eg9.html: Trick such that no conflict occur while using '$' function.
+
+eg10.html: Simple button 'on' and 'click' function for event-handling
+eg11.html: One way to stop propagation of click events
+eg12.html: Another way to stop propagation of click event(s) on each element. is() method used.

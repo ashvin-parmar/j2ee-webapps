@@ -1,0 +1,33 @@
+<!-- Event handling: Another way to handle propagation using parent most element -->
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>JQuery Selector Example(s)</title>
+<script src='jquery/jquery.js'></script>
+<script>
+$(()=>{
+$("#mainContainer").click(function(ev){
+  if(this==ev.target) alert("Main container got clicked");
+  if($(ev.target).is("#childContainer")) alert("Child container got clicked");
+  if($(ev.target).is("#lmn")) alert("lmn span got clicked");
+  if($(ev.target).is("#button5")) alert("button 5 got clicked");
+});
+});
+</script>
+</head>
+<body>
+<div id='mainContainer' >
+This is main container<br>
+<div id='childContainer' >
+This is child container<br>
+<span id='lmn'>
+This is the button inside the span 'lmn'<br>
+<button type='button' id='button5'>(5) Click me</button><br>
+</span>
+</div>
+</div>
+--------------------------<br>
+</body>
+</html>

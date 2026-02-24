@@ -1,0 +1,50 @@
+<!-- Event handling -->
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>JQuery Selector Example(s)</title>
+<script src='jquery/jquery.js'></script>
+<style>
+.pqr
+{
+  background:#628141;
+  color:#E5D9B6;
+  font-size:40pt;
+  font-weight:bold;
+}
+</style>
+<script>
+$(()=>{
+$("#button1").on('click',function(){
+alert("Button 1 clicked");
+});
+
+$("#button2").click(function(){
+alert("button 2 clicked");
+});
+
+
+$("#button3").on('click',function(){
+  $(this).css("color","red");
+});
+$("#button4").click(function(){
+ // alert("Button 4 clicked "+this);
+ $("#abcd").toggleClass("pqr"); 
+// $("#abcd").removeClass("pqr");
+//  $("#abcd").addClass("pqr");
+});
+});
+</script>
+</head>
+<body>
+<button type='button' id='button1'>(1) Click me</button>
+<button type='button' id='button2'>(2) Click me</button>
+<button type='button' id='button3'>(3) Click me</button><br>
+<button type='button' id='button4'>(4) Click me</button><br>
+<div id='abcd' class='pqr'>
+There are something for button 4 to operate.
+</div><br>
+</body>
+</html>
