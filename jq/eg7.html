@@ -1,0 +1,65 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>JQuery Selector Example(s)</title>
+<script src='jquery/jquery.js'></script>
+<style>
+.pqrst
+{
+border:1px groove gray;
+border-collapse:collapse;
+padding:5px;
+font-size:18pt;
+}
+</style>
+<script>
+$(()=>{
+  $("table").addClass("pqrst");
+  $("table th").addClass("pqrst");
+  $("table td").addClass("pqrst");
+  //  $("table td:eq(0)").css("text-align","right");    This is not working as same -> see the changes
+  $("table tbody td:nth-child(1)").css("text-align","right");
+  $("table tbody td:contains('Ankit')").css("color","red");
+  $("table tbody tr").filter(":even").css("background","cyan");
+  $("table tbody td:contains('Solanki')").css("color","green"); //Case sensitive contains
+  $("table tbody td:contains('A10002')").next().css("background","yellow"); //next element to the current if available, excluding current
+  $("table tbody td:contains('A10003')").nextAll().css("font-size","40pt"); //All next elements if available, excluding current
+  $("table tbody td:contains('A10004')").nextAll().addBack().css("font-width","blod").css("background","pink"); //Add all next including current
+  $("table tbody td:contains('Ayush')").parent().css("background","#84B179"); //get complete row, because 'td' -> parent is 'tr'
+  $("table tbody td:contains('A10006')").next().children().css("font-size","50pt");   //Operate on child of any element
+
+});
+</script>
+</head>
+<body>
+<table id='abcd'>
+<thead>
+<tr>
+<th>S.NO.</th><th>Roll number</th><th>Name</th><th>City</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.</td><td>A10001</td><td>Ankit</td><td>Indore</td>
+</tr>
+<tr>
+<td>2.</td><td>A10002</td><td>Rishiraj</td><td>Ujjain</td>
+</tr>
+<tr>
+<td>3.</td><td>A10003</td><td>Noshin</td><td>Dewas</td>
+</tr>
+<tr>
+<td>4.</td><td>A10004</td><td>Rohit Solanki</td><td>Sandwa</td>
+</tr>
+<tr>
+<td>5.</td><td>A10005</td><td>Ayush Salve</td><td>Indore</td>
+</tr>
+<tr>
+<td>6.</td><td>A10006</td><td>Shidarth<span>(Verma)</span></td><td>Jabalpur</td>
+</tr>
+</tbody>
+</table>
+
+</body>
+</html>
