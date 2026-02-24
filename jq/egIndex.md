@@ -3,4 +3,5 @@ eg2.html: Fetch different type of elements from DOM using '$' function
 eg3.html: lambda expression + '$' function
 eg4.html: '$' function + normal selector for get elements with 'id'
 eg5.html: '$' function for selector tag[attributes^=value], find any tag, with attribute, with value, including regex + more...
-eg6.html
+eg6.html: '$' function to get 'Zero' and 'Once' index-wise list elements and operate on them, Odd/Even elements.
+
