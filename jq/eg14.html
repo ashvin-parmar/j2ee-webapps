@@ -1,0 +1,29 @@
+<!-- Event handling: Another way to handle propagation using parent most element -->
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>JQuery Selector Example(s)</title>
+<script src='jquery/jquery.js'></script>
+<script>
+$(()=>{
+$("#saveButton").on('click',function(ev){
+  alert("Form is being submitted with value: "+$("#nm").val());
+  alert($("#nm").val().length);
+  if($("#nm").val().length==0)
+  {
+    ev.preventDefault();    //validate the data and then proceed to next...
+  }
+});
+});
+</script>
+</head>
+<body>
+<form action='abcd' style="border:1px solid red;">
+<input type='text' id='nm' name='nm' value='Something'><br>
+<button type='submit' id='saveButton'>Save</button>
+</form>
+
+</body>
+</html>

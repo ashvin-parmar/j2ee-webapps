@@ -13,3 +13,4 @@ eg10.html: Simple button 'on' and 'click' function for event-handling
 eg11.html: One way to stop propagation of click events
 eg12.html: Another way to stop propagation of click event(s) on each element. is() method used.
 eg13.html: Button click trigger() using a button. Resubmission stops using off() function for a button.
+eg14.html: Validate the event using function --> event.preventDefault();  
