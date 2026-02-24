@@ -1,0 +1,64 @@
+<!-- hide(), show() styling with transitions -->
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>JQuery Example(s)</title>
+<script src='jquery/jquery.js'></script>
+<style>
+.something
+{
+font-size:20pt;
+color:green;
+}
+</style>
+<script>
+var d2State=1;
+$(()=>{
+  $("#button1").click(function(){
+  $("#d1.something").css("border","1px groove red");
+  alert("Color[original value]: "+$("#d1.something").css("color"));
+  alert("Font-size with px value: "+$("#d1.something").css("font-size"));
+  });   //Provides actual values that stored.
+
+  $("#button2").click(function(){
+      if(d2State)
+      {
+        $("#d2").hide();
+      }
+      else
+      {
+        $("#d2").show();
+      }
+      d2State=!d2State;
+  });
+});
+</script>
+</head>
+<body>
+
+<div id='d1' class='something'> 
+God is great. Ujjain is the city of Gods.
+</div>-------------<br>
+<div id='d2' >
+There are some Data<br>
+There are some Data<br>
+There are some Data<br>
+There are some Data<br>
+There are some Data<br>
+There are some Data<br>
+There are some Data<br>
+There are some Data<br>
+There are some Data<br>
+There are some Data<br>
+There are some Data<br>
+There are some Data<br>
+There are some Data<br>
+There are some Data<br>
+</div>
+<button id='button1' type='button'>(1) Click me for DIV-1</button>
+<button id='button2' type='button'>(2) Click me for DIV-2</button>
+
+</body>
+</html>
