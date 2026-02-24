@@ -1,0 +1,28 @@
+<!-- Event handling: Another way to handle propagation using parent most element -->
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>JQuery Selector Example(s)</title>
+<script src='jquery/jquery.js'></script>
+<script>
+$(()=>{
+$("#button1").click(function(){
+  alert("Button 1 got clicked");
+});
+
+$("#button2").click(function(){
+  alert("Button 2 got clicked");
+  $("#button1").trigger('click');   //click button1 using button2
+  $(this).off('click');       //Disable button2 click event.    [Usecase: Resubmission stops]
+});
+});
+</script>
+</head>
+<body>
+<button type='button' id='button1'>(1) Click me</button>
+<button type='button' id='button2'>(2) Click me</button>
+
+</body>
+</html>
