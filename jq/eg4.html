@@ -1,0 +1,49 @@
+<!-- Selector Examples -->
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>JQuery Examples</title>
+<style>
+.abcd
+{
+border:1px solid green;
+color:#001156;
+}
+.pqrst
+{
+background:lightgray;
+}
+.xyz
+{
+color:red;
+font-size:40pt;
+}
+</style>
+<script src='jquery/jquery.js'></script>
+<script>
+$(()=>{
+var a=document.getElementById("someSection");
+$("#someSection > div").addClass("abcd");
+$("#someSection div:not('.abcd')").addClass("xyz");
+$("#someSection div.abcd").addClass("pqrst");
+
+});
+</script>
+</head>
+<body>
+<div id='someSection'>
+	<div>
+JQuery is best java-script framework.
+		<div>
+Cool features
+</div>
+	</div>
+<div>
+<div>There are a lots of things to do.</div>
+Let's do it.
+</div>
+</div>
+</body>
+</html>
