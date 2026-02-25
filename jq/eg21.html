@@ -1,0 +1,54 @@
+<!-- Animation with animate() function -->
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>JQuery Example(s)</title>
+<script src='jquery/jquery.js'></script>
+<style>
+.abcd
+{
+  margin-left:100px;
+  margin-top:200px;
+}
+</style>
+<script>
+jQuery(($)=>{
+  $("#d1").addClass("abcd");
+  $("#button1").click(function(){
+//    $("#d1").animate({"margin-left":"0px","margin-top":"0px"},"slow"); //WAY-1
+
+/*    
+      $("#d1").animate({"margin-top":"0px"},"slow")     //WAY-2
+            .animate({"margin-left":"0px"},"fast");
+*/
+/*
+      $("#d1").animate({"margin-top":"0px"},{"duration":"slow","queue":false})
+            .animate({"margin-left":"0px"},{"duration":"slow"});   //WAY-3
+*/
+      $("#d1").animate({"margin-top":"0px"},{"duration":5000,"queue":false})
+              .animate({"margin-left":"0px"},{"duration":5000,"queue":true})  //It queue=true will act for next operation to be performed in queue or not [in parallal, true=series, false=parallel].
+              .queue(function(abcd){
+                alert("queue called");
+                abcd();
+              }).hide(5000);
+            
+  });
+});
+</script>
+</head>
+<body>
+<div id='d1' >
+There are some DATA<br>
+There are some DATA<br>
+There are some DATA<br>
+There are some DATA<br>
+There are some DATA<br>
+There are some DATA<br>
+There are some DATA<br>
+There are some DATA<br>
+There are some DATA<br>
+</div>
+<button type='button' id='button1'>(1) Click me</button>
+</body>
+</html>
