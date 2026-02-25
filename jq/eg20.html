@@ -1,0 +1,68 @@
+<!-- Animation with animate() function -->
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>JQuery Example(s)</title>
+<script src='jquery/jquery.js'></script>
+<style>
+.readMore
+{
+  color:white;
+  background:red;
+  font-size:15pt;
+  border:1px groove black;
+  text-decoration:none;
+}
+</style>
+<script>
+var x="24pt";
+$(()=>{
+$("#d1 p").eq(1).hide();
+$("#readMore").click(function(){
+$("#d1 p").eq(1).animate({"height":"toggle","opacity":"toggle","font-size":x},"slow",function(){
+      if($("#d1 p").eq(1).is(":hidden"))
+      {
+        $("#readMore").text("Read more...");
+        x="24pt";
+      }
+      else
+      {
+        $("#readMore").text("Read less...");
+        x="12pt";
+      }
+  });
+  });
+  });
+</script>
+</head>
+<body>
+
+<div id='d1' >
+<p>
+God is great. Ujjain is the city of god.<br>
+There are some more details, over here<br>
+We are looking for more information.<br>
+This is the feature of [read more] element for ui cases.<br>
+</p>
+<p>
+There are some Data<br>
+There are some Data<br>
+There are some Data<br>
+There are some Data<br>
+There are some Data<br>
+There are some Data<br>
+There are some Data<br>
+There are some Data<br>
+There are some Data<br>
+There are some Data<br>
+There are some Data<br>
+There are some Data<br>
+There are some Data<br>
+There are some Data<br>
+</p>
+<a href='#' id='readMore' class='readMore'>Read more...</a>
+</div>
+
+</body>
+</html>
