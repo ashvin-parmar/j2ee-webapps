@@ -25,13 +25,25 @@ $(()=>{
   $("#button2").click(function(){
       if(d2State)
       {
-        $("#d2").hide();
+        //$("#d2").hide();
+        //$("#d2").hide(5000);
+        //$("#d2").hide('slow');
+        //$("#d2").hide('fast');
+        //$("#d2").fadeOut('slow');
+        //$("#d2").slideUp('slow');
       }
       else
       {
-        $("#d2").show();
+        //$("#d2").show();
+        //$("#d2").show(5000);
+        //$("#d2").show('slow');
+        //$("#d2").show('fast');
+        //$("#d2").fadeIn('slow');
+        //$("#d2").slideDown('slow');
       }
       d2State=!d2State;
+      $("#d2").slideToggle('slow');
+      //$("#d2").fadeToggle(500);
   });
 });
 </script>
