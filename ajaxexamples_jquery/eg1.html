@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AJAX Example</title>
+<meta charset='utf-8'>
+<script src='jquery/jquery.js'></script>
+<script>
+var obj;
+var designationComboBox;
+$(()=>{
+  designationComboBox=document.getElementById("designations");
+var jqxhr=$.ajax({
+  "type":"GET",
+  "url":"servletOne"
+})
+.done(function(){
+var designations=JSON.parse(jqxhr.responseText);
+obj=document.createElement("option");
+obj.value=-1;
+obj.innerHTML="&lt; Select &gt;";
+designationComboBox.append(obj);
+for(var i=0;i<designations.length;i++)
+{
+obj=document.createElement("option");
+obj.value=designations[i].code;
+obj.innerHTML=designations[i].title;
+designationComboBox.append(obj)
+}
+
+})
+.fail(function(){
+alert("Some problem")
+})
+.always(function(){
+alert("Always");
+});
+});
+</script>
+</head>
+<body>
+<h3>Learning GET request sending without parameters using java-script</h3>
+
+<b>Designations:</b>&nbsp;&nbsp;
+<select id='designations' name='designations'></select><br>
+
+<br>
+<a href='index.html'>HOME</a>
+</body>
+</html>

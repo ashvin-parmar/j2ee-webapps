@@ -21,6 +21,7 @@ eg16.html: keyup event: When key released up side. [one time event]
 eg17.html: keypress event: When key is continuosly pressed on. [deprecated]
 
 Animations
-eg18.html: hide() and show() + more animated ways to do for hide and show.
-eg19.html & eg20.html: animate() function to try different ways to animate element based on hiding, showing, height, padding, margin, and font-size, weight, height, width and more factors to play aroung styling + animation part for element.
+eg18.html eg19.html: hide() and show() + more animated ways to do for hide and show.
+eg20.html & eg21.html: animate() function to try different ways to animate element based on hiding, showing, height, padding, margin, and font-size, weight, height, width and more factors to play aroung styling + animation part for element.
 
+AJAX Style Using JQuery ----> [ajaxexamples_jquery] Seperately managed

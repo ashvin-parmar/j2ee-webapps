@@ -1,0 +1,53 @@
+<!DOCTYPE HTML>
+<html lang='en'>
+<head>
+<title></title>
+<meta charset='utf-8'>
+<script src='jquery/jquery.js'></script>
+<script>
+$(()=>{
+  $("#getButton").click(function(){
+  var code=document.getElementById('code').value.trim();
+  var designation=document.getElementById('designation');
+  designation.innerHTML="";
+  var requestURL="servletTwo?code="+code;
+  var jqXHR=$.ajax({
+    "type":"GET",
+    "url":requestURL
+  }).done(function(){
+var responseData=jqXHR.responseText;
+//alert(responseData);
+var d=JSON.parse(responseData);
+//alert(d);
+if(d.title!=null)
+{
+designation.innerHTML=d.title;
+}
+else
+{
+alert("Invalid code");
+} 
+  }).fail(function(){
+      alert("Some problem");
+  });
+});
+});
+
+</script>
+</head>
+<body>
+<h2>Learning to send GET request with parameters using java-script </h2>
+
+<b>Enter code: </b><input type='text' id='code' name='code'><br>
+<button id='getButton' type='button'>Get</button>
+<br>
+<br>
+
+<b>Designation: </b>
+<span id='designation'></span>
+<br>
+
+<br>
+<a href='index.html'>HOME</a>
+</body>
+</html>

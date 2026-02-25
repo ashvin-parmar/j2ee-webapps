@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<title>AJAX Examples</title>
+<meta charset='utf-8'>
+<script src='jquery/jquery.js'></script>
+<script>
+$(()=>{
+  $("#saveButton").on('click',function(){
+    alert("here");
+var firstName=document.getElementById("firstName").value.trim();
+var lastName=document.getElementById("lastName").value.trim();
+var age=document.getElementById("age").value.trim();
+var customer={
+"firstName":firstName,
+"lastName":lastName,
+"age":age
+};
+var dataFirstName=document.getElementById("dataFirstName");
+//Var dataLastName=document.getElementById("dataLastName");
+var dataAge=document.getElementById("dataAge");
+dataFirstName.innerHTML="";
+dataLastName.innerHTML="";
+dataAge.innerHTML="124";
+
+var jqXHR=$.ajax({
+    "url":"servletThree",
+    "type":"POST",
+    "contentType":"application/json",
+    "data":JSON.stringify(customer)
+  })
+.done(function(){
+var cus=JSON.parse(jqXHR.responseText);
+//alert(this.responseText);
+//alert(cus);
+if(cus.firstName!=null) 
+{
+dataFirstName.innerHTML=cus.firstName;
+dataLastName.innerHTML=cus.lastName;
+dataAge.innerHTML=cus.age;
+}
+else
+{
+alert("Some problem");
+}
+    
+  })
+.fail(function(){
+alert("Some problem");
+  });
+
+  });
+});
+</script>
+</head>
+<body>
+<h2>Learning POST type request with parameters using java-script</h2>
+
+<table>
+<tr>
+<td>
+First name: 
+</td>
+<td>
+<input type='text' id='firstName' name='firstName' >
+</td>
+</tr>
+<tr>
+<td>
+Last name: 
+</td>
+<td>
+<input type='text' id='lastName' name='lastName'>
+</td>
+</tr>
+<tr>
+<td>
+Age: 
+</td>
+<td>
+<input type='number' id='age' name='age'>
+</td>
+</tr>
+<tr>
+<td colspan='2' style='text-align:center'>
+<button id='saveButton' type='button'>Save</button>
+</td>
+</tr>
+</table>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Data</b><br>
+First name: 
+<span id='dataFirstName'></span><br>
+Last name: 
+<span id='dataLastName'></span><br>
+Age: 
+<span id='dataAge'></span><br><br>
+
+</div>
+<br>
+<a href='index.html'>HOME</a>
+</body>
+</html>
