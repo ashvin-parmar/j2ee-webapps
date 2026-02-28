@@ -1,0 +1,31 @@
+// A function that wraps $.load in a Promise
+function loadContentAsync(domId, filename) {
+    return new Promise((resolve, reject) => {
+        $(domId).load(filename, function(responseText, status, jqXHR) {
+            if (status === "success") {
+                resolve("Content loaded into " + domId); // Resolve the promise on success
+            } else {
+                reject(new Error("Load error: " + jqXHR.statusText)); // Reject on error
+            }
+        });
+    });
+}
+
+// An async function to use the wrapper
+async function fetchAndDisplayContent() {
+    try {
+        console.log("Starting content load...");
+        const message = await loadContentAsync('#result-container', 'content.html #content-section');
+        console.log(message);
+        // Code here runs only after the loadContentAsync promise resolves
+        $('#notification-bar').text('Async load complete!');
+    } catch (error) {
+        console.error(error.message);
+    }
+}
+
+// Call the async function
+$(document).ready(function() {
+    fetchAndDisplayContent();
+});
+

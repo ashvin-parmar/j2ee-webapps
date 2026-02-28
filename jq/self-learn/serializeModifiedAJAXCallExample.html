@@ -1,0 +1,28 @@
+$(document).ready(function() {
+    $('#submitButton').click(function(event) {
+        // Prevent the default form submission
+        event.preventDefault();
+
+        // Serialize the form data into a URL-encoded string
+        var formData = $('#myForm').serialize();
+
+        // Log the serialized string to the console
+        console.log(formData); // Example output: name=John+Doe&age=30
+
+        // Send the data using an AJAX POST request
+        $.ajax({
+            type: 'POST',
+            url: 'submit_url.php', // Replace with your server endpoint
+            data: formData,
+            success: function(response) {
+                // Handle the successful response
+                console.log(response);
+            },
+            error: function() {
+                // Handle errors
+                alert('An error occurred');
+            }
+        });
+    });
+});
+
