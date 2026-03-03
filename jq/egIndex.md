@@ -25,3 +25,4 @@ eg18.html eg19.html: hide() and show() + more animated ways to do for hide and s
 eg20.html & eg21.html: animate() function to try different ways to animate element based on hiding, showing, height, padding, margin, and font-size, weight, height, width and more factors to play aroung styling + animation part for element.
 
 AJAX Style Using JQuery ----> [ajaxexamples_jquery] Seperately managed
+AJAX Self Study things ----> [self-study] folder seperately managed

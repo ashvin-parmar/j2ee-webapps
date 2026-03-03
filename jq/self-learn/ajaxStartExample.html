@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>jQuery ajaxStart() Example</title>
+    <!-- Include jQuery library from a CDN -->
+        <script src="/jq/jquery/jquery.js"></script>
+<style>
+        #loading-indicator {
+            display: none; /* Hidden by default */
+            color: blue;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        #content {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            min-height: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <button id="load-data-btn">Load Data via AJAX</button>
+    
+    <div id="loading-indicator">
+        Loading...
+    </div>
+
+    <div id="content">
+        <!-- Content from AJAX request will be loaded here -->
+    </div>
+
+    <script type="text/javascript">     
+    //Use $("selector").on("ajaxStart",function(){},...);
+        $(document).ready(function() {
+            // 1. Attach global AJAX event handlers to the document
+            $(document).ajaxStart(function() {
+                // Show the loading indicator when an AJAX request starts
+                $('#loading-indicator').show();
+            });
+
+            $(document).ajaxStop(function() {
+                // Hide the loading indicator when all AJAX requests have completed
+                $('#loading-indicator').hide();
+            });
+
+            // 2. Set up a click handler to trigger an AJAX request
+            $('#load-data-btn').click(function() {
+                // Clear previous content
+                $('#content').empty();
+
+                // Perform a simple GET request
+                // In a real scenario, this URL would point to a server endpoint
+                $.get("servletOne", function(data, status) {
+                    // Success callback: update the content div with the result
+                    $('#content').text("Data loaded successfully! Status: " + status);
+                }).fail(function() {
+                    // Error callback: handle any potential errors
+                    $('#content').text("Error loading data.");
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
+

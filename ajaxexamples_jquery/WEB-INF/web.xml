@@ -55,5 +55,13 @@
 <servlet-name>ServletThree</servlet-name>
 <url-pattern>/servletThree</url-pattern>
 </servlet-mapping>
+<servlet>
+<servlet-name>ServletFour</servlet-name>
+<servlet-class>com.ashvin.hr.nexus.servlets.ServletFour</servlet-class>
+</servlet>
+<servlet-mapping>
+<servlet-name>ServletFour</servlet-name>
+<url-pattern>/servletFour</url-pattern>
+</servlet-mapping>
 
 </web-app>

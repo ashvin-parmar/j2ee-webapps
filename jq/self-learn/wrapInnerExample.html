@@ -1,0 +1,25 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>wrapInner demo</title>
+  <style>
+  p {
+    background: #9f9;
+  }
+  </style>
+  <script src="https://code.jquery.com/jquery-4.0.0.js"></script>
+</head>
+<body>
+ 
+<p>Hello</p>
+<p>cruel</p>
+<p>World</p>
+ 
+<script>
+$( "p" ).wrapInner( document.createElement( "b" ) );
+</script>
+ 
+</body>
+</html>

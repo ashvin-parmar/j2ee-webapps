@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AJAX Example</title>
+<meta charset='utf-8'>
+<script src='jquery/jquery.js'></script>
+<script>
+var obj;
+var designationComboBox;
+$(()=>{
+  designationComboBox=document.getElementById("designations");
+$(document).ajaxStart(function() {  
+   // Show the loading indicator when an AJAX request starts
+   $('#loading-spinner').show();
+   $('#content-division').hide();
+});
+$(document).ajaxStop(function(){
+  $('#loading-spinner').hide();
+  $("#content-division").show();
+});
+var jqxhr=$.ajax({
+  "type":"GET",
+  "url":"servletFour",
+  "success":function(){
+var designations=JSON.parse(jqxhr.responseText);
+obj=document.createElement("option");
+obj.value=-1;
+obj.innerHTML="&lt; Select &gt;";
+designationComboBox.append(obj);
+for(var i=0;i<designations.length;i++)
+{
+obj=document.createElement("option");
+obj.value=designations[i].code;
+obj.innerHTML=designations[i].title;
+designationComboBox.append(obj)
+}
+    },
+    "error":function(){
+    alert("Some problem");
+      },
+      "complete":function(){
+//alert("Always");
+        }
+});
+});
+</script>
+</head>
+<body>
+<h3>Learning GET request sending without parameters using java-script</h3>
+<div id='data-division'>
+<table>
+<tbody>
+<tr>
+<td>
+<b>Designations:</b>&nbsp;&nbsp;
+</td>
+<td>
+<div id="loading-spinner" style="display: none;">
+<img src="loading.gif" style="width:24pt;height:24pt;" alt="Loading..." />
+</div>
+<div id='content-division' > 
+<select id='designations' name='designations'></select>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<br>
+<a href='index.html'>HOME</a>
+</body>
+</html>
