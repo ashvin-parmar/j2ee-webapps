@@ -1,0 +1,56 @@
+<!DOCTYPE HTML>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<title>WChat</title>
+<script src='jquery/jquery.js'></script>
+<script src='jquery/jquery.validate.js'></script>
+<script src='js/Login.js'></script>
+<link rel='stylesheet' type='text/css' href='css/styles.css'>
+<script>
+$(()=>{
+  $("#loginButton").click(function(ev){
+   $('form.login-form').validate(); 
+  });
+});
+</script>
+</head>
+<body>
+<div class='main-container'>
+<!-- header start here -->
+<div class='header'>
+<a href='/wchat/LoginPage.html'><img src='/wchat/wchat.png' class='logo'></a>
+<div class='brand-name'>WChat</div>
+</div>
+<!-- header ends here -->
+<!-- middle content start here -->
+<div class='content'>
+<center>
+<form id='loginForm' class='login-form'>
+<center>
+<span id='errorSection' class='error'>
+</span><br>
+<b>Username: </b>
+<input type='text' id='username' name='username' maxlength='16' size='16' required><br>
+<span id='usernameErrorSection' class='error'></span>
+<br>
+<b>Password: </b>
+<input type='password' id='password' name='password' maxlength='16' size='16' required><br>
+<span id='passwordErrorSection' class='error'></span>
+<br>
+<center><button id='loginButton' type='submit' class='login-button'>log-in</button></center>
+</center>
+</form>
+</center>
+
+</div>
+<!-- middle content ends here -->
+<!-- footer start here -->
+<div class='footer'>
+&copy; WChat 2026
+</div>
+<!-- footer ends here -->
+</div>
+<!-- Main content ends here -->
+</body>
+</html>

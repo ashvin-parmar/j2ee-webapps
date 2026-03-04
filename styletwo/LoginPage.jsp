@@ -12,7 +12,7 @@
 <div class='main-container'>
 <!-- header start here -->
 <div class='header'>
-<a href='/styletwo/index.jsp'><img src='/styletwo/images/hr_nexus_logo.png' class='logo'></a>
+<a href='/styletwo/LoginPage.jsp'><img src='/styletwo/images/hr_nexus_logo.png' class='logo'></a>
 <div class='brand-name'>HR-Nexus</div>
 </div>
 <!-- header ends here -->

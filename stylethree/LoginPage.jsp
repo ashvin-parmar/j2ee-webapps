@@ -10,7 +10,7 @@
 <div class='main-container'>
 <!-- header start here -->
 <div class='header'>
-<a href='/stylethree/index.jsp'><img src='/stylethree/images/hr_nexus_logo.png' class='logo'></a>
+<a href='/stylethree/LoginPage.jsp'><img src='/stylethree/images/hr_nexus_logo.png' class='logo'></a>
 <div class='brand-name'>HR-Nexus</div>
 </div>
 <!-- header ends here -->
