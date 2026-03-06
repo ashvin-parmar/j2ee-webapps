@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WChat — Private Messaging, Reimagined</title>
+
+<link rel='stylesheet' href='jquery/jquery-ui.css' /> 
+<link rel='stylesheet' href='css/styles.css' />
+<script src='jquery/jquery.js'></script>
+<script src='jquery/jquery.validate.js'></script>
+<script src='jquery/jquery-ui.js'></script>
+
+<script>
+$(()=>{
+
+$("#tabs").tabs();
+
+$( "#login-signup-division" ).dialog({
+  modal:true,
+	width: 600
+});
+});
+
+</script>
+</head>
+<body>
+
+<div class='header'>
+<img src='/wchat/wchat.png' class='logo' />
+
+      <div id='userFieldDivision' style='float:right;'>
+         <button id='loginButton' class='login-button'>log-in</button>
+      </div>
+</div>
+<div class='main-container'>
+
+<div id='login-signup-division'>
+<div id='tabs'>
+<ul>
+<li><a href='#loginContentDivision'>Log-in</a></li>
+<li><a href='#signupContentDivision'>Sign-up</a></li>
+</ul>
+<div id='loginContentDivision'>
+<form id='loginForm' class='login-form'>
+</span><br>
+<b>Username: </b>
+<input type='text' id='username' name='username' maxlength='16' size='16' required><br>
+<b>Password: </b>
+<input type='password' id='password' name='password' maxlength='16' size='16' required><br>
+<button id='loginButton' type='submit' class='login-button'>log-in</button>
+</form>
+</div>
+
+<div id='signupContentDivision'>
+<form id='signupForm' class='login-form'>
+</span><br>
+<b>Username: </b>
+<input type='text' id='username' name='username' maxlength='16' size='16' required><br>
+<br>
+<b>Password: </b>
+<input type='password' id='password' name='password' maxlength='16' size='16' required><br>
+<br>
+<button id='signupButton' type='submit' class='login-button'>sign-up</button>
+</form>
+</div>
+</div>
+</div>
+
+</div>
+<!-- FOOTER -->
+<div class='footer'>
+    <div>
+    <span>&copy; 2026 WChat · Developed by Ashvin Parmar. All rights reserved.</span>
+</div>
+</body>
+</html>

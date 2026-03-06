@@ -5,7 +5,8 @@ color:red;
 .main-container
 {
 width:90hw;
-height:95vh;
+height:90vh;
+margin:5px;
 border:1px solid black;
 }
 .header
