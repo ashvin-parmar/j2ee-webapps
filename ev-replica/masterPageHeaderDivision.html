@@ -1,0 +1,187 @@
+<style>
+.headerTable
+{
+
+}
+.headerLogoImage
+{
+color:#43ccd6;
+text-align:center;
+}
+.headerLogoName
+{
+color:#43ccd6;
+margin:10px auto;
+font-size:20pt;
+}
+.headerMenu
+{
+margin-left:10px;
+margin-right:10px;
+}
+.loginButton
+{
+color:"#2779aa";
+margin-left:10px;
+margin-right:10px;
+}
+</style>
+<script>
+$(()=>{
+$("#headerLogoImage").addClass("headerLogoImage");
+$("#headerLogoName").position({
+my:"left center"
+});
+$("#headerHomeButton").position({
+my:"left center"
+});
+
+var $headerMenuDivChilds=$("#headerMenuDivision").children();
+$.each($headerMenuDivChilds,function(key,value){
+//alert(key+","+value);
+$(value).on("click",function(){
+var url=$(value).attr('href');
+//alert(url);
+$("#lMidBodyDivision").load(url,function(response,status,xhr){
+if(status=="error")
+{
+$("#lMidBodyDivision").load("404.html");
+}
+});
+
+});
+
+});
+$("#toggleThemeButton").click(function(){
+var $elem=$(this).children().eq(0);
+if($elem.attr("src")=="sun.svg") 
+{
+//more related to theme change
+$elem.attr("src","moon.svg");
+}
+else 
+{
+//more related to theme change
+$elem.attr("src","sun.svg");
+}
+$elem.fadeIn(500);
+});
+$( "#loginSignupDivision" ).dialog({
+autoOpen: false,
+modal:true,
+width: 600
+});
+$("#loginTabs").tabs();
+
+$("#loginButton").click(function(ev){
+$("#loginSignupDivision").dialog("open");
+ev.preventDefault();
+});
+
+$("#loginFormButton").click(function(ev){
+ev.preventDefault();
+$.ajax({
+"url":"login",
+"success":function(){
+
+},
+"error":function(){
+$("#loginErrorSection").html("Invalid username/password");
+},
+
+});
+});
+$("#signupFormButton").click(function(ev){
+ev.preventDefault();
+$.ajax({
+"url":"signup",
+"success":function(){
+
+},
+"error":function(){
+$("#signupErrorSection").html("Invalid username/password");
+},
+
+});
+});
+
+
+
+
+});
+</script>
+<div>
+<table class='headerTable'>
+<tbody>
+<tr>
+<td colspan='4'>
+<div id='headerLogoImage'><img src='evCharging.svg'>&nbsp;&nbsp;<b id='headerLogoName' class='headerLogoName'>EV Charging</b></div>
+</td>
+<td>
+<div id='headerMenuDivision' class='headerMenu'>
+<button type='button' id='headerHomeButton' class='ui-button posDiv' href='home.html'>Home</button>
+<button type='button' id='headerAboutUs.html' class='ui-button posDiv' href='aboutUs.html'>About Us</button>
+<button type='button' id='headerEVChargers.html' class='ui-button posDiv' href='evChargers.html'>EV Chargers</button>
+<button type='button' id='headerSmartCMS.html' class='ui-button posDiv' href='smartCMS.html'>Smart CMS</button>
+<button type='button' id='headerInstalledSites.html' class='ui-button posDiv' href='installedSites.html'>Installed Sites</button>
+<button type='button' id='headerContactUs.html' class='ui-button posDiv' href='contactUs.html'>Contact Us</button>
+</div>
+</div>
+</td>
+<td>
+<div id='themeToggleDivision'>
+<button id='toggleThemeButton' class='ui-button ui-corner-all ui-widget'><img  style="width:20px;height:20px;" id='themeImage' src='sun.svg' ></button>
+</div>
+</td>
+<td>
+<div id='loginDivision'>
+<button id='loginButton' class='ui-button loginButton'><img src='log-in.svg' >&nbsp;Log-in</button>
+
+<div id='loginSignupDivision' class='ui-widget ui-front ui-widget-content ui-corner-all' title='log-in/sign-up'>
+<div id='loginTabs' class='ui-widget ui-front ui-widget-content ui-corner-all'>
+<ul>
+<li><a href='#loginContentDivision'>Log-in</a></li>
+<li><a href='#signupContentDivision'>Sign-up</a></li>
+</ul>
+<div id='loginContentDivision'>
+<form id='loginForm' class='login-form ui-widget'>
+<b>Username: </b>
+<input type='text' id='username' name='username' maxlength='16' size='16' required><br>
+<b>Password: </b>
+<input type='password' id='password' name='password' maxlength='16' size='16' required><br>
+<br>
+<div class="ui-widget">
+	<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
+		<p id='loginErrorSection'>
+<span  class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+		<strong>Alert:</strong> </p>
+	</div>
+</div>
+
+<button id='loginFormButton' type='submit' class='ui-button'>log-in</button>
+</form>
+</div>
+
+<div id='signupContentDivision'>
+<form id='signupForm' class='login-form ui-widget'>
+<b>Username: </b>
+<input type='text' id='username' name='username' maxlength='16' size='16' required><br>
+<b>Password: </b>
+<input type='password' id='password' name='password' maxlength='16' size='16' required><br>
+<span id='signupErrorSection' class='ui-state-error ui-icon ui-icon-alert'></span>
+<button id='signupFormButton' type='submit' class='ui-button'>sign-up</button>
+</form>
+</div>
+</div>
+</div>
+
+</div>
+</td>
+</tr>
+<tr>
+<br>
+</tr>
+</tbody>
+</table>
+<br>
+</div>

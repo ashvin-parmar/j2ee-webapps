@@ -1,0 +1,52 @@
+<!-- l stand for landing -->
+<!DOCTYPE HTML>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<title>EV Charging</title>
+
+<link rel='stylesheet' href='jquery/jquery-ui.css' />
+<link rel='stylesheet' href='jquery/jquery-ui.theme.css' />
+<script src='jquery/jquery.js'></script>
+<script src='jquery/jquery-ui.js'></script>
+<script src='jquery/jquery.validate.js'></script>
+
+<style>
+.lMainContainer
+{
+width:98hw;
+height:95vh;
+}
+.lHeaderDivision
+{
+width:98hw;
+height:20vh;
+}
+.lMidBodyDivision
+{
+width:80hw;
+height:65vh;
+}
+.lFooterDivision
+{
+width:98hw;
+height:10vh;
+}
+</style>
+
+<script>
+$(()=>{
+$("#lHeaderDivision").load('masterPageHeaderDivision.html');
+
+$("#lFooterDivision").load('masterPageFooterDivision.html');
+});
+</script>
+</head>
+<body>
+<div id='lMainContainer' class='ui-widget'>
+<div id='lHeaderDivision' class='lHeaderDivision'></div>
+<div id='lMidBodyDivision'></div>
+<div id='lFooterDivision'></div>
+</div>
+</body>
+</html>
