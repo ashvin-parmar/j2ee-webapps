@@ -66,29 +66,38 @@ $elem.attr("src","sun.svg");
 }
 $elem.fadeIn(500);
 });
+
+
 $( "#loginSignupDivision" ).dialog({
 autoOpen: false,
 modal:true,
 width: 600
 });
 $("#loginTabs").tabs();
-
 $("#loginButton").click(function(ev){
 $("#loginSignupDivision").dialog("open");
 ev.preventDefault();
 });
-
 $("#loginFormButton").click(function(ev){
 ev.preventDefault();
+var serializedData=$("#loginForm").serialize();
+alert(serializedData);
 $.ajax({
-"url":"login",
-"success":function(){
-
+url:"login",
+method:"GET",
+data:serializedData || {},
+dataType:"json",
+success:function(response){
+alert(response);
+alert(JSON.stringify(response));
+if(response.error)
+{
+$("#loginErrorSection").html("Invalid username/password");
+}
 },
-"error":function(){
+error:function(){
 $("#loginErrorSection").html("Invalid username/password");
 },
-
 });
 });
 $("#signupFormButton").click(function(ev){

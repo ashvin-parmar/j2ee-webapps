@@ -1,0 +1,14 @@
+plugins
+{
+id 'java-library'
+}
+dependencies
+{
+implementation files('./lib/gson-2.13.1.jar','./lib/mysql.jar')
+implementation fileTree(dir: '../../../lib', include: ['*.jar'])
+}
+jar
+{
+destinationDirectory = file('./lib')
+archiveFileName = "ev-charging.jar"
+}
