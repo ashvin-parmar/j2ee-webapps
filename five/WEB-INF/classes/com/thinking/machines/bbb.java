@@ -10,10 +10,17 @@ public void doGet(HttpServletRequest request,HttpServletResponse response)
 {
 try
 {
+ServletContext sc=request.getServletContext();
+
+String city=sc.getInitParameter("city");      //Over here the context from global context
+System.out.println("City in bbb servlet: "+city);
+String country=getInitParameter("country");   //Over here the init-parameters from local servlet context.
+System.out.println("Country in bbb servlet: "+country);
+
 HttpSession hs=request.getSession();
 hs.setMaxInactiveInterval(30);		//30 Second time duration assigned to this session
 String name=(String)hs.getAttribute("name");
-String city=request.getParameter("city");
+ city=request.getParameter("city");
 hs.setAttribute("city",city);
 
 System.out.println("Name: "+name);

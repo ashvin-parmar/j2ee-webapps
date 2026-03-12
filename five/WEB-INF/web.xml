@@ -29,6 +29,11 @@
 
     <request-character-encoding>UTF-8</request-character-encoding>
 
+<context-param>
+<param-name>city</param-name>
+<param-value>Ujjain</param-value>
+</context-param>
+
 <servlet>
 <servlet-name>aaa</servlet-name>
 <servlet-class>com.thinking.machines.aaa</servlet-class>
@@ -41,6 +46,10 @@
 <servlet>
 <servlet-name>bbb</servlet-name>
 <servlet-class>com.thinking.machines.bbb</servlet-class>
+<init-param>
+<param-name>country</param-name>
+<param-value>India</param-value>
+</init-param>
 </servlet>
 <servlet-mapping>
 <servlet-name>bbb</servlet-name>

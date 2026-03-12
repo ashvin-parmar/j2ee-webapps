@@ -12,6 +12,15 @@ try
 {
 String name=request.getParameter("name");
 
+ServletContext sc=request.getServletContext();
+
+String city=sc.getInitParameter("city");
+System.out.println("City in aaa servlet: "+city);
+String country=sc.getInitParameter("country");
+System.out.println("Country in aaa servlet: "+country);
+
+
+
 HttpSession hs=request.getSession();
 hs.setAttribute("name",name);
 
