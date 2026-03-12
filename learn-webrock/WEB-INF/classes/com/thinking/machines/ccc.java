@@ -17,6 +17,8 @@ String city=(String)hs.getAttribute("city");
 System.out.println("Name: "+name);
 System.out.println("City: "+city);
 
+
+
 PrintWriter pw=response.getWriter();
 response.setContentType("text/html");
 
@@ -33,6 +35,14 @@ pw.println("Data Saved<br>");
 pw.println("Name: "+name+"<br>");
 pw.println("City: "+city+"<br>");
 pw.println("<button type='submit'>OK</button>");
+pw.println("<br><br>");
+
+ServletContext sc=request.getServletContext();
+for(int i=1;i<=4;i++)
+{
+pw.println("City"+i+": "+sc.getAttribute("city"+i)+"<br>");
+}
+sc.removeAttribute("city1");
 pw.println("</form>");
 pw.println("</body>");
 pw.println("</html>");

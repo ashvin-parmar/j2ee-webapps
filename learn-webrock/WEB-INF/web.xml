@@ -35,6 +35,26 @@
 </context-param>
 
 <servlet>
+<servlet-name>xyz</servlet-name>
+<servlet-class>com.thinking.machines.xyz</servlet-class>
+<load-on-startup>1</load-on-startup>
+</servlet>
+
+<servlet>
+<servlet-name>pqr</servlet-name>
+<servlet-class>com.thinking.machines.pqr</servlet-class>
+<load-on-startup>2</load-on-startup>
+</servlet>
+<servlet-mapping>
+<servlet-name>xyz</servlet-name>
+<url-pattern>/xyz</url-pattern>
+</servlet-mapping>
+<servlet-mapping>
+<servlet-name>pqr</servlet-name>
+<url-pattern>/pqr</url-pattern>
+</servlet-mapping>
+
+<servlet>
 <servlet-name>aaa</servlet-name>
 <servlet-class>com.thinking.machines.aaa</servlet-class>
 </servlet>
@@ -65,4 +85,8 @@
 <url-pattern>/ccc</url-pattern>
 </servlet-mapping>
 
+
+<session-config>
+<session-timeout>30</session-timeout> <!-- in 30 minutes -->
+</session-config>
 </web-app>
