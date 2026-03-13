@@ -1,0 +1,59 @@
+<script>
+$(()=>{
+$("#addStudentButton").click(function(ev){
+ev.preventDefault();
+$("#errorSection").html("");
+var rollNumber=$("#rollNumber").val();
+var name=$("#name").val();
+var student={
+"rollNumber":rollNumber,
+"name":name
+};
+alert(JSON.stringify(student));
+$.ajax({
+url:"rockService",
+type:"POST",
+dataType:"json",
+data:JSON.stringify(student),
+success:function(response){
+var servletResponse=response;
+if(servletResponse.isSuccess)
+{
+if(servletResponse.result!=null)
+{
+alert("Servlet Response arrived alongwith result: "+JSON.stringify(servletResponse.result));
+}
+else
+{
+alert("Servlet response arrived, but no result arrive");
+}
+$("#addStudentPanel").load("doneMessage.html");
+}
+else
+{
+$("#errorSection").html(servletResponse.exception.detailMessage);
+}
+},
+error:function(){
+alert("Error: Some problem");
+}
+});
+
+});
+});
+</script>
+
+<h3 class='ui-widget-header'>Student</h3>
+<div id='addStudentPanel' class='ui-widget ui-widget-content'>
+<form id='studentAddForm' class='ui-widget ui-widget-content ui-widget-shadow ui-corner-all' style='width:500px;margin:5px;'>
+Roll Number: &nbsp;
+<input id='rollNumber' name='rollNumber' type='text' class='ui-widget'><br>
+Name: &nbsp;
+<input id='name' name='name' type='text'><br>
+<span id='errorSection' style='color:red;'></span><br>
+<button type='button' id='addStudentButton'>Add Student</button><br><br>
+</form>
+<br>
+<a class='ui-widget-shadow' href='index.html'>Home</a>
+<br>
+</div>

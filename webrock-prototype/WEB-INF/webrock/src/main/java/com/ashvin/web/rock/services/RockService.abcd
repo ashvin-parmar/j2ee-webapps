@@ -1,0 +1,51 @@
+package com.ashvin.web.rock.services;
+
+import java.lang.reflect.*;
+import java.io.*;
+import java.util.*;
+
+import com.ashvin.web.rock.annotations.*;
+
+public class RockService
+{
+private HashMap<String,HashMap<String,ServletService>> registeredServletServices;
+
+public Service()
+{
+registeredServletServices=new HashMap<>();
+}
+public Class getServletClass(String servletName) throws ClassNotFoundException
+{
+return Class.forName(servletName);
+}
+public void registerServlet(Class c)
+{
+HashMap<String,ServletService> servletServicesMap=new HashMap<>();
+
+Path pathOnClass;
+Path pathOnMethod;
+Method methods[];
+Class methodReturnType;
+Class parameters[];
+String fullPath;
+ServletService ss;
+
+pathOnClass=(Path)c.getAnnotation(Path.class);
+
+if(pathOnClass==null) return;
+methods=c.getDeclaredMethods();
+for(Method method:methods)
+{
+pathOnMethod=(Path)method.getAnnotation(Path.class);
+fullPath=pathOnClass.value()+pathOnMethod.value();
+ss=new ServletService();
+ss.c=c;
+ss.method=method;
+ss.path=fullPath;
+servletServicesMap.put(fullPath,ss);
+}
+registeredServletServices.put(c.getName(),servletServicesMap);
+}
+
+
+}

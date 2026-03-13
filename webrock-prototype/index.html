@@ -1,0 +1,25 @@
+<!DOCTYPE HTML>
+<html lang='en'>
+<head>
+<title>Web Rock Framework Proto-Type</title>
+<meta charset='utf-8'>
+
+<script src='jquery/jquery.js'></script>
+<script src='jquery/jquery.validate.js'></script>
+<link rel='stylesheet' href='css/styles.css' />
+<link rel='stylesheet' href='jquery/jquery-ui.css' />
+
+<script>
+jQuery(($)=>{
+$("#headerDivision").load('header.html');
+$("#footerDivision").load('footer.html');
+$("#contentDivision").load('initial.html');
+});
+</script>
+</head>
+<body>
+<div id='headerDivision' class='headerDivision'></div>
+<div id='contentDivision' class='contentDivision'></div>
+<div id='footerDivision' class='footerDivision'></div>
+</body>
+</html>

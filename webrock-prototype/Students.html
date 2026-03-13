@@ -1,0 +1,55 @@
+<script>
+$(()=>{
+var $rowTemplate;
+$.ajax({
+url:"rockService",
+type:"GET",
+dataType:"json"
+})
+.done(function(response){
+var servletResponse=response;
+if(servletResponse.isSuccess)
+{
+if(servletResponse.result!=null)
+{
+var students=servletResponse.result;
+$.each(students,function(index,value){
+$rowTemplate=$("<tr></tr>");
+$("<td>"+(index+1)+"</td>").appendTo($rowTemplate);
+$("<td>"+value.rollNumber+"</td>").appendTo($rowTemplate);
+$("<td>"+value.name+"</td>").appendTo($rowTemplate);
+$rowTemplate.clone().appendTo("#studentsTable tbody");
+});
+}
+}
+else
+{
+alert("Exception: "+servletResponse.exception.detailedMessage);
+}
+})
+.fail(function(){
+alert("Error: Some problem");
+})
+
+
+
+
+});
+</script>
+
+
+<div id='studentsDataDivision'  class='ui-widget ui-widget-content ui-corner-all'>
+<table id='studentsTable' class='ui-widget ui-widget-content ui-corner-all' border='1'>
+<thead  class='ui-widget ui-widget-content ui-corner-all'>
+<tr  class='ui-widget ui-widget-content ui-corner-tr'>
+<th>S.No.</th>
+<th>Roll Number</th>
+<th>Name</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+<br>
+<a class='ui-widget-shadow' href='index.html'>Home</a><br>
+</div>

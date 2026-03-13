@@ -1,0 +1,17 @@
+<script>
+$(()=>{
+$("#students").click(function(ev){
+ev.preventDefault();
+$("#contentDivision").load("Students.html");
+});
+$("#addStudents").click(function(ev){
+ev.preventDefault();
+$("#contentDivision").load("AddStudent.html");
+});
+});
+</script>
+
+
+<button type='button' id='students'>Students</button>
+<button type='button' id='addStudents'>Add Student</button>
+
