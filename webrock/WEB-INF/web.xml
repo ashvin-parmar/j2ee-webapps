@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+                      http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+  version="4.0"
+  metadata-complete="true">
+
+    <description>WebRock Framework for server side utility</description>
+    <display-name>WebRock Framework</display-name>
+
+    <request-character-encoding>UTF-8</request-character-encoding>
+<!-- Over here Bobby [WebRock Framework User] work starts -->
+<context-param>
+<param-name>SERVICE_PACKAGE_PREFIX</param-name>
+<param-value>bobby</param-value>
+</context-param>
+<context-param>
+<param-name>SITE_NAME</param-name>
+<param-value>webrock</param-value>
+</context-param>
+
+<servlet>
+<servlet-name>Student</servlet-name>
+<servlet-class>com.ashvin.web.rock.WebRock</servlet-class>
+</servlet>
+<servlet-mapping>
+<servlet-name>Student</servlet-name>
+<url-pattern>/studentService/*</url-pattern>
+</servlet-mapping>
+<!-- Over here Bobby [WebRock Framework User] work ends -->
+
+<!-- Over here Amit [WebRock Framework Developer] works start -->
+<servlet>
+<servlet-name>WebRock</servlet-name>
+<servlet-class>com.ashvin.web.rock.WebRock</servlet-class>
+</servlet>
+<servlet-mapping>
+<servlet-name>WebRock</servlet-name>
+<url-pattern>/webRock</url-pattern>
+</servlet-mapping>
+<servlet>
+<servlet-name>WebRockStarter</servlet-name>
+<servlet-class>com.ashvin.web.rock.WebRockStarter</servlet-class>
+<load-on-startup>0</load-on-startup>
+</servlet>
+<!-- Over here Amit [WebRock Framework Developer] works ends -->
+
+
+
+</web-app>

@@ -7,4 +7,7 @@ dependencies
 implementation files('../dl/build/libs/dl.jar','/media/ashvin/code/my-libs/java/gson/gson-2.13.1.jar')
 implementation fileTree(dir:'../../../../lib',include:['*.jar'])
 }
-
+jar
+{
+destinationDirectory=file('../lib')
+}
