@@ -10,15 +10,14 @@ import com.ashvin.web.rock.model.*;
 
 public class WebRock extends HttpServlet
 {
-public void doGet(HttpServletRequest request,HttpServletResponse response)  //default method
+private void doIt(HttpServletRequest request,HttpServletResponse response,String type)
 {
-
 //System.out.println(request.getRequestURI());
 String requestURI=request.getRequestURI();
 String siteName=getServletContext().getInitParameter("SITE_NAME");
 String fullPathToService=requestURI.substring(siteName.length()+1);
 System.out.println(fullPathToService);
-Service service=WebRockModel.getWebRockModel().getPathService(fullPathToService,"GET");
+Service service=WebRockModel.getWebRockModel().getPathService(fullPathToService,type);
 if(service==null)
 {
 System.out.println("No Service");
@@ -61,16 +60,18 @@ System.out.println("Exception: "+exception);
 }
 pw.println(jsonString);
 pw.flush();
-
 }catch(IOException ioException)
 {
 System.out.println("IOException: "+ioException.getMessage());
 }
 }
 }
+public void doGet(HttpServletRequest request,HttpServletResponse response)  //default method
+{
+doIt(request,response,"GET");
+}
 public void doPost(HttpServletRequest request,HttpServletResponse response)
 {
-String requestURI=request.getRequestURI();
-
+doIt(request,response,"POST");
 }
 }

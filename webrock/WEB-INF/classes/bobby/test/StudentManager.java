@@ -7,11 +7,14 @@ import com.ashvin.web.rock.annotations.*;
 public class StudentManager
 {
 @PATH(value="/add")
+@POST
 public void addStudent(Student student)
 {
 
 }
 @PATH(value="/getAll")
+@GET
+@POST
 public List<Student> getStudents()
 {
 List<Student> students=new ArrayList<>(2);
