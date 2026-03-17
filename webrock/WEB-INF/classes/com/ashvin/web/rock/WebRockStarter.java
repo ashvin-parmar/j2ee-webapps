@@ -64,7 +64,7 @@ Class<?> pathAnnotationClass=Class.forName("com.ashvin.web.rock.annotations.Path
 for(Path path:classPaths)
 {
 String className=getClassName(parentPath,path);
-//Class<?> loadedClass=cl.loadClass(className);
+//Class<?> loadedClass=cl.loadClass(className);    //URLClassLoader
 Class<?> loadedClass=Class.forName(className);
 System.out.println("Class: "+loadedClass.getName());
 
@@ -101,7 +101,6 @@ WebRockModel.getWebRockModel().setPathService(fullPath,service);
 {
 System.out.println("Exception: "+ioException.getMessage());
 }
-
 }
 public void doGet(HttpServletRequest request,HttpServletResponse response)
 {
