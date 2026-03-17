@@ -3,15 +3,15 @@ package bobby.test;
 import java.util.*;
 import com.ashvin.web.rock.annotations.*;
 
-@Path(value="/studentService")
+@PATH(value="/studentService")
 public class StudentManager
 {
-@Path(value="/add")
+@PATH(value="/add")
 public void addStudent(Student student)
 {
 
 }
-@Path(value="/getAll")
+@PATH(value="/getAll")
 public List<Student> getStudents()
 {
 List<Student> students=new ArrayList<>(2);
@@ -29,7 +29,7 @@ students.add(student);
 
 return students;
 }
-@Path("/isRollNumber")
+@PATH("/isRollNumber")
 public boolean isRollNumberExists(int rollNumber)
 {
 return true;

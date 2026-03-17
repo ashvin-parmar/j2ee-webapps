@@ -13,16 +13,15 @@ public class WebRock extends HttpServlet
 public void doGet(HttpServletRequest request,HttpServletResponse response)  //default method
 {
 
-System.out.println(request.getRequestURI());
+//System.out.println(request.getRequestURI());
 String requestURI=request.getRequestURI();
 String siteName=getServletContext().getInitParameter("SITE_NAME");
 String fullPathToService=requestURI.substring(siteName.length()+1);
 System.out.println(fullPathToService);
-Service service=WebRockModel.getWebRockModel().getPathService(fullPathToService);
-System.out.println("Service: "+service);
+Service service=WebRockModel.getWebRockModel().getPathService(fullPathToService,"GET");
 if(service==null)
 {
-System.out.println("Null Area");
+System.out.println("No Service");
 try
 {
 response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -33,14 +32,13 @@ System.out.println("Some problem: "+ioException);
 }
 else
 {
-System.out.println("Not null area");
 System.out.println("Service Path: "+service.getPath());
 Class serviceClass=service.getServiceClass();
 Method serviceMethod=service.getServiceMethod();
 Object serviceClassObject;
 Object result;
 Class returnType;
-String jsonString="ABCD";
+String jsonString="";
 Object[] parametersValue=null;
 try
 {
@@ -53,20 +51,20 @@ try
 {
 serviceClassObject=serviceClass.newInstance();
 returnType=serviceMethod.getReturnType();
-System.out.println(returnType.getName());
+//System.out.println(returnType.getName());
 result=serviceMethod.invoke(serviceClassObject,parametersValue);
 jsonString=g1.toJson(result);
-System.out.println(jsonString);
+//System.out.println(jsonString);
 }catch(Exception exception)
 {
-System.out.println(exception);
+System.out.println("Exception: "+exception);
 }
 pw.println(jsonString);
 pw.flush();
 
 }catch(IOException ioException)
 {
-System.out.println(ioException.getMessage());
+System.out.println("IOException: "+ioException.getMessage());
 }
 }
 }

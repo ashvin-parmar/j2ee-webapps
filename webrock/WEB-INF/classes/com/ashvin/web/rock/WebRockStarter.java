@@ -10,6 +10,7 @@ import java.lang.annotation.*;
 import java.lang.reflect.*;
 import com.ashvin.web.rock.pojo.*;
 import com.ashvin.web.rock.model.*;
+import com.ashvin.web.rock.annotations.*;
 
 public class WebRockStarter extends HttpServlet
 {
@@ -17,9 +18,9 @@ public void init()
 {
 ServletContext sc=getServletContext();
 String servicePackagePrefix=(String)sc.getInitParameter("SERVICE_PACKAGE_PREFIX");
-System.out.println(servicePackagePrefix);
+//System.out.println(servicePackagePrefix);
 String pathToClassFolder=sc.getRealPath("/WEB-INF/classes");
-System.out.println(pathToClassFolder);
+//System.out.println(pathToClassFolder);
 File classesDir=new File(pathToClassFolder);
 //System.out.println(classesDir.exists());
 File[] folders=classesDir.listFiles();
@@ -60,40 +61,101 @@ try
 {
 String parentPath=folder.getParent();
 List<Path> classPaths=findClassFiles(Paths.get(folder.getAbsolutePath()));
-Class<?> pathAnnotationClass=Class.forName("com.ashvin.web.rock.annotations.Path");
+//Class<?> pathAnnotationClass=Class.forName("com.ashvin.web.rock.annotations.Path");
+PATH pathAvailableOnClass=null;
+PATH pathAvailableOnMethod=null;
+GET getAvailableOnClass=null;
+GET getAvailableOnMethod=null;
+POST postAvailableOnClass=null;
+POST postAvailableOnMethod=null;
+
 for(Path path:classPaths)
 {
+pathAvailableOnClass=null;
+getAvailableOnClass=null;
+postAvailableOnClass=null;
+
 String className=getClassName(parentPath,path);
 //Class<?> loadedClass=cl.loadClass(className);    //URLClassLoader
 Class<?> loadedClass=Class.forName(className);
 System.out.println("Class: "+loadedClass.getName());
-
 Annotation[] annos=loadedClass.getDeclaredAnnotations();
 for(Annotation anno:annos)
 {
-if(anno instanceof com.ashvin.web.rock.annotations.Path p)
+if(anno instanceof PATH)
+{    
+pathAvailableOnClass=(PATH)anno;
+System.out.println(pathAvailableOnClass.value());
+}
+if(getAvailableOnClass==null && (anno instanceof GET))
 {
+getAvailableOnClass=(GET)anno;
+}
+if(postAvailableOnClass==null && (anno instanceof POST))
+{
+postAvailableOnClass=(POST)anno;
+}
+}
+if(pathAvailableOnClass==null) continue;
+System.out.println("-------------PATH ON CLASS AVAILABLE-------------");
 Method methods[]=loadedClass.getDeclaredMethods();
 for(Method method:methods)
 {
+pathAvailableOnMethod=null;
+getAvailableOnMethod=null;
+postAvailableOnMethod=null;
 Annotation[] annos2=method.getDeclaredAnnotations();
 for(Annotation anno2:annos2)
 {
-if(anno2 instanceof com.ashvin.web.rock.annotations.Path p2)
+if(pathAvailableOnMethod==null && anno2 instanceof PATH)
 {
+pathAvailableOnMethod=(PATH)anno2;
+}
+if(getAvailableOnClass==null && anno2 instanceof GET)
+{
+getAvailableOnMethod=(GET)anno2;
+}
+if(postAvailableOnClass==null && anno2 instanceof POST)
+{
+postAvailableOnMethod=(POST)anno2;
+}
+}
+if(pathAvailableOnMethod==null) continue;
+System.out.println("-------------------PATH AVAILABLE ON METHOD ----------");
 Service service=new Service();
 String fullPath;
-String path1=p.value();
-String path2=p2.value();
+String path1=pathAvailableOnClass.value();
+String path2=pathAvailableOnMethod.value();
 fullPath=path1+path2;
 System.out.println(fullPath);
 service.setPath(fullPath);
 service.setServiceMethod(method);
 service.setServiceClass(loadedClass);
-WebRockModel.getWebRockModel().setPathService(fullPath,service);
+if(getAvailableOnClass!=null)
+{
+System.out.println("GET on Class");
+WebRockModel.getWebRockModel().setPathService(fullPath,service,"GET");
 }
+else if(postAvailableOnClass!=null)
+{
+System.out.println("POST on class");
+WebRockModel.getWebRockModel().setPathService(fullPath,service,"POST");
 }
+else if(getAvailableOnMethod!=null)
+{
+System.out.println("GET on method");
+WebRockModel.getWebRockModel().setPathService(fullPath,service,"GET");
 }
+else if(postAvailableOnMethod!=null)
+{
+System.out.println("POST on method");
+WebRockModel.getWebRockModel().setPathService(fullPath,service,"POST");
+}
+else
+{
+System.out.println("NO GET, NO POST on METHOD and CLASS");
+WebRockModel.getWebRockModel().setPathService(fullPath,service,"GET");
+WebRockModel.getWebRockModel().setPathService(fullPath,service,"POST");
 }
 }
 }
