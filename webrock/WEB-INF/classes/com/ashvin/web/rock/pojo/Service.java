@@ -8,12 +8,16 @@ private Class serviceClass;
 private String path;
 private Method serviceMethod;
 private String forwardTo;
+private boolean isGetAllowed;
+private boolean isPostAllowed;
 public Service()
 {
 serviceClass=null;
 path=null;
 serviceMethod=null;
 forwardTo=null;
+isGetAllowed=false;
+isPostAllowed=false;
 }
 public void setServiceClass(Class serviceClass)
 {
@@ -46,5 +50,29 @@ this.forwardTo=forwardTo;
 public String getForwardTo()
 {
 return this.forwardTo;
+}
+public void setIsGetAllowed(boolean isGetAllowed)
+{
+this.isGetAllowed=isGetAllowed;
+}
+public boolean getIsGetAllowed()
+{
+return this.isGetAllowed;
+}
+public boolean isGetAllowed()
+{
+return this.isGetAllowed;
+}
+public void setIsPostAllowed(boolean isPostAllowed)
+{
+this.isPostAllowed=isPostAllowed;
+}
+public boolean getIsPostAllowed()
+{
+return this.isPostAllowed;
+}
+public boolean isPostAllowed()
+{
+return this.isPostAllowed;
 }
 }

@@ -10,6 +10,11 @@ import com.ashvin.web.rock.model.*;
 
 public class WebRock extends HttpServlet
 {
+private WebRockModel webRockModel;
+public WebRock()
+{
+webRockModel=WebRockModel.getWebRockModel();
+}
 private void doIt(HttpServletRequest request,HttpServletResponse response,String type)
 {
 //System.out.println(request.getRequestURI());
@@ -17,10 +22,11 @@ String requestURI=request.getRequestURI();
 System.out.println("URL: "+request.getRequestURL());
 String siteName=getServletContext().getInitParameter("SITE_NAME");
 String fullPathToService=requestURI.substring(siteName.length()+1);
-System.out.println(fullPathToService);
+System.out.println("Full service path: "+fullPathToService);
+//System.out.println("Real path: "+getServletContext().getRealPath("/"));
 //System.out.println(fullPathToService.substring(0,fullPathToService.lastIndexOf('/')));
 String resourcePath=fullPathToService.substring(0,fullPathToService.lastIndexOf('/'));
-Service service=WebRockModel.getWebRockModel().getPathService(fullPathToService,type);
+Service service=webRockModel.getPathService(fullPathToService,type);
 if(service==null)
 {
 System.out.println("No Service");
@@ -61,7 +67,7 @@ try
 if(forwardTo!=null)
 {
 String forwardToPath=resourcePath+forwardTo;
-if(WebRockModel.getWebRockModel().getPathService(forwardToPath,type)!=null)
+if(webRockModel.getPathService(forwardToPath,type)!=null)
 {
 try
 {

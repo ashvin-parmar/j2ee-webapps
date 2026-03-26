@@ -4,6 +4,7 @@ import java.util.*;
 import com.ashvin.web.rock.annotations.*;
 
 @PATH(value="/studentService")
+@POST
 public class StudentManager
 {
 @PATH(value="/add")
@@ -15,7 +16,6 @@ public void addStudent(Student student)
 }
 @PATH(value="/getAll")
 @GET
-@POST
 //@FORWARD(value="http://localhost:8080/stylethree/")
 //@FORWARD(relativeValue="/isRollNumber")   //DEPRECATED [by me]
 @FORWARD(value="/isRollNumber")  //Provide complete path while forward

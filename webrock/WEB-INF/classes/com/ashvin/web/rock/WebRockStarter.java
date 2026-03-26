@@ -14,6 +14,11 @@ import com.ashvin.web.rock.annotations.*;
 
 public class WebRockStarter extends HttpServlet
 {
+private WebRockModel webRockModel;
+public WebRockStarter()
+{
+webRockModel=WebRockModel.getWebRockModel();
+}
 public void init()
 {
 ServletContext sc=getServletContext();
@@ -147,30 +152,37 @@ service.setForwardTo(forwardToPath);
 }
 if(getAvailableOnClass!=null)
 {
-//System.out.println("GET on Class");
-WebRockModel.getWebRockModel().setPathService(fullPath,service,"GET");
+System.out.println("GET on Class");
+//webRockModel.setPathService(fullPath,service,"GET");
+service.setIsGetAllowed(true);
 }
-else if(postAvailableOnClass!=null)
+if(postAvailableOnClass!=null)
 {
-//System.out.println("POST on class");
-WebRockModel.getWebRockModel().setPathService(fullPath,service,"POST");
+System.out.println("POST on class");
+//webRockModel.setPathService(fullPath,service,"POST");
+service.setIsPostAllowed(true);
 }
-else if(getAvailableOnMethod!=null)
+if(getAvailableOnMethod!=null)
 {
-//System.out.println("GET on method");
-WebRockModel.getWebRockModel().setPathService(fullPath,service,"GET");
+System.out.println("GET on method");
+//webRockModel.setPathService(fullPath,service,"GET");
+service.setIsGetAllowed(true);
 }
-else if(postAvailableOnMethod!=null)
+if(postAvailableOnMethod!=null)
 {
-//System.out.println("POST on method");
-WebRockModel.getWebRockModel().setPathService(fullPath,service,"POST");
+System.out.println("POST on method");
+//webRockModel.setPathService(fullPath,service,"POST");
+service.setIsPostAllowed(true);
 }
-else
+if(service.getIsPostAllowed()==false && service.getIsGetAllowed()==false)
 {
-//System.out.println("NO GET, NO POST on METHOD and CLASS");
-WebRockModel.getWebRockModel().setPathService(fullPath,service,"GET");
-WebRockModel.getWebRockModel().setPathService(fullPath,service,"POST");
+System.out.println("NO GET, NO POST on METHOD and CLASS");
+//webRockModel.setPathService(fullPath,service,"GET");
+//webRockModel.setPathService(fullPath,service,"POST");
+service.setIsPostAllowed(true);
+service.setIsGetAllowed(true);
 }
+webRockModel.setPathService(fullPath,service);
 }
 }
 }catch(Exception ioException)
