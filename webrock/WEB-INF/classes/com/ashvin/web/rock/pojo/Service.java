@@ -7,6 +7,14 @@ public class Service implements java.io.Serializable
 private Class serviceClass;
 private String path;
 private Method serviceMethod;
+private String forwardTo;
+public Service()
+{
+serviceClass=null;
+path=null;
+serviceMethod=null;
+forwardTo=null;
+}
 public void setServiceClass(Class serviceClass)
 {
 this.serviceClass=serviceClass;
@@ -30,5 +38,13 @@ this.serviceMethod=serviceMethod;
 public Method getServiceMethod()
 {
 return this.serviceMethod;
+}
+public void setForwardTo(String forwardTo)
+{
+this.forwardTo=forwardTo;
+}
+public String getForwardTo()
+{
+return this.forwardTo;
 }
 }

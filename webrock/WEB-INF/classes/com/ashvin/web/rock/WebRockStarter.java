@@ -68,6 +68,7 @@ GET getAvailableOnClass=null;
 GET getAvailableOnMethod=null;
 POST postAvailableOnClass=null;
 POST postAvailableOnMethod=null;
+FORWARD forwardAvailableOnMethod=null;
 
 for(Path path:classPaths)
 {
@@ -82,10 +83,9 @@ System.out.println("Class: "+loadedClass.getName());
 Annotation[] annos=loadedClass.getDeclaredAnnotations();
 for(Annotation anno:annos)
 {
-if(anno instanceof PATH)
+if(pathAvailableOnClass==null && anno instanceof PATH)
 {    
 pathAvailableOnClass=(PATH)anno;
-System.out.println(pathAvailableOnClass.value());
 }
 if(getAvailableOnClass==null && (anno instanceof GET))
 {
@@ -97,13 +97,15 @@ postAvailableOnClass=(POST)anno;
 }
 }
 if(pathAvailableOnClass==null) continue;
-System.out.println("-------------PATH ON CLASS AVAILABLE-------------");
+//System.out.println("-------------PATH ON CLASS AVAILABLE-------------");
 Method methods[]=loadedClass.getDeclaredMethods();
 for(Method method:methods)
 {
 pathAvailableOnMethod=null;
 getAvailableOnMethod=null;
 postAvailableOnMethod=null;
+forwardAvailableOnMethod=null;
+
 Annotation[] annos2=method.getDeclaredAnnotations();
 for(Annotation anno2:annos2)
 {
@@ -111,17 +113,21 @@ if(pathAvailableOnMethod==null && anno2 instanceof PATH)
 {
 pathAvailableOnMethod=(PATH)anno2;
 }
-if(getAvailableOnClass==null && anno2 instanceof GET)
+if(getAvailableOnClass==null && getAvailableOnMethod==null && anno2 instanceof GET)
 {
 getAvailableOnMethod=(GET)anno2;
 }
-if(postAvailableOnClass==null && anno2 instanceof POST)
+if(postAvailableOnClass==null && postAvailableOnMethod==null && anno2 instanceof POST)
 {
 postAvailableOnMethod=(POST)anno2;
 }
+if(forwardAvailableOnMethod==null && anno2 instanceof FORWARD)
+{
+forwardAvailableOnMethod=(FORWARD)anno2;
+}
 }
 if(pathAvailableOnMethod==null) continue;
-System.out.println("-------------------PATH AVAILABLE ON METHOD ----------");
+//System.out.println("-------------------PATH AVAILABLE ON METHOD ----------");
 Service service=new Service();
 String fullPath;
 String path1=pathAvailableOnClass.value();
@@ -131,29 +137,37 @@ System.out.println(fullPath);
 service.setPath(fullPath);
 service.setServiceMethod(method);
 service.setServiceClass(loadedClass);
+if(forwardAvailableOnMethod!=null)
+{
+String forwardToPath=forwardAvailableOnMethod.value();
+if(forwardToPath.isBlank()==false)
+{
+service.setForwardTo(forwardToPath);
+}
+}
 if(getAvailableOnClass!=null)
 {
-System.out.println("GET on Class");
+//System.out.println("GET on Class");
 WebRockModel.getWebRockModel().setPathService(fullPath,service,"GET");
 }
 else if(postAvailableOnClass!=null)
 {
-System.out.println("POST on class");
+//System.out.println("POST on class");
 WebRockModel.getWebRockModel().setPathService(fullPath,service,"POST");
 }
 else if(getAvailableOnMethod!=null)
 {
-System.out.println("GET on method");
+//System.out.println("GET on method");
 WebRockModel.getWebRockModel().setPathService(fullPath,service,"GET");
 }
 else if(postAvailableOnMethod!=null)
 {
-System.out.println("POST on method");
+//System.out.println("POST on method");
 WebRockModel.getWebRockModel().setPathService(fullPath,service,"POST");
 }
 else
 {
-System.out.println("NO GET, NO POST on METHOD and CLASS");
+//System.out.println("NO GET, NO POST on METHOD and CLASS");
 WebRockModel.getWebRockModel().setPathService(fullPath,service,"GET");
 WebRockModel.getWebRockModel().setPathService(fullPath,service,"POST");
 }

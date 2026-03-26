@@ -14,9 +14,12 @@ private void doIt(HttpServletRequest request,HttpServletResponse response,String
 {
 //System.out.println(request.getRequestURI());
 String requestURI=request.getRequestURI();
+System.out.println("URL: "+request.getRequestURL());
 String siteName=getServletContext().getInitParameter("SITE_NAME");
 String fullPathToService=requestURI.substring(siteName.length()+1);
 System.out.println(fullPathToService);
+//System.out.println(fullPathToService.substring(0,fullPathToService.lastIndexOf('/')));
+String resourcePath=fullPathToService.substring(0,fullPathToService.lastIndexOf('/'));
 Service service=WebRockModel.getWebRockModel().getPathService(fullPathToService,type);
 if(service==null)
 {
@@ -34,32 +37,55 @@ else
 System.out.println("Service Path: "+service.getPath());
 Class serviceClass=service.getServiceClass();
 Method serviceMethod=service.getServiceMethod();
+String forwardTo=service.getForwardTo();
 Object serviceClassObject;
 Object result;
 Class returnType;
 String jsonString="";
-Object[] parametersValue=null;
-try
-{
-response.setContentType("application/json");
-PrintWriter pw=response.getWriter();
-
 com.google.gson.Gson g1=new com.google.gson.Gson();   //Now Working
-
+Object[] parametersValue=null;
 try
 {
 serviceClassObject=serviceClass.newInstance();
 returnType=serviceMethod.getReturnType();
 //System.out.println(returnType.getName());
-result=serviceMethod.invoke(serviceClassObject,parametersValue);
-jsonString=g1.toJson(result);
+//result=serviceMethod.invoke(serviceClassObject,parametersValue);
+//jsonString=g1.toJson(result);
 //System.out.println(jsonString);
 }catch(Exception exception)
 {
 System.out.println("Exception: "+exception);
 }
+try
+{
+if(forwardTo!=null)
+{
+String forwardToPath=resourcePath+forwardTo;
+if(WebRockModel.getWebRockModel().getPathService(forwardToPath,type)!=null)
+{
+try
+{
+System.out.println("Over here "+forwardToPath);
+getServletContext().getRequestDispatcher(forwardToPath).forward(request,response);
+}catch(ServletException se)
+{
+System.out.println("SE: "+se);
+}
+}
+else
+{
+forwardToPath=forwardTo; //donedone
+System.out.println(forwardToPath);
+response.sendRedirect(forwardToPath);
+}
+}
+else
+{
+response.setContentType("application/json");
+PrintWriter pw=response.getWriter();
 pw.println(jsonString);
 pw.flush();
+}
 }catch(IOException ioException)
 {
 System.out.println("IOException: "+ioException.getMessage());

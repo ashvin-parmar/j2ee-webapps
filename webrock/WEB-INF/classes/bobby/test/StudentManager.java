@@ -8,6 +8,7 @@ public class StudentManager
 {
 @PATH(value="/add")
 @POST
+@FORWARD(value="/webrock/index.html")
 public void addStudent(Student student)
 {
 
@@ -15,6 +16,9 @@ public void addStudent(Student student)
 @PATH(value="/getAll")
 @GET
 @POST
+//@FORWARD(value="http://localhost:8080/stylethree/")
+//@FORWARD(relativeValue="/isRollNumber")   //DEPRECATED [by me]
+@FORWARD(value="/isRollNumber")  //Provide complete path while forward
 public List<Student> getStudents()
 {
 List<Student> students=new ArrayList<>(2);
