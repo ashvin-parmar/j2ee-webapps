@@ -10,6 +10,8 @@ private Method serviceMethod;
 private String forwardTo;
 private boolean isGetAllowed;
 private boolean isPostAllowed;
+private boolean runOnStartup;
+private int priority;
 public Service()
 {
 serviceClass=null;
@@ -18,6 +20,8 @@ serviceMethod=null;
 forwardTo=null;
 isGetAllowed=false;
 isPostAllowed=false;
+runOnStartup=false;
+priority=-1;    //lazy loading
 }
 public void setServiceClass(Class serviceClass)
 {
@@ -74,5 +78,21 @@ return this.isPostAllowed;
 public boolean isPostAllowed()
 {
 return this.isPostAllowed;
+}
+public void setRunOnStartup(boolean runOnStartup)
+{
+this.runOnStartup=runOnStartup;
+}
+public boolean getRunOnStartup()
+{
+return this.runOnStartup;
+}
+public void setPriority(int priority)
+{
+this.priority=priority;
+}
+public int getPriority()
+{
+return this.priority;
 }
 }

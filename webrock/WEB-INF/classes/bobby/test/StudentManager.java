@@ -4,7 +4,6 @@ import java.util.*;
 import com.ashvin.web.rock.annotations.*;
 
 @PATH(value="/studentService")
-@POST
 public class StudentManager
 {
 @PATH(value="/add")

@@ -55,8 +55,8 @@ try
 serviceClassObject=serviceClass.newInstance();
 returnType=serviceMethod.getReturnType();
 //System.out.println(returnType.getName());
-//result=serviceMethod.invoke(serviceClassObject,parametersValue);
-//jsonString=g1.toJson(result);
+result=serviceMethod.invoke(serviceClassObject,parametersValue);
+jsonString=g1.toJson(result);
 //System.out.println(jsonString);
 }catch(Exception exception)
 {

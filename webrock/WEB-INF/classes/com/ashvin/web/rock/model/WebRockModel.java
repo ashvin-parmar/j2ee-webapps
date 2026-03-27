@@ -46,4 +46,9 @@ if(service!=null && service.isPostAllowed()) return service;
 }
 return null;
 }
+public List<Service> getServices()
+{
+List<Service> services=new ArrayList<>(pathServices.values());
+return services;
+}
 }

@@ -44,6 +44,16 @@
 <servlet-name>Student</servlet-name>
 <url-pattern>/studentService/*</url-pattern>
 </servlet-mapping>
+
+<servlet>
+<servlet-name>RunOnStartupTesting</servlet-name>
+<servlet-class>com.ashvin.web.rock.WebRock</servlet-class>
+</servlet>
+<servlet-mapping>
+<servlet-name>RunOnStartupTesting</servlet-name>
+<url-pattern>/runOnStartupTesting/*</url-pattern>
+</servlet-mapping>
+
 <!-- Over here Bobby [WebRock Framework User] work ends -->
 
 <!-- Over here Amit [WebRock Framework Developer] works start -->
