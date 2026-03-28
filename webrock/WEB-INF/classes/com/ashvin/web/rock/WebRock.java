@@ -44,6 +44,10 @@ System.out.println("Service Path: "+service.getPath());
 Class serviceClass=service.getServiceClass();
 Method serviceMethod=service.getServiceMethod();
 String forwardTo=service.getForwardTo();
+boolean injectApplicationScope=service.getInjectApplicationScope();
+boolean injectSessionScope=service.getInjectSessionScope();
+boolean injectRequestScope=service.getInjectRequestScope();
+boolean injectApplicationDirectory=service.getInjectApplicationDirectory();
 Object serviceClassObject;
 Object result;
 Class returnType;
@@ -53,11 +57,101 @@ Object[] parametersValue=null;
 try
 {
 serviceClassObject=serviceClass.newInstance();
+if(injectApplicationScope)
+{
+Method method=serviceClass.getMethod("setApplicationScope",ApplicationScope.class);
+if(method!=null)
+{
+try
+{
+//System.out.println("Setter method available");
+ApplicationScope applicationScope=new ApplicationScope();
+applicationScope.setServletContext(request.getServletContext());
+method.invoke(serviceClassObject,applicationScope);
+}catch(Exception e)
+{
+System.out.println("Problem : "+e.getMessage());
+}
+}
+/*else
+{
+System.out.println("Method not available");
+}*/
+}
+if(injectSessionScope)
+{
+Method method=serviceClass.getMethod("setSessionScope",SessionScope.class);
+if(method!=null)
+{
+try
+{
+//System.out.println("Setter method available");
+SessionScope sessionScope=new SessionScope();
+sessionScope.setHttpSession(request.getSession());
+Object[] ssParameters=new Object[1];
+ssParameters[0]=sessionScope;
+method.invoke(serviceClassObject,ssParameters);
+}catch(Exception e)
+{
+System.out.println("Problem : "+e.getMessage());
+}
+}
+/*else
+{
+System.out.println("Method not available");
+}*/
+}
+if(injectRequestScope)
+{
+Method method=serviceClass.getMethod("setRequestScope",RequestScope.class);
+if(method!=null)
+{
+try
+{
+//System.out.println("Setter method available");
+RequestScope requestScope=new RequestScope();
+requestScope.setHttpServletRequest(request);
+method.invoke(serviceClassObject,requestScope);
+}catch(Exception e)//has been ignored
+{
+System.out.println("Problem : "+e.getMessage());
+}
+}
+/*else
+{
+System.out.println("Method not available");
+}*/
+}
+if(injectApplicationDirectory)
+{
+Method method=serviceClass.getMethod("setApplicationDirectory",ApplicationDirectory.class);
+if(method!=null)
+{
+try
+{
+File file=new File(getServletContext().getRealPath("/"));
+//System.out.println("Path: "+file.getName()+" exists: "+file.exists());
+ApplicationDirectory applicationDirectory=new ApplicationDirectory(file);
+method.invoke(serviceClassObject,applicationDirectory);
+}catch(Exception exception)//has been ignored
+{
+System.out.println("problem: "+exception.getMessage());
+}
+}
+}
+
 returnType=serviceMethod.getReturnType();
 //System.out.println(returnType.getName());
+if(returnType.getName().equals("void"))
+{
+serviceMethod.invoke(serviceClassObject,parametersValue);
+}
+else
+{
 result=serviceMethod.invoke(serviceClassObject,parametersValue);
 jsonString=g1.toJson(result);
 //System.out.println(jsonString);
+}
 }catch(Exception exception)
 {
 System.out.println("Exception: "+exception);
@@ -71,7 +165,6 @@ if(webRockModel.getPathService(forwardToPath,type)!=null)
 {
 try
 {
-System.out.println("Over here "+forwardToPath);
 getServletContext().getRequestDispatcher(forwardToPath).forward(request,response);
 }catch(ServletException se)
 {

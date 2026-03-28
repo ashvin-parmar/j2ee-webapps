@@ -54,6 +54,15 @@
 <url-pattern>/runOnStartupTesting/*</url-pattern>
 </servlet-mapping>
 
+<servlet>
+<servlet-name>InjectionTesting</servlet-name>
+<servlet-class>com.ashvin.web.rock.WebRock</servlet-class>
+</servlet>
+<servlet-mapping>
+<servlet-name>InjectionTesting</servlet-name>
+<url-pattern>/injectTesting/*</url-pattern>
+</servlet-mapping>
+
 <!-- Over here Bobby [WebRock Framework User] work ends -->
 
 <!-- Over here Amit [WebRock Framework Developer] works start -->

@@ -106,6 +106,10 @@ try
 String parentPath=folder.getParent();
 List<Path> classPaths=findClassFiles(Paths.get(folder.getAbsolutePath()));
 //Class<?> pathAnnotationClass=Class.forName("com.ashvin.web.rock.annotations.Path");
+InjectApplicationScope injectApplicationScopeAvailableOnClass=null;
+InjectSessionScope injectSessionScopeAvailableOnClass=null;
+InjectRequestScope injectRequestScopeAvailableOnClass=null;
+InjectApplicationDirectory injectApplicationDirectoryAvailableOnClass=null;
 PATH pathAvailableOnClass=null;
 PATH pathAvailableOnMethod=null;
 GET getAvailableOnClass=null;
@@ -113,13 +117,17 @@ GET getAvailableOnMethod=null;
 POST postAvailableOnClass=null;
 POST postAvailableOnMethod=null;
 FORWARD forwardAvailableOnMethod=null;
-ONSTARTUP onStartupAvailableOnMethod=null;
+OnStartup onStartupAvailableOnMethod=null;
 
 for(Path path:classPaths)
 {
 pathAvailableOnClass=null;
 getAvailableOnClass=null;
 postAvailableOnClass=null;
+injectApplicationScopeAvailableOnClass=null;
+injectSessionScopeAvailableOnClass=null;
+injectRequestScopeAvailableOnClass=null;
+injectApplicationDirectoryAvailableOnClass=null;
 
 String className=getClassName(parentPath,path);
 //Class<?> loadedClass=cl.loadClass(className);    //URLClassLoader
@@ -140,9 +148,26 @@ if(postAvailableOnClass==null && (anno instanceof POST))
 {
 postAvailableOnClass=(POST)anno;
 }
+if(injectApplicationScopeAvailableOnClass==null && (anno instanceof InjectApplicationScope))
+{
+injectApplicationScopeAvailableOnClass=(InjectApplicationScope)anno;
+}
+if(injectSessionScopeAvailableOnClass==null && (anno instanceof InjectSessionScope))
+{
+injectSessionScopeAvailableOnClass=(InjectSessionScope)anno;
+}
+if(injectRequestScopeAvailableOnClass==null && (anno instanceof InjectRequestScope))
+{
+injectRequestScopeAvailableOnClass=(InjectRequestScope)anno;
+}
+if(injectApplicationDirectoryAvailableOnClass==null && (anno instanceof InjectApplicationDirectory))
+{
+injectApplicationDirectoryAvailableOnClass=(InjectApplicationDirectory)anno;
+}
 }
 if(pathAvailableOnClass==null) continue;
 //System.out.println("-------------PATH ON CLASS AVAILABLE-------------");
+
 Method methods[]=loadedClass.getDeclaredMethods();
 for(Method method:methods)
 {
@@ -171,9 +196,9 @@ if(forwardAvailableOnMethod==null && anno2 instanceof FORWARD)
 {
 forwardAvailableOnMethod=(FORWARD)anno2;
 }
-if(onStartupAvailableOnMethod==null && anno2 instanceof ONSTARTUP)
+if(onStartupAvailableOnMethod==null && anno2 instanceof OnStartup)
 {
-onStartupAvailableOnMethod=(ONSTARTUP)anno2;
+onStartupAvailableOnMethod=(OnStartup)anno2;
 }
 }
 if(pathAvailableOnMethod==null) continue;
@@ -237,6 +262,23 @@ service.setRunOnStartup(true);
 service.setPriority(priority);
 }
 }
+if(injectApplicationScopeAvailableOnClass!=null)
+{
+service.setInjectApplicationScope(true);
+}
+if(injectSessionScopeAvailableOnClass!=null)
+{
+service.setInjectSessionScope(true);
+}
+if(injectRequestScopeAvailableOnClass!=null)
+{
+service.setInjectRequestScope(true);
+}
+if(injectApplicationDirectoryAvailableOnClass!=null)
+{
+service.setInjectApplicationDirectory(true);
+}
+
 webRockModel.setPathService(fullPath,service);
 }
 }
