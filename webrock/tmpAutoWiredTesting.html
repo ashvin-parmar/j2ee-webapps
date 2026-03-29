@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<title>AJAX Examples</title>
+<meta charset='utf-8'>
+<script>
+class Student
+{
+constructor(name,rollNumber)
+{
+this.rollNumber=rollNumber;
+this.name=name;
+}
+}
+function addStudent()
+{
+var rollNumber=document.getElementById("rollNumber").value.trim();
+var name=document.getElementById("name").value.trim();
+var student=new Student(name,rollNumber);
+alert(rollNumber+" "+name);
+
+var whatever=document.getElementById("errorSection");
+var xmlHttpRequest=new XMLHttpRequest();
+xmlHttpRequest.onreadystatechange=function()
+{
+if(this.readyState==4)
+{
+if(this.status==200)
+{
+var responseData=this.responseText;
+alert(responseData);
+if(responseData.length>3)whatever.innerHTML=responseData;
+else whatever.innerHTML="";
+}
+else
+{
+alert("Some problem");
+}
+}
+};
+xmlHttpRequest.open("POST","autoWiredTesting/testing1",true);
+//xmlHttpRequest.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+//xmlHttpRequest.withCredentials=true;
+//xmlHttpRequest.send("key=xyz&value=something");
+xmlHttpRequest.setRequestHeader("Content-Type","application/json; charset=UTF-8");
+xmlHttpRequest.send(JSON.stringify({"xyz":student}));
+}
+</script>
+</head>
+<body>
+<h3 >Student</h3>
+<div id='addStudentPanel' >
+<form id='studentAddForm' style='width:500px;margin:5px;'>
+Roll Number: &nbsp;
+<input id='rollNumber' name='rollNumber' type='text' required><br>
+Name: &nbsp;
+<input id='name' name='name' type='text' required><br>
+<span id='errorSection' style='color:red;'></span><br>
+<button type='button' id='addStudentButton' onclick=javascript:addStudent()>Add Student</button><br><br>
+</form>
+<br>
+<a href='/webrock/index.html'>Home</a><br>
+</div>
+</body>
+</html>

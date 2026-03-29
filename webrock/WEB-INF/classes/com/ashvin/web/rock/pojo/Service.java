@@ -1,6 +1,7 @@
 package com.ashvin.web.rock.pojo;
 
 import java.lang.reflect.*;
+import java.util.*;
 
 public class Service implements java.io.Serializable
 {
@@ -12,11 +13,12 @@ private boolean isGetAllowed;
 private boolean isPostAllowed;
 private boolean runOnStartup;
 private int priority;
-
 private boolean injectApplicationScope;
 private boolean injectSessionScope;
 private boolean injectRequestScope;
 private boolean injectApplicationDirectory;
+
+private List<AutoWiredField> autoWiredFields;
 public Service()
 {
 serviceClass=null;
@@ -131,5 +133,13 @@ this.injectApplicationDirectory=injectApplicationDirectory;
 public boolean getInjectApplicationDirectory()
 {
 return this.injectApplicationDirectory;
+}
+public void setAutoWiredFields(List<AutoWiredField> autoWiredFields)
+{
+this.autoWiredFields=autoWiredFields;
+}
+public List<AutoWiredField> getAutoWiredFields()
+{
+return this.autoWiredFields;
 }
 }

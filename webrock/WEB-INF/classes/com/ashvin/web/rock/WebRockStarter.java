@@ -118,6 +118,11 @@ POST postAvailableOnClass=null;
 POST postAvailableOnMethod=null;
 FORWARD forwardAvailableOnMethod=null;
 OnStartup onStartupAvailableOnMethod=null;
+AutoWired autoWiredAvailableOnField=null;
+
+Method methods[];
+Field fields[];
+List<AutoWiredField> autoWiredFields;
 
 for(Path path:classPaths)
 {
@@ -167,8 +172,29 @@ injectApplicationDirectoryAvailableOnClass=(InjectApplicationDirectory)anno;
 }
 if(pathAvailableOnClass==null) continue;
 //System.out.println("-------------PATH ON CLASS AVAILABLE-------------");
-
-Method methods[]=loadedClass.getDeclaredMethods();
+autoWiredFields=new LinkedList<>();
+fields=loadedClass.getDeclaredFields();
+for(Field field:fields)
+{
+autoWiredAvailableOnField=null;
+Annotation[] annos3=field.getDeclaredAnnotations();
+for(Annotation anno3:annos3)
+{
+if(anno3 instanceof AutoWired)
+{
+autoWiredAvailableOnField=(AutoWired)anno3;
+}
+}
+if(autoWiredAvailableOnField!=null)
+{
+AutoWiredField autoWiredField=new AutoWiredField();
+autoWiredField.setField(field);
+autoWiredField.setName(autoWiredAvailableOnField.name());
+autoWiredFields.add(autoWiredField);
+}
+}
+//System.out.println(autoWiredFields.size());
+methods=loadedClass.getDeclaredMethods();
 for(Method method:methods)
 {
 pathAvailableOnMethod=null;
@@ -212,6 +238,7 @@ System.out.println(fullPath);
 service.setPath(fullPath);
 service.setServiceMethod(method);
 service.setServiceClass(loadedClass);
+service.setAutoWiredFields(autoWiredFields);
 if(forwardAvailableOnMethod!=null)
 {
 String forwardToPath=forwardAvailableOnMethod.value();

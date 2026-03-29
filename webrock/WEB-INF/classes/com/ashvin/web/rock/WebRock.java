@@ -4,6 +4,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
 import java.lang.reflect.*;
+import java.util.*;
 
 import com.ashvin.web.rock.pojo.*;
 import com.ashvin.web.rock.model.*;
@@ -48,6 +49,14 @@ boolean injectApplicationScope=service.getInjectApplicationScope();
 boolean injectSessionScope=service.getInjectSessionScope();
 boolean injectRequestScope=service.getInjectRequestScope();
 boolean injectApplicationDirectory=service.getInjectApplicationDirectory();
+
+List<AutoWiredField> autoWiredFields=service.getAutoWiredFields();
+String name;
+Object nameResult;
+Field field;
+String autoWiredSetMethodName;
+Method autoWiredSetMethod;
+
 Object serviceClassObject;
 Object result;
 Class returnType;
@@ -57,6 +66,72 @@ Object[] parametersValue=null;
 try
 {
 serviceClassObject=serviceClass.newInstance();
+
+for(AutoWiredField autoWiredField:autoWiredFields)
+{
+nameResult=null;
+name=autoWiredField.getName();
+field=autoWiredField.getField();
+System.out.println(field.getName());
+System.out.println(field.getType());
+autoWiredSetMethodName=field.getName();
+autoWiredSetMethodName=autoWiredSetMethodName.substring(0,1).toUpperCase()+autoWiredSetMethodName.substring(1);
+autoWiredSetMethodName="set"+autoWiredSetMethodName;
+System.out.println("Setter method name: "+autoWiredSetMethodName);
+autoWiredSetMethod=serviceClass.getMethod(autoWiredSetMethodName,field.getType());
+if(autoWiredSetMethod==null)
+{
+//System.out.println(autoWiredSetMethodName+" Method not found");
+continue;
+}
+
+nameResult=request.getAttribute(name);
+if(nameResult==null)
+{
+nameResult=request.getSession().getAttribute(name);
+if(nameResult==null)
+{
+nameResult=request.getServletContext().getAttribute(name);
+}
+}
+/*
+if(nameResult==null)
+{
+field.set(serviceClassObject,nameResult);
+}
+else
+{
+System.out.println(field.getType().isInstance(nameResult));
+System.out.println(field.getType().equals(nameResult.getClass()));
+if(field.getType().isInstance(nameResult))
+{
+field.set(serviceClassObject,nameResult);
+}
+}
+*/
+if(nameResult!=null)
+{
+System.out.println(name+" found");
+System.out.println("Is instanceof correct: "+field.getType().isInstance(nameResult));
+System.out.println("Is instanceof correct: "+field.getType().equals(nameResult.getClass()));
+if(field.getType().isInstance(nameResult))
+{
+System.out.println("Yes, instanceof "+field.getType());
+autoWiredSetMethod.invoke(serviceClassObject,nameResult);
+}
+else
+{
+nameResult=null;
+autoWiredSetMethod.invoke(serviceClassObject,nameResult);
+}
+}
+else
+{
+System.out.println(name+" not found");
+autoWiredSetMethod.invoke(serviceClassObject,nameResult);   //null set
+}
+}
+
 if(injectApplicationScope)
 {
 Method method=serviceClass.getMethod("setApplicationScope",ApplicationScope.class);
