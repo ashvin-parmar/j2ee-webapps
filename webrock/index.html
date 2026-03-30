@@ -5,14 +5,30 @@
 <title>Web Rock Framework</title>
 </head>
 <body>
-Step1: Browse: "http://localhost:8080/webrock/studentService/getAll"
+<b>Request processing: </b> Step1: Browse: "http://localhost:8080/webrock/studentService/getAll"
 <br>
-Step2: Now, Check for logs provided by startup of tomcat. Check at the time of startup logs called via init() and WebRock Servlet logs at the last.
+<b>Startup logs in tomcat: </b>Step2: Now, Check for logs provided by startup of tomcat. Check at the time of startup logs called via init() and WebRock Servlet logs at the last.
 
 <br>
 <br>
------Testing FORWARD ---------
-1: Browse: "http://localhost:8080/webrock/studentService/getAll" -> Test GET type request. It has been forward the request to relative path to '/isRollNumber' path
+<h3>-----Testing FORWARD ---------</h3>
+1: Browse: "http://localhost:8080/webrock/studentService/getAll" -> Test GET type request. It has been forward the request to relative path to '/isRollNumber' path<br>
 2: Browse: "http://localhost:8080/webrock/addStudent.html" and send POST request. It has been forward the request on non-relative path as provided in FORWARD '/webrock/index.html' path.
+<br>
+
+<h3>For AutoWired Testing</h3>
+1: <a href='autoWiredTesting.jsp'>Test</a><br>
+
+
+<br>
+<h3>For RequestParameter Testing</h3>
+1: <a href='requestParameterTesting.jsp'>Test</a><br>
+2: Browse: "http://localhost:8080/webrock/requestParameterTesting/testing2?longValue=32413513431242433&intValue=512&floatValue=434.34&shortValue=1000&byteValue=100&charValue=z&doubleValue=232.432123&stringValue=ashvinparmar&booleanValue=true"<br>
+Remove any key, value pair to test auto deafult value assignment. 
+<br>
+
+
+<br>
+<b>What testing does is showed in tomcat logs, You sees nothing at client ends related to testing purpose. Everything is right now for server side technology.</b>
 </body>
 </html>

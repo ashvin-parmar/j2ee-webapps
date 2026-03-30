@@ -69,7 +69,7 @@ try
 {
 serviceClassObject=serviceClass.newInstance();
 returnType=serviceMethod.getReturnType();
-System.out.println(returnType.getName());
+//System.out.println(returnType.getName());
 if(returnType.getName().equals("void")==false) continue;
 serviceMethod.invoke(serviceClassObject,parametersValue);
 }catch(Exception exception)
@@ -94,7 +94,7 @@ filesList = paths
               .collect(Collectors.toList());
 }catch (IOException e) 
 {
-System.err.println("Error traversing directory: " + e.getMessage());
+System.out.println("Error traversing directory: " + e.getMessage());
 filesList = List.of();
 }
 return filesList;
@@ -122,6 +122,8 @@ AutoWired autoWiredAvailableOnField=null;
 
 Method methods[];
 Field fields[];
+Annotation[][] parameterAnnotations;
+Class<?>[] parameterTypes;
 List<AutoWiredField> autoWiredFields;
 
 for(Path path:classPaths)
@@ -229,6 +231,35 @@ onStartupAvailableOnMethod=(OnStartup)anno2;
 }
 if(pathAvailableOnMethod==null) continue;
 //System.out.println("-------------------PATH AVAILABLE ON METHOD ----------");
+//donedone
+parameterAnnotations=method.getParameterAnnotations();
+parameterTypes=method.getParameterTypes();
+RequestParameter requestParameterAvailableOnMethodParameter=null;
+List<RequestParameterOnMethod> requestParametersOnMethod=new ArrayList<>();
+int i=0;
+for(Annotation[] pAnnos:parameterAnnotations)
+{
+requestParameterAvailableOnMethodParameter=null;
+for(Annotation pAnno:pAnnos)
+{
+if(pAnno instanceof RequestParameter)
+{
+requestParameterAvailableOnMethodParameter=(RequestParameter)pAnno;
+}
+}
+if(requestParameterAvailableOnMethodParameter!=null)
+{
+requestParametersOnMethod.add(new RequestParameterOnMethod(requestParameterAvailableOnMethodParameter.value(),parameterTypes[i]));
+}
+else
+{
+requestParametersOnMethod.add(null);
+//requestParametersOnMethod.add(new RequestParameterOnMethod());
+}
+i++;
+}
+System.out.println("Method: "+method.getName()+" parameters count: "+requestParametersOnMethod.size());
+
 Service service=new Service();
 String fullPath;
 String path1=pathAvailableOnClass.value();
@@ -239,6 +270,7 @@ service.setPath(fullPath);
 service.setServiceMethod(method);
 service.setServiceClass(loadedClass);
 service.setAutoWiredFields(autoWiredFields);
+service.setRequestParametersOnMethod(requestParametersOnMethod);
 if(forwardAvailableOnMethod!=null)
 {
 String forwardToPath=forwardAvailableOnMethod.value();

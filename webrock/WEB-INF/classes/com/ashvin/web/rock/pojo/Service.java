@@ -19,6 +19,7 @@ private boolean injectRequestScope;
 private boolean injectApplicationDirectory;
 
 private List<AutoWiredField> autoWiredFields;
+private List<RequestParameterOnMethod> requestParametersOnMethod;
 public Service()
 {
 serviceClass=null;
@@ -141,5 +142,13 @@ this.autoWiredFields=autoWiredFields;
 public List<AutoWiredField> getAutoWiredFields()
 {
 return this.autoWiredFields;
+}
+public void setRequestParametersOnMethod(List<RequestParameterOnMethod> requestParametersOnMethod)
+{
+this.requestParametersOnMethod=requestParametersOnMethod;
+}
+public List<RequestParameterOnMethod> getRequestParametersOnMethod()
+{
+return this.requestParametersOnMethod;
 }
 }
