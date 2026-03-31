@@ -59,6 +59,11 @@ Field field;
 String autoWiredSetMethodName;
 Method autoWiredSetMethod;
 
+ApplicationScope applicationScope=null;
+SessionScope sessionScope=null;
+RequestScope requestScope=null;
+ApplicationDirectory applicationDirectory=null;
+
 Class parameterType;
 String parameterValue;
 int i=0;
@@ -143,14 +148,58 @@ autoWiredSetMethod.invoke(serviceClassObject,nameResult);   //null set
 // Request Parameter feature start here
 parametersValue=new Object[requestParametersOnMethod.size()];
 i=0;
+
 for(RequestParameterOnMethod requestParameterOnMethod:requestParametersOnMethod)
-{
-if(requestParameterOnMethod!=null)
 {
 name=requestParameterOnMethod.getName();
 parameterType=requestParameterOnMethod.getParameterType();
-if(!name.isBlank() && parameterType!=null)
+
+if(name==null)
 {
+nameResult=null;
+if(parameterType.equals(ApplicationScope.class)) 
+{
+if(applicationScope==null)
+{
+applicationScope=new ApplicationScope();
+applicationScope.setServletContext(request.getServletContext());
+}
+nameResult=applicationScope;
+}
+if(parameterType.equals(SessionScope.class))
+{
+if(sessionScope==null)
+{
+sessionScope=new SessionScope();
+sessionScope.setHttpSession(request.getSession());
+}
+nameResult=sessionScope;
+}
+else if(parameterType.equals(RequestScope.class))
+{
+if(requestScope==null)
+{
+requestScope=new RequestScope();
+requestScope.setHttpServletRequest(request);
+}
+nameResult=requestScope;
+}
+else if(parameterType.equals(ApplicationDirectory.class))
+{
+if(applicationDirectory==null)
+{
+File file=new File(getServletContext().getRealPath("/"));
+applicationDirectory=new ApplicationDirectory(file);
+}
+nameResult=applicationDirectory;
+}
+if(nameResult!=null) 
+{
+parametersValue[i++]=nameResult;
+continue;
+}
+name="";
+}
 parameterValue=request.getParameter(name);
 if(parameterValue==null) parameterValue="";
 //System.out.println("Type: "+parameterType+" value: "+parameterValue);
@@ -231,11 +280,6 @@ System.out.println("String type parameter");
 nameResult=parameterValue;
 }
 parametersValue[i++]=nameResult;
-continue;
-}
-}
-nameResult=null;
-parametersValue[i++]=nameResult;
 }
 //Request parameter feautre ends here
 
@@ -248,8 +292,11 @@ if(method!=null)
 try
 {
 //System.out.println("Setter method available");
-ApplicationScope applicationScope=new ApplicationScope();
+if(applicationScope==null)
+{
+applicationScope=new ApplicationScope();
 applicationScope.setServletContext(request.getServletContext());
+}
 method.invoke(serviceClassObject,applicationScope);
 }catch(Exception e)
 {
@@ -269,8 +316,11 @@ if(method!=null)
 try
 {
 //System.out.println("Setter method available");
-SessionScope sessionScope=new SessionScope();
+if(sessionScope==null)
+{
+sessionScope=new SessionScope();
 sessionScope.setHttpSession(request.getSession());
+}
 Object[] ssParameters=new Object[1];
 ssParameters[0]=sessionScope;
 method.invoke(serviceClassObject,ssParameters);
@@ -292,8 +342,11 @@ if(method!=null)
 try
 {
 //System.out.println("Setter method available");
-RequestScope requestScope=new RequestScope();
+if(requestScope==null)
+{
+requestScope=new RequestScope();
 requestScope.setHttpServletRequest(request);
+}
 method.invoke(serviceClassObject,requestScope);
 }catch(Exception e)//has been ignored
 {
@@ -312,9 +365,12 @@ if(method!=null)
 {
 try
 {
+if(applicationDirectory==null)
+{
 File file=new File(getServletContext().getRealPath("/"));
 //System.out.println("Path: "+file.getName()+" exists: "+file.exists());
-ApplicationDirectory applicationDirectory=new ApplicationDirectory(file);
+applicationDirectory=new ApplicationDirectory(file);
+}
 method.invoke(serviceClassObject,applicationDirectory);
 }catch(Exception exception)//has been ignored
 {
@@ -347,7 +403,19 @@ if(forwardTo!=null)
 String forwardToPath=resourcePath+forwardTo;
 if(webRockModel.getPathService(forwardToPath,type)!=null)
 {
-//Over here, checkout for forwardService method parameter's type which needs to being matched with this service method returnType type. If that so, then we are proceed for the forwarding request, otherwise we are sending ServiceException with the message. Also sendError(500 error code) to client end.  
+//Over here, checkout for forwardService method parameter's type which needs to being matched with this service method returnType type. If that so, then we are proceed for the forwarding request, otherwise we are sending ServiceException with the message. Also sendError(500 error code) to client end.
+/*
+---------APPROUCH 1------------
+save isForwardedRequest=true in forwardService object. then on arriving request, if isForwardedRequest is true then process it with the returnObject as parameter of this service if both are of same type or class. and again set the isForwardedRequest inside the block with false for current service.
+otherwise, process as normal request. 
+*/
+/*
+---------APPROUCH 2------------
+set in requestScope against some key with unique id. and set that unique id in forwardService. 
+On arriving the request, check for any key in service object, if found then process to fetch the data against that key from requestScope and invoke method, and set the key to null. 
+otherwise process as normal request.
+*/
+//All below part are remain same. 
 try
 {
 getServletContext().getRequestDispatcher(forwardToPath).forward(request,response);

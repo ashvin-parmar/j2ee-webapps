@@ -253,12 +253,12 @@ requestParametersOnMethod.add(new RequestParameterOnMethod(requestParameterAvail
 }
 else
 {
-requestParametersOnMethod.add(null);
-//requestParametersOnMethod.add(new RequestParameterOnMethod());
+//requestParametersOnMethod.add(null);
+requestParametersOnMethod.add(new RequestParameterOnMethod(null,parameterTypes[i]));
 }
 i++;
 }
-System.out.println("Method: "+method.getName()+" parameters count: "+requestParametersOnMethod.size());
+//System.out.println("Method: "+method.getName()+" parameters count: "+requestParametersOnMethod.size());
 
 Service service=new Service();
 String fullPath;
