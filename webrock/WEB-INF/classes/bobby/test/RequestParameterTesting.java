@@ -17,6 +17,7 @@ public Student getStudent()
 {
 return this.student;
 }
+@InjectRequestParameter("rollNumber")
 private int rollNumber;
 public void setRollNumber(int rollNumber)
 {
@@ -26,6 +27,7 @@ public int getRollNumber()
 {
 return this.rollNumber;
 }
+@InjectRequestParameter("name")
 private String name;
 public void setName(String name)
 {
@@ -36,14 +38,29 @@ public String getName()
 return this.name;
 }
 
+//@AutoWired(name="pqr")      //Testing failed [work on it next]
+private double pqr;
+public void setPqr(double pqr)
+{
+this.pqr=pqr;
+}
+public double getPqr()
+{
+return this.pqr;
+}
+
 @PATH("/testing1")
-public void service1(Student student,@RequestParameter("name") String name,@RequestParameter("rollNumber")int rollNumber,SessionScope sessionScope,ApplicationScope as,ApplicationDirectory ad,RequestScope rs,double xyz)
+public void service1(Student student,@RequestParameter("name") String name,@RequestParameter("rollNumber")int rollNumber,SessionScope sessionScope,ApplicationScope as,ApplicationDirectory ad,RequestScope rs,double pqr,long lmn)
 {
 System.out.println("-------------Testing ---------");
 if(student==null) System.out.println("Initially student is null");
-System.out.println("Value of primitive data type if not operated: "+xyz); //default value assigned
+System.out.println("Value of primitive data type if not operated: "+lmn); //default value assigned
+System.out.println("Value of @AutoWired primitive data type initially: "+pqr);
 if(sessionScope!=null)
 {
+//-- Setting in sessionScope for pqr, Testing on next request arrival for same service 
+sessionScope.setAttribute("pqr",100.100);
+
 System.out.println("Session scope is not null");
 student=(Student)sessionScope.getAttribute("student");
 if(student!=null)

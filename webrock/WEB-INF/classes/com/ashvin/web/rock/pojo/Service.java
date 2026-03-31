@@ -19,6 +19,7 @@ private boolean injectRequestScope;
 private boolean injectApplicationDirectory;
 
 private List<AutoWiredField> autoWiredFields;
+private List<RequestParameterOnField> injectRequestParameterFields;
 private List<RequestParameterOnMethod> requestParametersOnMethod;
 public Service()
 {
@@ -30,6 +31,14 @@ isGetAllowed=false;
 isPostAllowed=false;
 runOnStartup=false;
 priority=-1;    //lazy loading
+
+injectApplicationScope=false;
+injectSessionScope=false;
+injectRequestScope=false;
+injectApplicationScope=false;
+autoWiredFields=null;
+injectRequestParameterFields=null;
+requestParametersOnMethod=null;
 }
 public void setServiceClass(Class serviceClass)
 {
@@ -150,5 +159,13 @@ this.requestParametersOnMethod=requestParametersOnMethod;
 public List<RequestParameterOnMethod> getRequestParametersOnMethod()
 {
 return this.requestParametersOnMethod;
+}
+public void setInjectRequestParameterFields(List<RequestParameterOnField> injectRequestParameterFields)
+{
+this.injectRequestParameterFields=injectRequestParameterFields;
+}
+public List<RequestParameterOnField> getInjectRequestParameterFields()
+{
+return this.injectRequestParameterFields;
 }
 }

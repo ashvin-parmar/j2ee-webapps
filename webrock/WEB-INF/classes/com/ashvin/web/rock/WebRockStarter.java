@@ -119,12 +119,14 @@ POST postAvailableOnMethod=null;
 FORWARD forwardAvailableOnMethod=null;
 OnStartup onStartupAvailableOnMethod=null;
 AutoWired autoWiredAvailableOnField=null;
+InjectRequestParameter injectRequestParameterAvailableOnField=null;
 
 Method methods[];
 Field fields[];
 Annotation[][] parameterAnnotations;
 Class<?>[] parameterTypes;
 List<AutoWiredField> autoWiredFields;
+List<RequestParameterOnField> injectRequestParameterFields;
 
 for(Path path:classPaths)
 {
@@ -175,16 +177,23 @@ injectApplicationDirectoryAvailableOnClass=(InjectApplicationDirectory)anno;
 if(pathAvailableOnClass==null) continue;
 //System.out.println("-------------PATH ON CLASS AVAILABLE-------------");
 autoWiredFields=new LinkedList<>();
+injectRequestParameterFields=new LinkedList<>();
+
 fields=loadedClass.getDeclaredFields();
 for(Field field:fields)
 {
 autoWiredAvailableOnField=null;
+injectRequestParameterAvailableOnField=null;
 Annotation[] annos3=field.getDeclaredAnnotations();
 for(Annotation anno3:annos3)
 {
 if(anno3 instanceof AutoWired)
 {
 autoWiredAvailableOnField=(AutoWired)anno3;
+}
+if(anno3 instanceof InjectRequestParameter)
+{
+injectRequestParameterAvailableOnField=(InjectRequestParameter)anno3;
 }
 }
 if(autoWiredAvailableOnField!=null)
@@ -193,6 +202,13 @@ AutoWiredField autoWiredField=new AutoWiredField();
 autoWiredField.setField(field);
 autoWiredField.setName(autoWiredAvailableOnField.name());
 autoWiredFields.add(autoWiredField);
+}
+if(injectRequestParameterAvailableOnField!=null)
+{
+RequestParameterOnField requestParameterOnField=new RequestParameterOnField();
+requestParameterOnField.setName(injectRequestParameterAvailableOnField.value());
+requestParameterOnField.setField(field);
+injectRequestParameterFields.add(requestParameterOnField);
 }
 }
 //System.out.println(autoWiredFields.size());
@@ -270,6 +286,7 @@ service.setPath(fullPath);
 service.setServiceMethod(method);
 service.setServiceClass(loadedClass);
 service.setAutoWiredFields(autoWiredFields);
+service.setInjectRequestParameterFields(injectRequestParameterFields);
 service.setRequestParametersOnMethod(requestParametersOnMethod);
 if(forwardAvailableOnMethod!=null)
 {

@@ -8,6 +8,7 @@ import java.util.*;
 
 import com.ashvin.web.rock.pojo.*;
 import com.ashvin.web.rock.model.*;
+import com.ashvin.web.rock.utils.*;
 
 public class WebRock extends HttpServlet
 {
@@ -51,6 +52,7 @@ boolean injectRequestScope=service.getInjectRequestScope();
 boolean injectApplicationDirectory=service.getInjectApplicationDirectory();
 
 List<AutoWiredField> autoWiredFields=service.getAutoWiredFields();
+List<RequestParameterOnField> injectRequestParameterOnFields=service.getInjectRequestParameterFields();
 List<RequestParameterOnMethod> requestParametersOnMethod=service.getRequestParametersOnMethod();
 
 String name;
@@ -58,13 +60,17 @@ Object nameResult;
 Field field;
 String autoWiredSetMethodName;
 Method autoWiredSetMethod;
+String injectRequestParameterSetMethodName;
+Method injectRequestParameterSetMethod;
+
 
 ApplicationScope applicationScope=null;
 SessionScope sessionScope=null;
 RequestScope requestScope=null;
 ApplicationDirectory applicationDirectory=null;
 
-Class parameterType;
+Class parameterType=null;
+Class parameterTypeNP=null;    //parameterType Non Primitive [from Boxer class's]
 String parameterValue;
 int i=0;
 
@@ -72,7 +78,6 @@ Object serviceClassObject;
 Object result;
 Class returnType;
 String jsonString="";
-com.google.gson.Gson g1=new com.google.gson.Gson();   //Now Working
 Object[] parametersValue=null;
 try
 {
@@ -126,29 +131,74 @@ if(nameResult!=null)
 //System.out.println(name+" found");
 //System.out.println("Is instanceof correct: "+field.getType().isInstance(nameResult));
 //System.out.println("Is instanceof correct: "+field.getType().equals(nameResult.getClass()));
-if(field.getType().isInstance(nameResult))
+parameterType=field.getType();
+parameterTypeNP=WebRockUtils.wrap(parameterType);
+if(parameterTypeNP.isInstance(nameResult))
 {
 //System.out.println("Yes, instanceof "+field.getType());
 autoWiredSetMethod.invoke(serviceClassObject,nameResult);
 }
 else
 {
+//throw new ServiceException("Invalid arguments of type "+nameResult.getClass().getName()+" passed to method ["+autoWiredSetMethod.getName()+"] against @AutoWired annotation, Required "+parameterType.getName());
 nameResult=null;
 autoWiredSetMethod.invoke(serviceClassObject,nameResult);
 }
 }
 else
 {
-//System.out.println(name+" not found");
+//System.out.println(name+" not found"); //means want to set null, correct
 autoWiredSetMethod.invoke(serviceClassObject,nameResult);   //null set
 }
 }
 //AutoWired featuer implementatios ends here
 
+//InjectRequestParameter feature implementation starts here
+for(RequestParameterOnField requestParameterOnField:injectRequestParameterOnFields)
+{
+nameResult=null;
+name=requestParameterOnField.getName();
+field=requestParameterOnField.getField();
+//System.out.println(field.getName());
+//System.out.println(field.getType());
+injectRequestParameterSetMethodName=field.getName();
+injectRequestParameterSetMethodName=injectRequestParameterSetMethodName.substring(0,1).toUpperCase()+injectRequestParameterSetMethodName.substring(1);
+injectRequestParameterSetMethodName="set"+injectRequestParameterSetMethodName;
+injectRequestParameterSetMethod=serviceClass.getMethod(injectRequestParameterSetMethodName,field.getType());
+if(injectRequestParameterSetMethod==null)
+{
+continue;
+}
+parameterValue=request.getParameter(name);
+parameterType=field.getType();
+nameResult=WebRockUtils.parseTo(parameterType,parameterValue);
+parameterTypeNP=WebRockUtils.wrap(parameterType);
+//System.out.println(parameterTypeNP.isInstance(nameResult));
+//if(nameResult!=null) System.out.println(parameterTypeNP.equals(nameResult.getClass())+", "+nameResult.getClass());
+if(nameResult!=null)
+{
+if(parameterTypeNP.isInstance(nameResult))
+{
+injectRequestParameterSetMethod.invoke(serviceClassObject,nameResult);
+}
+else
+{
+//throw new ServiceException("Invalid arguments of type "+nameResult.getClass().getName()+" passed to method ["+autoWiredSetMethod.getName()+"] against @InjectRequestParameter annotation, Required "+parameterType.getName());
+nameResult=null;
+injectRequestParameterSetMethod.invoke(serviceClassObject,nameResult);
+}
+}
+else
+{
+//System.out.println(name+" not found");
+injectRequestParameterSetMethod.invoke(serviceClassObject,nameResult);   //null set
+}
+}
+//InjectRequestParmaeter featuer implementatios ends here
+
 // Request Parameter feature start here
 parametersValue=new Object[requestParametersOnMethod.size()];
 i=0;
-
 for(RequestParameterOnMethod requestParameterOnMethod:requestParametersOnMethod)
 {
 name=requestParameterOnMethod.getName();
@@ -201,85 +251,11 @@ continue;
 name="";
 }
 parameterValue=request.getParameter(name);
+nameResult=null;
 if(parameterValue==null) parameterValue="";
 //System.out.println("Type: "+parameterType+" value: "+parameterValue);
-nameResult=null;
-if(parameterType.equals(Long.TYPE) || parameterType.equals(java.lang.Long.class))
-{
-try
-{
-nameResult=Long.parseLong(parameterValue);
-}catch(NumberFormatException nfe)
-{
-nameResult=(long)0;
-}
-}
-if(parameterType.equals(Integer.TYPE) || parameterType.equals(java.lang.Integer.class))
-{
-try
-{
-nameResult=Integer.parseInt(parameterValue);
-}catch(NumberFormatException nfe)
-{
-nameResult=(int)0;
-}
-}
-if(parameterType.equals(Short.TYPE) || parameterType.equals(java.lang.Short.class))
-{
-try
-{
-nameResult=Short.parseShort(parameterValue);
-}catch(NumberFormatException nfe)
-{
-nameResult=(short)0;
-}
-}
-if(parameterType.equals(Byte.TYPE) || parameterType.equals(java.lang.Byte.class))
-{
-try
-{
-nameResult=Byte.parseByte(parameterValue);
-}catch(NumberFormatException nfe)
-{
-nameResult=(byte)0;
-}
-}
-if(parameterType.equals(Double.TYPE) || parameterType.equals(java.lang.Double.class))
-{
-try
-{
-nameResult=Double.parseDouble(parameterValue);
-}catch(NumberFormatException nfe)
-{
-nameResult=(double)0.0;
-}
-}
-if(parameterType.equals(Float.TYPE) || parameterType.equals(java.lang.Float.class))
-{
-try
-{
-nameResult=Float.parseFloat(parameterValue);
-}catch(NumberFormatException nfe)
-{
-nameResult=(float)0.0;
-}
-}
-if(parameterType.equals(Boolean.TYPE) || parameterType.equals(java.lang.Boolean.class))
-{
-if(parameterValue.isBlank()==false) nameResult=Boolean.parseBoolean(parameterValue);
-else nameResult=(boolean)false;
-}
-if(parameterType.equals(Character.TYPE) || parameterType.equals(java.lang.Character.class))
-{
-if(parameterValue.isBlank()==false) nameResult=parameterValue.charAt(0);
-else nameResult=(char)' ';
-}
-if(parameterType.equals(java.lang.String.class))
-{
-System.out.println("String type parameter");
-nameResult=parameterValue;
-}
-parametersValue[i++]=nameResult;
+nameResult=WebRockUtils.parseTo(parameterType,parameterValue);
+parametersValue[i++]=nameResult;      //There are no problem arrived, because invoke method manages wrap functionality from Primitive to Boxer classes
 }
 //Request parameter feautre ends here
 
@@ -389,7 +365,7 @@ serviceMethod.invoke(serviceClassObject,parametersValue);
 else
 {
 result=serviceMethod.invoke(serviceClassObject,parametersValue);
-jsonString=g1.toJson(result);
+jsonString=WebRockUtils.toJSON(result);
 //System.out.println(jsonString);
 }
 }catch(Exception exception)
@@ -400,6 +376,7 @@ try
 {
 if(forwardTo!=null)
 {
+System.out.println("forwardTo: "+forwardTo);
 String forwardToPath=resourcePath+forwardTo;
 if(webRockModel.getPathService(forwardToPath,type)!=null)
 {
@@ -452,4 +429,5 @@ public void doPost(HttpServletRequest request,HttpServletResponse response)
 {
 doIt(request,response,"POST");
 }
+
 }
