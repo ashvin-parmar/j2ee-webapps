@@ -50,11 +50,11 @@ return this.pqr;
 }
 
 @PATH("/testing1")
-public void service1(Student student,@RequestParameter("name") String name,@RequestParameter("rollNumber")int rollNumber,SessionScope sessionScope,ApplicationScope as,ApplicationDirectory ad,RequestScope rs,double pqr,long lmn)
+public void service1(@RequestParameter("name") String name,@RequestParameter("rollNumber")int rollNumber,SessionScope sessionScope,ApplicationScope as,ApplicationDirectory ad,RequestScope rs)
 {
+Student student=null;
 System.out.println("-------------Testing ---------");
 if(student==null) System.out.println("Initially student is null");
-System.out.println("Value of primitive data type if not operated: "+lmn); //default value assigned
 System.out.println("Value of @AutoWired primitive data type initially: "+this.pqr);
 if(sessionScope!=null)
 {
@@ -158,7 +158,76 @@ if(rs!=null)
 {
 System.out.println("Request scope is not null");
 }
-return "{data:\"It's working\"}";
+String message="It's working";
+return message;
+}
+
+@PATH("/testing4")      //@RequestParameter  are also not allowed, if json data arrived [only one non assiged parameter to set]
+public String service4(Student student,SessionScope sessionScope,ApplicationScope as,ApplicationDirectory ad,RequestScope rs)
+{
+System.out.println("-------------Testing ---------");
+if(student==null) System.out.println("Initially student is null");
+else 
+{
+System.out.println("Student data is fetched from json data provided in request");
+System.out.println("Student name: "+student.getName());
+System.out.println("Student roll number: "+student.getRollNumber());
+}
+if(sessionScope!=null)
+{
+//-- Setting in sessionScope for pqr, Testing on next request arrival for same service 
+//sessionScope.setAttribute("PQR","fasds"); 
+sessionScope.setAttribute("Pqr",123123.13213);
+System.out.println("Session scope is not null");
+if(this.student!=null)
+{
+System.out.println("Name via @AutoWired from any scope: "+this.student.getName());
+}
+}
+if(as!=null)
+{
+System.out.println("Application scope is not null");
+}
+if(ad!=null)
+{
+System.out.println("Application directory is not null");
+}
+if(rs!=null)
+{
+System.out.println("Request scope is not null");
+}
+String message="It's working";
+return message;
+}
+@PATH("/testing5")    //no arguments needed method
+public String service5(SessionScope sessionScope,ApplicationScope as,ApplicationDirectory ad,RequestScope rs)
+{
+System.out.println("-------------Testing ---------");
+if(sessionScope!=null)
+{
+//-- Setting in sessionScope for pqr, Testing on next request arrival for same service 
+//sessionScope.setAttribute("PQR","fasds"); 
+sessionScope.setAttribute("Pqr",123123.13213);
+System.out.println("Session scope is not null");
+if(this.student!=null)
+{
+System.out.println("Name via @AutoWired from any scope: "+this.student.getName());
+}
+}
+if(as!=null)
+{
+System.out.println("Application scope is not null");
+}
+if(ad!=null)
+{
+System.out.println("Application directory is not null");
+}
+if(rs!=null)
+{
+System.out.println("Request scope is not null");
+}
+String message="It's working";
+return message;
 }
 
 }

@@ -202,15 +202,15 @@ injectRequestParameterSetMethod.invoke(serviceClassObject,nameResult);   //null 
 parametersValue=new Object[requestParametersOnMethod.size()];
 i=0;
 int count=0;
+int rpomCount=0;
 int index=-1;
 for(RequestParameterOnMethod requestParameterOnMethod:requestParametersOnMethod)
 {
 name=requestParameterOnMethod.getName();
 parameterType=requestParameterOnMethod.getParameterType();
-
+nameResult=null;
 if(name==null)
 {
-nameResult=null;
 if(parameterType.equals(ApplicationScope.class)) 
 {
 if(applicationScope==null)
@@ -252,10 +252,12 @@ if(nameResult!=null)
 parametersValue[i++]=nameResult;
 continue;
 }
-name="";
 count++;
-index=i;
+index=i++;    //corner case i
 }
+else
+{
+rpomCount++;
 parameterValue=request.getParameter(name);
 nameResult=null;
 if(parameterValue==null) parameterValue="";
@@ -263,8 +265,14 @@ if(parameterValue==null) parameterValue="";
 nameResult=WebRockUtils.parseTo(parameterType,parameterValue);
 parametersValue[i++]=nameResult;      //There are no problem arrived, because invoke method manages wrap functionality from Primitive to Boxer classes
 }
+}
 if(count==1)
 {
+if(rpomCount>0)
+{
+System.out.println("Count: "+count+", index: "+index+", RPOM count: "+rpomCount);
+throw new ServiceException("Cannot use @RequestParameter alongwith JSON data in request to process multiple parameter on service "+service.getPath());
+}
 RequestParameterOnMethod requestParameterOnMethod=requestParametersOnMethod.get(index);
 nameResult=null;
 BufferedReader br=request.getReader();
@@ -413,8 +421,8 @@ response.sendError(HttpServletResponse.SC_NOT_FOUND,se.getMessage());
 try
 {
 System.out.println(exception.getMessage());
-response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 System.out.println("Exception: "+exception);
+response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 }catch(Exception e)
 {
 

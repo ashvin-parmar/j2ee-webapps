@@ -27,9 +27,9 @@ if(this.readyState==4)
 {
 if(this.status==200)
 {
-var responseData=this.responseText;
-var data=JSON.parse(this.responseText);
-alert(data.data);
+var responseData=JSON.parse(this.responseText!=null?this.responseText:"{}");
+var data=responseData;
+alert(data);
 //alert(typeof data.data);
 if(responseData.error) whatever.innerHTML=data;
 else working.innerHTML=data;
@@ -40,14 +40,15 @@ alert("Some problem");
 }
 }
 };
-//xmlHttpRequest.open("POST","requestParameterTesting/testing1",true);    //for testing the case of sending json with with having more than one parameter as unknown 
-xmlHttpRequest.open("POST","requestParameterTesting/testing3",true);    //Actual implementing for json to object for that one parameter only
+//xmlHttpRequest.open("POST","requestParameterTesting/testing1",true);    //for testing the case of sending json with with having more than one parameter as unknown  [Required no json data to process - WORKING]
+//xmlHttpRequest.open("POST","requestParameterTesting/testing3",true);  //for testing the case of sending json with having @RequestParameter on parmaeter field, cannot set from json-data. [NOT-WORKING]
+xmlHttpRequest.open("POST","requestParameterTesting/testing4",true);    //Actual implementing for json to object for that one parameter only [WORKING]
+//xmlHttpRequest.open("POST","requestParameterTesting/testing5",true);    //Testing for no argument required [WORKING]
 
 
 //xmlHttpRequest.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
-//xmlHttpRequest.withCredentials=true;
-//xmlHttpRequest.send("key=xyz&value=something");
 xmlHttpRequest.setRequestHeader("Content-Type","application/json; charset=UTF-8");
+//xmlHttpRequest.send();
 xmlHttpRequest.send(JSON.stringify(student));
 }
 </script>
