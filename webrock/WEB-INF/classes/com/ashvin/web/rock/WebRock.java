@@ -9,6 +9,7 @@ import java.util.*;
 import com.ashvin.web.rock.pojo.*;
 import com.ashvin.web.rock.model.*;
 import com.ashvin.web.rock.utils.*;
+import com.ashvin.web.rock.exceptions.*;
 
 public class WebRock extends HttpServlet
 {
@@ -139,7 +140,7 @@ autoWiredSetMethod.invoke(serviceClassObject,nameResult);
 }
 else
 {
-//throw new ServiceException("Invalid arguments of type "+nameResult.getClass().getName()+" passed to method ["+autoWiredSetMethod.getName()+"] against @AutoWired annotation, Required "+parameterType.getName());
+throw new ServiceException("Invalid arguments of type "+nameResult.getClass().getName()+" passed to method ["+autoWiredSetMethod.getName()+"] against @AutoWired annotation, Required "+parameterType.getName());
 //nameResult=null;      //NOT TO DONE THIS, because it may be primitive at user end
 //autoWiredSetMethod.invoke(serviceClassObject,nameResult);
 }
@@ -183,9 +184,9 @@ injectRequestParameterSetMethod.invoke(serviceClassObject,nameResult);
 }
 else
 {
-//throw new ServiceException("Invalid arguments of type "+nameResult.getClass().getName()+" passed to method ["+autoWiredSetMethod.getName()+"] against @InjectRequestParameter annotation, Required "+parameterType.getName());
-nameResult=null;
-injectRequestParameterSetMethod.invoke(serviceClassObject,nameResult);
+throw new ServiceException("Invalid arguments of type "+nameResult.getClass().getName()+" passed to method ["+injectRequestParameterSetMethod.getName()+"] against @InjectRequestParameter annotation, Required "+parameterType.getName());
+//nameResult=null;
+//injectRequestParameterSetMethod.invoke(serviceClassObject,nameResult);
 }
 }
 else
@@ -369,9 +370,27 @@ result=serviceMethod.invoke(serviceClassObject,parametersValue);
 jsonString=WebRockUtils.toJSON(result);
 //System.out.println(jsonString);
 }
+}catch(ServiceException se)
+{
+try
+{
+System.out.println("message: "+se.getMessage());
+response.sendError(HttpServletResponse.SC_NOT_FOUND,se.getMessage());
+}catch(Exception e)
+{
+
+}
 }catch(Exception exception)
 {
+try
+{
+System.out.println(exception.getMessage());
+response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 System.out.println("Exception: "+exception);
+}catch(Exception e)
+{
+
+}
 }
 try
 {

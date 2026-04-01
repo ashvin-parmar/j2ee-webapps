@@ -59,7 +59,7 @@ System.out.println("Value of @AutoWired primitive data type initially: "+this.pq
 if(sessionScope!=null)
 {
 //-- Setting in sessionScope for pqr, Testing on next request arrival for same service 
-sessionScope.setAttribute("PQR",100.100);
+sessionScope.setAttribute("PQR","fasds"); 
 
 System.out.println("Session scope is not null");
 student=(Student)sessionScope.getAttribute("student");
