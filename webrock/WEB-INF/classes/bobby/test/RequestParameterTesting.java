@@ -38,7 +38,7 @@ public String getName()
 return this.name;
 }
 
-//@AutoWired(name="pqr")      //Testing failed [work on it next]
+@AutoWired(name="PQR")      //Testing failed [work on it next]
 private double pqr;
 public void setPqr(double pqr)
 {
@@ -55,11 +55,11 @@ public void service1(Student student,@RequestParameter("name") String name,@Requ
 System.out.println("-------------Testing ---------");
 if(student==null) System.out.println("Initially student is null");
 System.out.println("Value of primitive data type if not operated: "+lmn); //default value assigned
-System.out.println("Value of @AutoWired primitive data type initially: "+pqr);
+System.out.println("Value of @AutoWired primitive data type initially: "+this.pqr);
 if(sessionScope!=null)
 {
 //-- Setting in sessionScope for pqr, Testing on next request arrival for same service 
-sessionScope.setAttribute("pqr",100.100);
+sessionScope.setAttribute("PQR",100.100);
 
 System.out.println("Session scope is not null");
 student=(Student)sessionScope.getAttribute("student");

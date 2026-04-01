@@ -126,13 +126,12 @@ field.set(serviceClassObject,nameResult);
 }
 }
 */
+parameterType=field.getType();
+parameterTypeNP=WebRockUtils.wrap(parameterType);
 if(nameResult!=null)
 {
 //System.out.println(name+" found");
-//System.out.println("Is instanceof correct: "+field.getType().isInstance(nameResult));
-//System.out.println("Is instanceof correct: "+field.getType().equals(nameResult.getClass()));
-parameterType=field.getType();
-parameterTypeNP=WebRockUtils.wrap(parameterType);
+
 if(parameterTypeNP.isInstance(nameResult))
 {
 //System.out.println("Yes, instanceof "+field.getType());
@@ -141,13 +140,14 @@ autoWiredSetMethod.invoke(serviceClassObject,nameResult);
 else
 {
 //throw new ServiceException("Invalid arguments of type "+nameResult.getClass().getName()+" passed to method ["+autoWiredSetMethod.getName()+"] against @AutoWired annotation, Required "+parameterType.getName());
-nameResult=null;
-autoWiredSetMethod.invoke(serviceClassObject,nameResult);
+//nameResult=null;      //NOT TO DONE THIS, because it may be primitive at user end
+//autoWiredSetMethod.invoke(serviceClassObject,nameResult);
 }
 }
 else
 {
 //System.out.println(name+" not found"); //means want to set null, correct
+nameResult=WebRockUtils.parseTo(parameterTypeNP,null);
 autoWiredSetMethod.invoke(serviceClassObject,nameResult);   //null set
 }
 }
@@ -191,6 +191,7 @@ injectRequestParameterSetMethod.invoke(serviceClassObject,nameResult);
 else
 {
 //System.out.println(name+" not found");
+//nameResult=WebRockUtils.parseTo(parameterTypeNP,null);  //over here, not needed because already outside of block praseTo called. 
 injectRequestParameterSetMethod.invoke(serviceClassObject,nameResult);   //null set
 }
 }
