@@ -28,9 +28,11 @@ if(this.readyState==4)
 if(this.status==200)
 {
 var responseData=this.responseText;
-alert(responseData);
-if(responseData.length>3)whatever.innerHTML=responseData;
-else whatever.innerHTML="";
+var data=JSON.parse(this.responseText);
+alert(data.data);
+//alert(typeof data.data);
+if(responseData.error) whatever.innerHTML=data;
+else working.innerHTML=data;
 }
 else
 {
@@ -38,12 +40,15 @@ alert("Some problem");
 }
 }
 };
-xmlHttpRequest.open("POST","autoWiredTesting/testing1",true);
+//xmlHttpRequest.open("POST","requestParameterTesting/testing1",true);    //for testing the case of sending json with with having more than one parameter as unknown 
+xmlHttpRequest.open("POST","requestParameterTesting/testing3",true);    //Actual implementing for json to object for that one parameter only
+
+
 //xmlHttpRequest.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
 //xmlHttpRequest.withCredentials=true;
 //xmlHttpRequest.send("key=xyz&value=something");
 xmlHttpRequest.setRequestHeader("Content-Type","application/json; charset=UTF-8");
-xmlHttpRequest.send(JSON.stringify({"xyz":student}));
+xmlHttpRequest.send(JSON.stringify(student));
 }
 </script>
 </head>
@@ -56,8 +61,9 @@ Roll Number: &nbsp;
 Name: &nbsp;
 <input id='name' name='name' type='text' required><br>
 <span id='errorSection' style='color:red;'></span><br>
-<button type='button' id='addStudentButton' onclick=javascript:addStudent()>Add Student</button><br><br>
+<button type='button' id='addStudentButton' onclick=javascript:addStudent()>Add Student</button><br>
 </form>
+<span id='working'></span><br>
 <br>
 <a href='/webrock/index.html'>Home</a><br>
 </div>

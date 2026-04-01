@@ -88,11 +88,11 @@ serviceClassObject=serviceClass.newInstance();
 for(AutoWiredField autoWiredField:autoWiredFields)
 {
 nameResult=null;
-name=autoWiredField.getName();
+name=autoWiredField.getName();    //this name is form annotation
 field=autoWiredField.getField();
 //System.out.println(field.getName());
 //System.out.println(field.getType());
-autoWiredSetMethodName=field.getName();
+autoWiredSetMethodName=field.getName();   //this name is from field itself
 autoWiredSetMethodName=autoWiredSetMethodName.substring(0,1).toUpperCase()+autoWiredSetMethodName.substring(1);
 autoWiredSetMethodName="set"+autoWiredSetMethodName;
 //System.out.println("Setter method name: "+autoWiredSetMethodName);
@@ -201,6 +201,8 @@ injectRequestParameterSetMethod.invoke(serviceClassObject,nameResult);   //null 
 // Request Parameter feature start here
 parametersValue=new Object[requestParametersOnMethod.size()];
 i=0;
+int count=0;
+int index=-1;
 for(RequestParameterOnMethod requestParameterOnMethod:requestParametersOnMethod)
 {
 name=requestParameterOnMethod.getName();
@@ -251,6 +253,8 @@ parametersValue[i++]=nameResult;
 continue;
 }
 name="";
+count++;
+index=i;
 }
 parameterValue=request.getParameter(name);
 nameResult=null;
@@ -258,6 +262,30 @@ if(parameterValue==null) parameterValue="";
 //System.out.println("Type: "+parameterType+" value: "+parameterValue);
 nameResult=WebRockUtils.parseTo(parameterType,parameterValue);
 parametersValue[i++]=nameResult;      //There are no problem arrived, because invoke method manages wrap functionality from Primitive to Boxer classes
+}
+if(count==1)
+{
+RequestParameterOnMethod requestParameterOnMethod=requestParametersOnMethod.get(index);
+nameResult=null;
+BufferedReader br=request.getReader();
+StringBuffer sb=new StringBuffer();
+String d;
+while(true)
+{
+d=br.readLine();
+if(d==null) break;
+sb.append(d);
+}
+parameterValue=sb.toString();
+parameterType=requestParameterOnMethod.getParameterType();
+if(parameterValue==null || parameterValue.isBlank()) parameterValue="{}";
+nameResult=WebRockUtils.parseTo(parameterType,parameterValue,"JSON");
+parametersValue[index]=nameResult;
+}
+else if(count>1)
+{
+System.out.println("Count: "+count+", index: "+index);
+throw new ServiceException("Invalid argument passing for service: "+service.getPath());
 }
 //Request parameter feautre ends here
 

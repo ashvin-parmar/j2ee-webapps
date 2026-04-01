@@ -6,7 +6,7 @@ private String name;
 private Class parameterType;
 public RequestParameterOnMethod()
 {
-this.name="";
+this.name=null;
 this.parameterType=null;
 }
 public RequestParameterOnMethod(String name,Class parameterType)

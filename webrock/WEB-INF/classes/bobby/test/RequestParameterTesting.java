@@ -38,7 +38,7 @@ public String getName()
 return this.name;
 }
 
-@AutoWired(name="PQR")      //Testing failed [work on it next]
+@AutoWired(name="Pqr")      //Testing failed [Done!]    //We can put any name
 private double pqr;
 public void setPqr(double pqr)
 {
@@ -59,7 +59,8 @@ System.out.println("Value of @AutoWired primitive data type initially: "+this.pq
 if(sessionScope!=null)
 {
 //-- Setting in sessionScope for pqr, Testing on next request arrival for same service 
-sessionScope.setAttribute("PQR","fasds"); 
+//sessionScope.setAttribute("PQR","fasds"); 
+sessionScope.setAttribute("Pqr",123123.13213);
 
 System.out.println("Session scope is not null");
 student=(Student)sessionScope.getAttribute("student");
@@ -114,4 +115,50 @@ System.out.println(charValue);
 System.out.println(stringValue);
 System.out.println(booleanValue);
 }
+
+@PATH("/testing3")
+public String service3(Student student,@RequestParameter("name") String name,@RequestParameter("rollNumber")int rollNumber,SessionScope sessionScope,ApplicationScope as,ApplicationDirectory ad,RequestScope rs)
+{
+System.out.println("-------------Testing ---------");
+if(student==null) System.out.println("Initially student is null");
+else 
+{
+System.out.println("Student data is fetched from json data provided in request");
+System.out.println("Student name: "+student.getName());
+System.out.println("Student roll number: "+student.getRollNumber());
+}
+
+if(sessionScope!=null)
+{
+//-- Setting in sessionScope for pqr, Testing on next request arrival for same service 
+//sessionScope.setAttribute("PQR","fasds"); 
+sessionScope.setAttribute("Pqr",123123.13213);
+System.out.println("Session scope is not null");
+if(this.student!=null)
+{
+System.out.println("Name via @AutoWired from any scope: "+this.student.getName());
+}
+}
+System.out.println("----------Testing --------");   //If not pass then defalt or null values assigned. 
+System.out.println("Name via @RequestParameter: "+name);
+System.out.println("Roll number via @RequestParameter: "+rollNumber);
+System.out.println("----------Testing --------");
+System.out.println("Name via @InjectRequestParameter: "+this.name);
+System.out.println("Roll number via @InjectReqeustParameter: "+this.rollNumber);
+System.out.println("----------Testing --------");
+if(as!=null)
+{
+System.out.println("Application scope is not null");
+}
+if(ad!=null)
+{
+System.out.println("Application directory is not null");
+}
+if(rs!=null)
+{
+System.out.println("Request scope is not null");
+}
+return "{data:\"It's working\"}";
+}
+
 }
