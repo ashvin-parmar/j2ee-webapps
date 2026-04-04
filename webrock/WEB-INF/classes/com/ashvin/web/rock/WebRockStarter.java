@@ -39,9 +39,34 @@ if(folder.isDirectory() && folder.getName().startsWith(servicePackagePrefix))
 loadAllPathServices(folder);
 }
 }
+List<Service> services=webRockModel.getServices();
+SecurityAccess securityAccess;
+Class checkPost1,checkPost2;
+Method guard1,guard2;
+for(Service service:services)
+{
+for(Service service2:services)
+{
+if(service==service2) continue;
+securityAccess=service.getSecurityAccess();
+if(securityAccess!=null)
+{
+checkPost1=securityAccess.getCheckPost();
+checkPost2=service2.getServiceClass();
+guard1=securityAccess.getGuard();
+guard2=service2.getServiceMethod();
+if(checkPost1!=null &&  checkPost2!=null &&  guard1!=null && guard2!=null && securityAccess.getCheckPost().equals(service2.getServiceClass()) && securityAccess.getGuard().equals(service2.getServiceMethod()))
+{
+System.out.println("PATH to secured: "+service2.getPath());
+securityAccess.setServicePath(service2.getPath());
+//webRockModel.setPathService(service2.getPath(),service);
+}
+}
+}
+}
+
 
 //call all services which are specified to being called on startup. 
-List<Service> services=webRockModel.getServices();
 Collections.sort(services,((left,right)->left.getPriority()-right.getPriority()));
 List<Service> startupServices=new ArrayList<>();
 for(Service service:services)
@@ -116,17 +141,34 @@ GET getAvailableOnClass=null;
 GET getAvailableOnMethod=null;
 POST postAvailableOnClass=null;
 POST postAvailableOnMethod=null;
+SecuredAccess securedAccessAvailableOnClass=null;
+SecuredAccess securedAccessAvailableOnMethod=null;
 FORWARD forwardAvailableOnMethod=null;
 OnStartup onStartupAvailableOnMethod=null;
 AutoWired autoWiredAvailableOnField=null;
 InjectRequestParameter injectRequestParameterAvailableOnField=null;
 
+Class c;
+Method m;
 Method methods[];
 Field fields[];
 Annotation[][] parameterAnnotations;
 Class<?>[] parameterTypes;
-List<AutoWiredField> autoWiredFields;
-List<RequestParameterOnField> injectRequestParameterFields;
+
+List<AutoWiredField> autoWiredFields=null;
+List<RequestParameterOnField> injectRequestParameterFields=null;
+List<RequestParameterOnMethod> requestParametersOnMethod=null;
+
+AutoWiredField autoWiredField=null;
+RequestParameterOnField requestParameterOnField=null;
+RequestParameter requestParameterAvailableOnMethodParameter=null;
+SecurityAccess securityAccess=null;
+
+int i,priority;
+String checkPost=null;
+String guard=null;
+boolean valid=false;
+int methodCount=0;
 
 for(Path path:classPaths)
 {
@@ -137,6 +179,7 @@ injectApplicationScopeAvailableOnClass=null;
 injectSessionScopeAvailableOnClass=null;
 injectRequestScopeAvailableOnClass=null;
 injectApplicationDirectoryAvailableOnClass=null;
+securedAccessAvailableOnClass=null;
 
 String className=getClassName(parentPath,path);
 //Class<?> loadedClass=cl.loadClass(className);    //URLClassLoader
@@ -173,6 +216,10 @@ if(injectApplicationDirectoryAvailableOnClass==null && (anno instanceof InjectAp
 {
 injectApplicationDirectoryAvailableOnClass=(InjectApplicationDirectory)anno;
 }
+if(securedAccessAvailableOnClass==null && (anno instanceof SecuredAccess))
+{
+securedAccessAvailableOnClass=(SecuredAccess)anno;
+}
 }
 if(pathAvailableOnClass==null) continue;
 //System.out.println("-------------PATH ON CLASS AVAILABLE-------------");
@@ -198,14 +245,14 @@ injectRequestParameterAvailableOnField=(InjectRequestParameter)anno3;
 }
 if(autoWiredAvailableOnField!=null)
 {
-AutoWiredField autoWiredField=new AutoWiredField();
+autoWiredField=new AutoWiredField();
 autoWiredField.setField(field);
 autoWiredField.setName(autoWiredAvailableOnField.name());
 autoWiredFields.add(autoWiredField);
 }
 if(injectRequestParameterAvailableOnField!=null)
 {
-RequestParameterOnField requestParameterOnField=new RequestParameterOnField();
+requestParameterOnField=new RequestParameterOnField();
 requestParameterOnField.setName(injectRequestParameterAvailableOnField.value());
 requestParameterOnField.setField(field);
 injectRequestParameterFields.add(requestParameterOnField);
@@ -220,6 +267,7 @@ getAvailableOnMethod=null;
 postAvailableOnMethod=null;
 forwardAvailableOnMethod=null;
 onStartupAvailableOnMethod=null;
+securedAccessAvailableOnMethod=null;
 
 Annotation[] annos2=method.getDeclaredAnnotations();
 for(Annotation anno2:annos2)
@@ -244,15 +292,19 @@ if(onStartupAvailableOnMethod==null && anno2 instanceof OnStartup)
 {
 onStartupAvailableOnMethod=(OnStartup)anno2;
 }
+if(securedAccessAvailableOnMethod==null && anno2 instanceof SecuredAccess)
+{
+securedAccessAvailableOnMethod=(SecuredAccess)anno2;
+}
 }
 if(pathAvailableOnMethod==null) continue;
 //System.out.println("-------------------PATH AVAILABLE ON METHOD ----------");
 //donedone
 parameterAnnotations=method.getParameterAnnotations();
 parameterTypes=method.getParameterTypes();
-RequestParameter requestParameterAvailableOnMethodParameter=null;
-List<RequestParameterOnMethod> requestParametersOnMethod=new ArrayList<>();
-int i=0;
+requestParameterAvailableOnMethodParameter=null;
+requestParametersOnMethod=new ArrayList<>();
+i=0;
 for(Annotation[] pAnnos:parameterAnnotations)
 {
 requestParameterAvailableOnMethodParameter=null;
@@ -288,10 +340,72 @@ service.setServiceClass(loadedClass);
 service.setAutoWiredFields(autoWiredFields);
 service.setInjectRequestParameterFields(injectRequestParameterFields);
 service.setRequestParametersOnMethod(requestParametersOnMethod);
+//SecurityAccess method available
+securityAccess=null;
+checkPost=null;
+guard=null;
+if(securedAccessAvailableOnClass!=null)
+{
+checkPost=securedAccessAvailableOnClass.checkPost();
+guard=securedAccessAvailableOnClass.guard();
+}
+if(securedAccessAvailableOnMethod!=null)
+{
+checkPost=securedAccessAvailableOnMethod.checkPost();
+guard=securedAccessAvailableOnMethod.guard();
+}
+if(checkPost!=null && !checkPost.isBlank() && guard!=null && !guard.isBlank())
+{
+try
+{
+c=Class.forName(checkPost);
+methods=c.getDeclaredMethods();
+m=null;
+methodCount=0;
+for(Method guardMethod:methods)
+{
+if(guardMethod.getName().equals(guard))
+{
+valid=true;
+for(Class fieldType:guardMethod.getParameterTypes())
+{
+if(!(fieldType.equals(ApplicationScope.class) ||  fieldType.equals(SessionScope.class) || fieldType.equals(RequestScope.class) || fieldType.equals(ApplicationDirectory.class)))
+{
+valid=false;
+break;
+}
+}
+if(valid)
+{
+m=guardMethod;
+methodCount++;
+}
+}
+}
+if(methodCount==1)
+{
+securityAccess=new SecurityAccess();
+securityAccess.setCheckPost(c);
+securityAccess.setGuard(m);
+}
+else
+{
+securityAccess=new SecurityAccess();
+}
+}catch(Exception exception)
+{
+securityAccess=new SecurityAccess();  //with null class and null method
+}
+service.setSecurityAccess(securityAccess);
+}
+else if(securedAccessAvailableOnClass!=null || securedAccessAvailableOnMethod!=null)
+{
+service.setSecurityAccess(new SecurityAccess());
+}
 if(forwardAvailableOnMethod!=null)
 {
 String forwardToPath=forwardAvailableOnMethod.value();
-if(forwardToPath.isBlank()==false)
+if(forwardToPath!=null && forwardToPath.isBlank()==false)
 {
 service.setForwardTo(forwardToPath);
 }
@@ -330,7 +444,7 @@ service.setIsGetAllowed(true);
 }
 if(onStartupAvailableOnMethod!=null)
 {
-int priority=0;
+priority=0;
 priority=onStartupAvailableOnMethod.priority();
 if(priority>=0)
 {

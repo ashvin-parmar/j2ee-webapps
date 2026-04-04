@@ -26,4 +26,8 @@ public Object getAttribute(String key)
 {
 return servletContext.getAttribute(key);
 }
+public void removeAttribute(String key)
+{
+this.servletContext.removeAttribute(key);
+}
 }

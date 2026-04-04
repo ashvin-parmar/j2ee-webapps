@@ -6,6 +6,7 @@ import com.ashvin.web.rock.annotations.*;
 @PATH(value="/studentService")
 public class StudentManager
 {
+@SecuredAccess(checkPost="bobby.test.Authenticate",guard="login")
 @PATH(value="/add")
 @POST
 @FORWARD(value="/webrock/index.html")
@@ -14,6 +15,7 @@ public void addStudent(Student student)
 
 }
 @PATH(value="/getAll")
+@SecuredAccess(checkPost="bobby.test.Authenticate",guard="login3")
 @GET
 //@FORWARD(value="http://localhost:8080/stylethree/")
 //@FORWARD(relativeValue="/isRollNumber")   //DEPRECATED [by me]

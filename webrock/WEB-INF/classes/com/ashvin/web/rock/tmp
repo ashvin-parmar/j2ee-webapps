@@ -1,0 +1,42 @@
+//I have not able to implement ['include()'] this kind of processing on it because on include the request. The request has been loaded with same resource name again and again. This will created a recursive call to same request. 
+
+
+SecurityAccess securityAccess=service.getSecurityAccess();
+if(securityAccess!=null)
+{
+try
+{
+String servicePath=securityAccess.getServicePath();
+request.getRequestDispatcher(servicePath).include(request,response); 
+}catch(Exception exception)
+{
+try
+{
+response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+}catch(Exception e)
+{
+}
+}
+}
+
+
+
+
+/*
+SecurityAccess securityAccess=service.getSecurityAccess();
+if(securityAccess!=null)
+{
+try
+{
+String servicePath=securityAccess.getServicePath();
+System.out.println("Security ServicePath: "+File.separator+siteName+servicePath);
+request.getRequestDispatcher(servicePath).include(request,response);
+}catch(ServletException | IOException e)
+{
+System.out.println("--Unauthorized--: "+e.getMessage());
+throw new com.ashvin.web.rock.exceptions.SecurityException("Unauthorized access");
+}
+Thread.sleep(5000);
+}
+*/
+

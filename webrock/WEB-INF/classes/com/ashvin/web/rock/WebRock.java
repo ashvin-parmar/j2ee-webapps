@@ -9,7 +9,7 @@ import java.util.*;
 import com.ashvin.web.rock.pojo.*;
 import com.ashvin.web.rock.model.*;
 import com.ashvin.web.rock.utils.*;
-import com.ashvin.web.rock.exceptions.*;
+import com.ashvin.web.rock.exceptions.ServiceException;
 
 public class WebRock extends HttpServlet
 {
@@ -40,10 +40,321 @@ response.sendError(HttpServletResponse.SC_NOT_FOUND);
 {
 System.out.println("Some problem: "+ioException);
 }
+return;
 }
 else
 {
 System.out.println("Service Path: "+service.getPath());
+int i;
+ApplicationScope applicationScope=null;
+SessionScope sessionScope=null;
+RequestScope requestScope=null;
+ApplicationDirectory applicationDirectory=null;
+SecurityAccess securityAccess=service.getSecurityAccess();
+if(securityAccess!=null)
+{
+try
+{
+Class checkPost=securityAccess.getCheckPost();
+Method guard=securityAccess.getGuard();
+String securityServicePath=securityAccess.getServicePath();
+Service securityService=webRockModel.getPathService(securityServicePath,type);
+if(securityService==null)
+{
+throw new com.ashvin.web.rock.exceptions.SecurityException("Unahuthorized access");
+}
+Class securityServiceClass=checkPost;
+Method securityServiceMethod=guard;
+String forwardTo=securityService.getForwardTo();
+boolean injectApplicationScope=securityService.getInjectApplicationScope();
+boolean injectSessionScope=securityService.getInjectSessionScope();
+boolean injectRequestScope=securityService.getInjectRequestScope();
+boolean injectApplicationDirectory=securityService.getInjectApplicationDirectory();
+List<AutoWiredField> autoWiredFields=securityService.getAutoWiredFields();
+List<RequestParameterOnMethod> requestParametersOnMethod=securityService.getRequestParametersOnMethod();
+
+String name;
+Object nameResult;
+Field field;
+String autoWiredSetMethodName;
+Method autoWiredSetMethod;
+String injectRequestParameterSetMethodName;
+Method injectRequestParameterSetMethod;
+
+Class parameterType=null;
+Class parameterTypeNP=null;    //parameterType Non Primitive [from Boxer class's]
+String parameterValue;
+
+Object securityServiceClassObject;
+Object result;
+Class returnType;
+Object[] parametersValue=null;
+securityServiceClassObject=securityServiceClass.newInstance();
+
+//AutoWired feature implementation starts here
+for(AutoWiredField autoWiredField:autoWiredFields)
+{
+nameResult=null;
+name=autoWiredField.getName();    //this name is form annotation
+field=autoWiredField.getField();
+autoWiredSetMethodName=field.getName();   //this name is from field itself
+autoWiredSetMethodName=autoWiredSetMethodName.substring(0,1).toUpperCase()+autoWiredSetMethodName.substring(1);
+autoWiredSetMethodName="set"+autoWiredSetMethodName;
+autoWiredSetMethod=securityServiceClass.getMethod(autoWiredSetMethodName,field.getType());
+if(autoWiredSetMethod==null)
+{
+continue;
+}
+
+nameResult=request.getAttribute(name);
+if(nameResult==null)
+{
+nameResult=request.getSession().getAttribute(name);
+if(nameResult==null)
+{
+nameResult=request.getServletContext().getAttribute(name);
+}
+}
+parameterType=field.getType();
+parameterTypeNP=WebRockUtils.wrap(parameterType);
+if(nameResult!=null)
+{
+if(parameterTypeNP.isInstance(nameResult))
+{
+autoWiredSetMethod.invoke(securityServiceClassObject,nameResult);
+}
+else
+{
+throw new ServiceException("Invalid arguments of type "+nameResult.getClass().getName()+" passed to method ["+autoWiredSetMethod.getName()+"] against @AutoWired annotation, Required "+parameterType.getName());
+}
+}
+else
+{
+nameResult=WebRockUtils.parseTo(parameterTypeNP,null);
+autoWiredSetMethod.invoke(securityServiceClassObject,nameResult);   //null set
+}
+}
+//AutoWired featuer implementatios ends here
+
+// Request Parameter feature start here
+parametersValue=new Object[requestParametersOnMethod.size()];
+i=0;
+for(RequestParameterOnMethod requestParameterOnMethod:requestParametersOnMethod)
+{
+name=requestParameterOnMethod.getName();
+parameterType=requestParameterOnMethod.getParameterType();
+nameResult=null;
+if(name==null)
+{
+if(parameterType.equals(ApplicationScope.class)) 
+{
+if(applicationScope==null)
+{
+applicationScope=new ApplicationScope();
+applicationScope.setServletContext(request.getServletContext());
+}
+nameResult=applicationScope;
+}
+if(parameterType.equals(SessionScope.class))
+{
+if(sessionScope==null)
+{
+sessionScope=new SessionScope();
+sessionScope.setHttpSession(request.getSession());
+}
+nameResult=sessionScope;
+}
+else if(parameterType.equals(RequestScope.class))
+{
+if(requestScope==null)
+{
+requestScope=new RequestScope();
+requestScope.setHttpServletRequest(request);
+}
+nameResult=requestScope;
+}
+else if(parameterType.equals(ApplicationDirectory.class))
+{
+if(applicationDirectory==null)
+{
+File file=new File(getServletContext().getRealPath("/"));
+applicationDirectory=new ApplicationDirectory(file);
+}
+nameResult=applicationDirectory;
+}
+if(nameResult!=null) 
+{
+parametersValue[i++]=nameResult;
+continue;
+}
+throw new com.ashvin.web.rock.exceptions.SecurityException("UNAUTHORIZED Access");
+}
+else
+{
+throw new com.ashvin.web.rock.exceptions.SecurityException("UNAUTHORIZED Access");
+}
+}
+//Request parameter feautre ends here
+
+//Injection feature implementation starts here
+if(injectApplicationScope)
+{
+Method method=securityServiceClass.getMethod("setApplicationScope",ApplicationScope.class);
+if(method!=null)
+{
+try
+{
+//System.out.println("Setter method available");
+if(applicationScope==null)
+{
+applicationScope=new ApplicationScope();
+applicationScope.setServletContext(request.getServletContext());
+}
+method.invoke(securityServiceClassObject,applicationScope);
+}catch(Exception e)
+{
+System.out.println("Problem : "+e.getMessage());
+}
+}
+/*else
+{
+System.out.println("Method not available");
+}*/
+}
+if(injectSessionScope)
+{
+Method method=securityServiceClass.getMethod("setSessionScope",SessionScope.class);
+if(method!=null)
+{
+try
+{
+//System.out.println("Setter method available");
+if(sessionScope==null)
+{
+sessionScope=new SessionScope();
+sessionScope.setHttpSession(request.getSession());
+}
+Object[] ssParameters=new Object[1];
+ssParameters[0]=sessionScope;
+method.invoke(securityServiceClassObject,ssParameters);
+}catch(Exception e)
+{
+System.out.println("Problem : "+e.getMessage());
+}
+}
+/*else
+{
+System.out.println("Method not available");
+}*/
+}
+if(injectRequestScope)
+{
+Method method=securityServiceClass.getMethod("setRequestScope",RequestScope.class);
+if(method!=null)
+{
+try
+{
+//System.out.println("Setter method available");
+if(requestScope==null)
+{
+requestScope=new RequestScope();
+requestScope.setHttpServletRequest(request);
+}
+method.invoke(securityServiceClassObject,requestScope);
+}catch(Exception e)//has been ignored
+{
+System.out.println("Problem : "+e.getMessage());
+}
+}
+/*else
+{
+System.out.println("Method not available");
+}*/
+}
+if(injectApplicationDirectory)
+{
+Method method=securityServiceClass.getMethod("setApplicationDirectory",ApplicationDirectory.class);
+if(method!=null)
+{
+try
+{
+if(applicationDirectory==null)
+{
+File file=new File(getServletContext().getRealPath("/"));
+//System.out.println("Path: "+file.getName()+" exists: "+file.exists());
+applicationDirectory=new ApplicationDirectory(file);
+}
+method.invoke(securityServiceClassObject,applicationDirectory);
+}catch(Exception exception)//has been ignored
+{
+System.out.println("problem: "+exception.getMessage());
+}
+}
+}
+// Injection feature implementation ends here
+
+returnType=securityServiceMethod.getReturnType();
+//System.out.println(returnType.getName());
+if(returnType.getName().equals("void"))
+{
+securityServiceMethod.invoke(securityServiceClassObject,parametersValue);
+}
+else
+{
+throw new com.ashvin.web.rock.exceptions.SecurityException("UNAUTHORIZED security method should not have to return anything.");
+}
+}catch(com.ashvin.web.rock.exceptions.SecurityException se)
+{
+try
+{
+System.out.println("Message: "+se.getMessage());
+response.sendError(HttpServletResponse.SC_UNAUTHORIZED,se.getMessage());
+}catch(Exception e)
+{
+}
+return;
+}catch(InvocationTargetException ite)
+{
+Throwable t=ite.getCause();
+if(t!=null && t instanceof com.ashvin.web.rock.exceptions.SecurityException se)
+{
+try
+{
+System.out.println("message"+se.getMessage());
+response.sendError(HttpServletResponse.SC_UNAUTHORIZED,"UNAUTHORIZED Access");
+}catch(Exception e)
+{
+}
+}
+try
+{
+response.sendError(HttpServletResponse.SC_UNAUTHORIZED,"UNAUTHORIZED Access");
+}catch(Exception e)
+{
+}
+return;
+}catch(ServiceException se)
+{
+try
+{
+response.sendError(HttpServletResponse.SC_UNAUTHORIZED,"UNAUTHORIZED Access");
+}catch(Exception e)
+{
+}
+return;
+}catch(Exception exception)
+{
+try
+{
+System.out.println("Exception: "+exception);
+response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+}catch(Exception e)
+{
+}
+return;
+}
+}
+
 Class serviceClass=service.getServiceClass();
 Method serviceMethod=service.getServiceMethod();
 String forwardTo=service.getForwardTo();
@@ -64,16 +375,9 @@ Method autoWiredSetMethod;
 String injectRequestParameterSetMethodName;
 Method injectRequestParameterSetMethod;
 
-
-ApplicationScope applicationScope=null;
-SessionScope sessionScope=null;
-RequestScope requestScope=null;
-ApplicationDirectory applicationDirectory=null;
-
 Class parameterType=null;
 Class parameterTypeNP=null;    //parameterType Non Primitive [from Boxer class's]
 String parameterValue;
-int i=0;
 
 Object serviceClassObject;
 Object result;
@@ -406,30 +710,6 @@ result=serviceMethod.invoke(serviceClassObject,parametersValue);
 jsonString=WebRockUtils.toJSON(result);
 //System.out.println(jsonString);
 }
-}catch(ServiceException se)
-{
-try
-{
-System.out.println("message: "+se.getMessage());
-response.sendError(HttpServletResponse.SC_NOT_FOUND,se.getMessage());
-}catch(Exception e)
-{
-
-}
-}catch(Exception exception)
-{
-try
-{
-System.out.println(exception.getMessage());
-System.out.println("Exception: "+exception);
-response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-}catch(Exception e)
-{
-
-}
-}
-try
-{
 if(forwardTo!=null)
 {
 System.out.println("forwardTo: "+forwardTo);
@@ -471,9 +751,43 @@ PrintWriter pw=response.getWriter();
 pw.println(jsonString);
 pw.flush();
 }
+
+}catch(com.ashvin.web.rock.exceptions.SecurityException se)
+{
+try
+{
+System.out.println("Message: "+se.getMessage());
+response.sendError(HttpServletResponse.SC_UNAUTHORIZED,se.getMessage());
+}catch(Exception e)
+{
+}
+}catch(ServiceException se)
+{
+try
+{
+System.out.println("message: "+se.getMessage());
+response.sendError(HttpServletResponse.SC_NOT_FOUND,se.getMessage());
+}catch(Exception e)
+{
+}
 }catch(IOException ioException)
 {
+try
+{
 System.out.println("IOException: "+ioException.getMessage());
+response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+}catch(Exception e)
+{
+}
+}catch(Exception exception)
+{
+try
+{
+System.out.println("Exception: "+exception);
+response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+}catch(Exception e)
+{
+}
 }
 }
 }

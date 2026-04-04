@@ -17,14 +17,14 @@ return WebRockModel.webRockModel;
 }
 public void setPathService(String path,Service service)
 {
-if(path.isBlank() || service==null) return;
+if(path==null || path.isBlank() || service==null) return;
 //if(type.equals("GET")) GETpathServices.put(path,service);
 //else if(type.equals("POST")) POSTpathServices.put(path,service);
 pathServices.put(path,service);
 }
 public Service getPathService(String path)
 {
-if(path.isBlank()) return null;
+if(path==null || path.isBlank()) return null;
 //if(type.equals("GET")) return GETpathServices.get(path);
 //else if(type.equals("POST")) return POSTpathServices.get(path);
 return pathServices.get(path);
@@ -32,7 +32,7 @@ return pathServices.get(path);
 }
 public Service getPathService(String path,String type)
 {
-if(path.isBlank()) return null;
+if(path==null || path.isBlank() || type==null) return null;
 Service service;
 if(type.equals("GET")) 
 {

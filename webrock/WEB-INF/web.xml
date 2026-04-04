@@ -81,6 +81,16 @@
 <url-pattern>/requestParameterTesting/*</url-pattern>
 </servlet-mapping>
 
+<servlet>
+<servlet-name>AuthenticateTesting</servlet-name>
+<servlet-class>com.ashvin.web.rock.WebRock</servlet-class>
+</servlet>
+<servlet-mapping>
+<servlet-name>AuthenticateTesting</servlet-name>
+<url-pattern>/authenticate/*</url-pattern>
+</servlet-mapping>
+
+
 <!-- Over here Bobby [WebRock Framework User] work ends -->
 
 <!-- Over here Amit [WebRock Framework Developer] works start -->

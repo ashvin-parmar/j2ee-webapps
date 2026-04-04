@@ -28,9 +28,20 @@ Remove any key, value pair to test auto deafult value assignment.
 <br>
 <br>
 <h3>For testing one service calling with providing json data to that request </h3>
-
+1: <a href='jsonForOneParameterServiceTesting.html'>Test</a><br>
+2: Change commented code of open request in jsonForOneParameterServiceTesting.html to test on different cases. <br>
 <br>
 
+
+<h3>Testing Authentication </h3>
+<b>Theory:</b> 
+It is applied on StudentManager class and thier functionality. <br>
+We have used Authenticate class at framework user end to manage login and logout. 'login' method of 'bobby.test.Authenticate' class is used as checkPost and guard in StudentManager class.
+Step 1: Initially, there are no login performed and user want to access send request using <b>addStudent.html</b> send request using this.<br>
+<a href='addStudent.html'>Test before login</a>
+Step 2: Login using <b><a href='/authenticate/login'=>Login Link with name 'Ashvin'</a></b><br>
+Step 3: Now, Try the Step 1 again, because login has been performed, now you can access StudentManager method. 
+Step 4: Call to '/studentService/getAll' service from browser -> to Test @AutoWired and @InjectSessionScope of from service to service. 
 <br>
 <b>What testing does is showed in tomcat logs, You sees nothing at client ends related to testing purpose. Everything is right now for server side technology.</b>
 </body>

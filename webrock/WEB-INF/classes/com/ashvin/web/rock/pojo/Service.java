@@ -17,6 +17,7 @@ private boolean injectApplicationScope;
 private boolean injectSessionScope;
 private boolean injectRequestScope;
 private boolean injectApplicationDirectory;
+private SecurityAccess securityAccess;
 
 private List<AutoWiredField> autoWiredFields;
 private List<RequestParameterOnField> injectRequestParameterFields;
@@ -167,5 +168,13 @@ this.injectRequestParameterFields=injectRequestParameterFields;
 public List<RequestParameterOnField> getInjectRequestParameterFields()
 {
 return this.injectRequestParameterFields;
+}
+public void setSecurityAccess(SecurityAccess securityAccess)
+{
+this.securityAccess=securityAccess;
+}
+public SecurityAccess getSecurityAccess()
+{
+return this.securityAccess;
 }
 }

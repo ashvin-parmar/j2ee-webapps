@@ -25,4 +25,8 @@ public Object getAttribute(String key)
 {
 return this.httpSession.getAttribute(key);
 }
+public void removeAttribute(String key)
+{
+this.httpSession.removeAttribute(key);
+}
 }

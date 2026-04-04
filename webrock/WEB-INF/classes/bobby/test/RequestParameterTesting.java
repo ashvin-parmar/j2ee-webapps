@@ -4,6 +4,7 @@ import com.ashvin.web.rock.annotations.*;
 import com.ashvin.web.rock.pojo.*;
 
 
+@SecuredAccess()
 @PATH("/requestParameterTesting")
 public class RequestParameterTesting
 {
