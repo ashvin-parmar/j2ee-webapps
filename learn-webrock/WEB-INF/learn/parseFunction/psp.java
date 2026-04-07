@@ -130,7 +130,7 @@ try
 result=Long.parseLong(parameterValue);
 }catch(NumberFormatException nfe)
 {
-result=(long)0;
+result=(Long)0;
 }
 }
 if(parameterType.equals(Integer.TYPE) || parameterType.equals(java.lang.Integer.class))
@@ -199,7 +199,7 @@ result=parameterValue;
 }
 if(result==null)
 {
-if(convertFrom.equals("json"))
+if(convertFrom!=null && convertFrom.equalsIgnoreCase("json"))
 {
 Gson gson=new Gson();
 try
@@ -230,12 +230,37 @@ System.out.println(pp);
 System.out.println(abc);
 
 System.out.println("--------main testing---------");
-System.out.println("Testing on long: "+(long)p.parseTo(long.class,"242523435246342"));
 
-System.out.println("Testing on int: "+p.parseTo(Integer.class,"12312"));
+long longVal=p.parseTo(long.class,"234425243235");
+Integer intVal=p.parseTo(Integer.class,"132423");
+Short shortVal=p.parseTo(Short.class,"123");
+short shortVal1=p.parseTo(short.class,"2432");
+byte byteVal=p.parseTo(byte.class,"23");
+Double doubleVal=p.parseTo(Double.class,"1234213523.5234324");
+float floatVal=p.parseTo(float.class,"63.53");
+char charVal=p.parseTo(char.class,"Z");
+boolean booleanVal=p.parseTo(boolean.class,"true");
+String stringVal=p.parseTo(String.class,"Something");
+Student student=p.parseTo(Student.class,"{'name':'Ashvin','rollNumber':'1001'}","json");
+System.out.println("Testing on long: "+longVal);
+System.out.println("Testing on int: "+intVal);
+System.out.println("Testing on short:"+shortVal); 
+System.out.println("Testing on short1: "+shortVal1);
+System.out.println("Testing on byte: "+byteVal);
+System.out.println("Testing on double: "+doubleVal);
+System.out.println("Testing on float: "+floatVal); 
+System.out.println("Testing on char: "+charVal);
+System.out.println("Testing on boolean: "+booleanVal);
+System.out.println("Testing on string: "+stringVal);
+System.out.println("Testing on complex object [name]: "+student.name);
+
+
+System.out.println("-----------------------------------------------");
+System.out.println("Testing on long: "+p.parseTo(long.class,"242523435246342"));
+System.out.println("Testing on int: "+=p.parseTo(Integer.class,"12312"));
 System.out.println("Testing on short: "+p.parseTo(short.class,"534"));
-System.out.println("Testing on byte: "+(Byte)p.parseTo(Byte.class,"100"));
-System.out.println("Testing on double: "+(Double)p.parseTo(double.class,"2425342.5234234"));
+System.out.println("Testing on byte: "+p.parseTo(Byte.class,"100"));
+System.out.println("Testing on double: "+p.parseTo(double.class,"2425342.5234234"));
 System.out.println("Testing on float: "+p.parseTo(float.class,"423.2332"));
 System.out.println("Testing on char: "+p.parseTo(char.class,"A"));
 System.out.println("Testing on boolean: "+(boolean)p.parseTo(boolean.class,"true"));

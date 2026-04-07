@@ -22,7 +22,7 @@ private void doIt(HttpServletRequest request,HttpServletResponse response,String
 {
 //System.out.println(request.getRequestURI());
 String requestURI=request.getRequestURI();
-System.out.println("URL: "+request.getRequestURL());
+//System.out.println("URL: "+request.getRequestURL());
 String siteName=getServletContext().getInitParameter("SITE_NAME");
 String fullPathToService=requestURI.substring(siteName.length()+1);
 //System.out.println("Full service path: "+fullPathToService);
@@ -572,9 +572,9 @@ parametersValue[i++]=nameResult;      //There are no problem arrived, because in
 }
 if(count==1)
 {
+//System.out.println("Count: "+count+", index: "+index+", RPOM count: "+rpomCount);
 if(rpomCount>0)
 {
-System.out.println("Count: "+count+", index: "+index+", RPOM count: "+rpomCount);
 throw new ServiceException("Cannot use @RequestParameter alongwith JSON data in request to process multiple parameter on service "+service.getPath());
 }
 RequestParameterOnMethod requestParameterOnMethod=requestParametersOnMethod.get(index);
@@ -589,14 +589,16 @@ if(d==null) break;
 sb.append(d);
 }
 parameterValue=sb.toString();
+//System.out.println("parameterValue: "+parameterValue); //Over here, to test the returned json string
 parameterType=requestParameterOnMethod.getParameterType();
+//System.out.println("parameterType: "+parameterType.getName());
 if(parameterValue==null || parameterValue.isBlank()) parameterValue="{}";
 nameResult=WebRockUtils.parseTo(parameterType,parameterValue,"JSON");
 parametersValue[index]=nameResult;
 }
 else if(count>1)
 {
-System.out.println("Count: "+count+", index: "+index);
+//System.out.println("Count: "+count+", index: "+index);
 throw new ServiceException("Invalid argument passing for service: "+service.getPath());
 }
 //Request parameter feautre ends here
@@ -703,6 +705,7 @@ returnType=serviceMethod.getReturnType();
 if(returnType.getName().equals("void"))
 {
 serviceMethod.invoke(serviceClassObject,parametersValue);
+jsonString="{}";
 }
 else
 {
@@ -746,12 +749,24 @@ response.sendRedirect(forwardToPath);
 }
 else
 {
+//System.out.println(jsonString);
 response.setContentType("application/json");
 PrintWriter pw=response.getWriter();
 pw.println(jsonString);
 pw.flush();
 }
 
+}catch(InvocationTargetException ite)
+{
+Throwable t=ite.getCause();
+//t.printStackTrace();
+try
+{
+System.out.println("Message: "+t.getMessage());
+response.sendError(HttpServletResponse.SC_UNAUTHORIZED,t.getMessage());
+}catch(Exception e)
+{
+}
 }catch(com.ashvin.web.rock.exceptions.SecurityException se)
 {
 try

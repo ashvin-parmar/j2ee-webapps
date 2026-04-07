@@ -1,0 +1,131 @@
+.lMainContainer
+{
+width:98hw;
+height:95vh;
+border:1px solid black;
+}
+.lHeaderDivision
+{
+width:98hw;
+height:10vh;
+border:1px solid green;
+}
+.lMidBodyDivision
+{
+width:80hw;
+height:65vh;
+border:1px solid red;
+}
+.lFooterDivision
+{
+width:98hw;
+height:20vh;
+border:1px solid pink;
+}
+
+.headerTable
+{
+
+}
+.headerTable td
+{
+margin-left:10px;
+margin-right:10px;
+}
+.headerLogoImage
+{
+color:#43ccd6;
+margin-left:10px;
+margin-right:10px;
+text-align:center;
+}
+.headerLogoName
+{
+color:#43ccd6;
+margin-left:10px;
+margin-right:10px;
+font-size:40pt;
+}
+.headerMenu
+{
+margin-left:10px;
+margin-right:10px;
+}
+.loginButton
+{
+color:"#2779aa";
+margin-left:10px;
+margin-right:10px;
+float:right;
+}
+
+.footerDivisionComponent
+{
+
+}
+.footerTable td
+{
+float:left;
+text-align:left;
+}
+.descCharging
+{
+float:left;
+font-size:14pt;
+width:40%;
+}
+.logoFooter
+{
+margin:0px auto;
+font-size:25pt;
+color:#43ccd6;
+height:40px;
+text-align:center;
+}
+.linkSection
+{
+text-align:left;
+}
+.linkSection h2
+{
+width:200px;
+}
+.studentTable
+{
+width:400px;
+height:400px;
+border:1px solid black;
+color:black;
+}
+.studentTable thead
+{
+border:1px solid red;
+border-collapse:collapse;
+border-radius:15px;
+}
+.studentTable tbody
+{
+border:1px solid green;
+border-collapse:collapse;
+border-radius:10px;
+}
+.studentTable tr
+{
+border: 1px solid green;
+border-collapse:collapse;
+border-radius:10px;
+}
+.studentTable th
+{
+border: 1px solid red;
+border-collapse:collapse;
+border-radius:10px;
+}
+.studentTable td
+{
+border:1px solid green;
+border-collapse:collapse;
+border-radius:10px;
+padding:5px;
+}
+

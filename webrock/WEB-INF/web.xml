@@ -90,6 +90,14 @@
 <url-pattern>/authenticate/*</url-pattern>
 </servlet-mapping>
 
+<servlet>
+<servlet-name>StudentManager</servlet-name>
+<servlet-class>com.ashvin.web.rock.WebRock</servlet-class>
+</servlet>
+<servlet-mapping>
+<servlet-name>StudentManager</servlet-name>
+<url-pattern>/StudentManager/*</url-pattern>
+</servlet-mapping>
 
 <!-- Over here Bobby [WebRock Framework User] work ends -->
 

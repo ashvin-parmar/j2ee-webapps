@@ -1,0 +1,545 @@
+<!-- l stand for landing -->
+<!DOCTYPE HTML>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<title>Student Dashboard</title>
+
+<link rel='stylesheet' href='jquery/jquery-ui.css' />
+<link rel='stylesheet' href='jquery/jquery-ui.theme.css' />
+<link rel='stylesheet' href='css/styles.css' />
+<style>
+</style>
+
+<script src='jquery/jquery.js'></script>
+<script src='jquery/jquery-ui.js'></script>
+<script src='jquery/jquery.validate.js'></script>
+<script>
+class Student
+{
+constructor(rollNumber,name,gender)
+{
+this.rollNumber=rollNumber;
+this.name=name;
+this.gender=gender;
+}
+getRollNumber()
+{
+return this.rollNumber;
+}
+setRollNumber(rollNumber)
+{
+this.rollNumber=rollNumber;
+}
+getName()
+{
+return this.name;
+}
+setName(name)
+{
+this.name=name;
+}
+getGender()
+{
+return this.gender;
+}
+setGender(gender)
+{
+this.gender=gender;
+}
+}
+class StudentManager
+{
+constructor()
+{
+}
+add(student)
+{
+if(student instanceof Student)
+{
+alert(JSON.stringify(student));
+return $.ajax({
+type:"POST",
+url:"StudentManager/add",
+contentType:"application/json",
+data:JSON.stringify(student)
+});
+}
+return null;
+}
+update(student)
+{
+if(student instanceof Student)
+{
+return $.ajax({
+type:"POST",
+url:"StudentManager/update",
+contentType:"application/json",
+data:JSON.stringify(student)
+});
+}
+return null;
+}
+delete(rollNumber)
+{
+var rn=Number(rollNumber);
+if(!Number.isInteger(rn)) return null;
+return $.ajax({
+type:"GET",
+url:"StudentManager/delete",
+contentType:"application/x-www-form-urlencoded",
+data:{rollNUmber:rn}
+});
+}
+getByRollNumber(rollNumber)
+{
+var rn=Number(rollNumber);
+if(!Number.isInteger(rn)) return null;
+return $.ajax({
+type:"POST",
+url:"StudentManager/getByRollNumber",
+data:{rollNumber:rn}
+});
+}
+getAll()
+{
+return $.ajax({
+type:"GET",
+url:"StudentManager/getAll",
+});
+}
+}
+</script>
+
+<script>
+$(()=>{
+$("#lHeaderDivision").load('Student.html #masterPageHeaderDIV',function(){
+//alert($("#masterPageHeaderDIV").html());
+$("#masterPageHeaderDIV").fadeIn('slow');
+masterPageHeaderDIVJS();
+});
+$("#lMidBodyDivision").load('Student.html #homeDIV',function(){
+$("#homeDIV").fadeIn('slow');
+homeDIVJS();
+});
+$("#lFooterDivision").load('Student.html #masterPageFooterDIV',function(){
+$("#masterPageFooterDIV").fadeIn('slow');
+masterPageFooterDIVJS();
+});
+});
+
+function masterPageHeaderDIVJS()
+{
+$("#headerLogoImage").addClass("headerLogoImage");
+$("#headerLogoName").position({
+my:"left center"
+});
+$("#headerHomeButton").position({
+my:"left center"
+});
+
+var $headerMenuDivChilds=$("#headerMenuDivision").children();
+$.each($headerMenuDivChilds,function(key,value){
+//alert($(value).html());
+$(value).on("click",function(){
+var url=$(value).attr('href');
+//alert(url.substring(1)+"JS");
+$("#lMidBodyDivision").load("Student.html "+url,function(response,status,xhr){
+//alert($(url).html());
+if(status=="error")
+{
+$(this).load("404.html");
+}
+else
+{
+$(url).fadeIn('slow');
+alert(url);
+window[url.substring(1)+"JS"]();   //calling its method
+}
+});
+});
+});
+$("#toggleThemeButton").click(function(){
+var $elem=$(this).children().eq(0);
+if($elem.attr("src")=="sun.svg") 
+{
+//more related to theme change
+$elem.attr("src","moon.svg");
+}
+else 
+{
+//more related to theme change
+$elem.attr("src","sun.svg");
+}
+$elem.fadeIn(500);
+});
+
+
+$("#loginSignupDivision").dialog({
+autoOpen: false,
+modal:true,
+width: 600
+});
+$("#loginTabs").tabs();
+$("#loginButton").click(function(ev){
+//alert($("#loginSignupDivision").html());
+//$("#loginSignupDivision").dialog("open");
+ev.preventDefault();
+});
+$("#loginFormButton").click(function(ev){
+ev.preventDefault();
+var serializedData=$("#loginForm").serialize();
+//alert(serializedData);
+$.ajax({
+url:"login",
+method:"GET",
+data:serializedData || {},
+dataType:"json",
+success:function(response){
+//alert(response);
+//alert(JSON.stringify(response));
+if(response.error)
+{
+$("#loginErrorSection").html("Invalid username/password");
+}
+},
+error:function(){
+$("#loginErrorSection").html("Invalid username/password");
+},
+});
+});
+$("#signupFormButton").click(function(ev){
+ev.preventDefault();
+$.ajax({
+"url":"signup",
+"success":function(){
+
+},
+"error":function(){
+$("#signupErrorSection").html("Invalid username/password");
+},
+
+});
+});
+}
+
+function homeDIVJS()
+{
+//alert("Home DIV Setup");
+}
+function masterPageFooterDIVJS()
+{
+}
+
+function addStudentDIVJS()
+{
+var studentManager=new StudentManager();
+$("#addStudentDIV #addStudentButton").click(function(){
+var $addButton=$(this);
+$addButton.prop('disable',true);
+var name=$("#addStudentDIV #name").val();
+var rollNumber=0;
+var gender=$("#addStudentDIV input[name='gender']:checked").val();
+//alert(name+", "+rollNumber+", "+gender);
+var student=new Student(rollNumber,name,gender);
+
+let addStudentPromise=studentManager.add(student);
+if(addStudentPromise!=null)
+{
+addStudentPromise
+.then((response)=>{
+$("#addStudentForm").load("Student.html #addStudentDIV #addStudentMessage",function(){
+$("#addStudentMessage").fadeIn('slow');
+onClickEventHandlerUsingHREF("#addStudentMessage #noButton");
+onClickEventHandlerUsingHREF("#addStudentMessage #yesButton");
+});
+})
+.catch((err)=>{
+$addButton.removeAttr('disabled');
+alert("Error: "+JSON.stringify(err.responseText));
+var error=JSON.stringify(err.responseText);
+$("#lMidBodyDivision").load("/webrock/404.html");
+});
+}
+});
+onClickEventHandlerUsingHREF("#addStudentDIV #homeButton");
+}
+
+function getAllDIVJS()
+{
+var studentManager=new StudentManager();
+
+let getStudentPromise=studentManager.getAll();
+if(getStudentPromise!=null)
+{
+getStudentPromise.then((response)=>{
+var $studentsTbody=$("#studentsDataTable table tbody");
+var rowTemplate;
+var colTemplate;
+var rollNumber;
+var name;
+var gender;
+var i=0;
+for(let student of response)
+{
+rollNumber=student.rollNumber;
+name=student.name;
+gender=student.gender;
+//alert(rollNumber+name+gender);
+rowTemplate=$("<tr>");
+colTemplate=$("<td>");
+colTemplate.css("text-align","right");
+colTemplate.html(++i);
+rowTemplate.append(colTemplate);
+colTemplate=$("<td>");
+colTemplate.css("text-align","left");
+colTemplate.html(student.rollNumber);
+rowTemplate.append(colTemplate);
+colTemplate=$("<td>");
+colTemplate.css("text-align","left");
+colTemplate.html(student.name);
+rowTemplate.append(colTemplate);
+colTemplate=$("<td>");
+colTemplate.css("text-align","left");
+colTemplate.html(student.gender);
+rowTemplate.append(colTemplate);
+$studentsTbody.append(rowTemplate);
+}
+$("#getAllDIV table").fadeIn('slow');
+})
+.catch((err)=>{
+alert("Error: "+JSON.stringify(err.responseText));
+var error=JSON.stringify(err.responseText);
+$("#lMidBodyDivision").load("/webrock/404.html");
+});
+}
+onClickEventHandlerUsingHREF("#getAllDIV #homeButton");
+}
+
+function updateStudentDIVJS()
+{
+var studentManager=new StudentManager();
+$("#updateStudentDIV #updateStudentButton").click(function(){
+var $updateButton=$(this);
+$updateButton.prop('disable',true);
+var name=$("#updateStudentDIV #name").val();
+var rollNumber=$("#updateStudentDIV #rollNumber").val();
+var gender=$("#updateStudentDIV input[name='gender']:checked").val();
+//alert(name+", "+rollNumber+", "+gender);
+var student=new Student(rollNumber,name,gender);
+
+let updateStudentPromise=studentManager.update(student);
+if(updateStudentPromise!=null)
+{
+updateStudentPromise
+.then((response)=>{
+$("#updateStudentForm").load("Student.html #updateStudentDIV #updateStudentMessage",function(){
+$("#updateStudentMessage").fadeIn('slow');
+onClickEventHandlerUsingHREF("#updateStudentMessage #noButton");
+onClickEventHandlerUsingHREF("#updateStudentMessage #yesButton");
+});
+})
+.catch((err)=>{
+$updateButton.removeAttr('disabled');
+alert("Error: "+JSON.stringify(err.responseText));
+var error=JSON.stringify(err.responseText);
+$("#lMidBodyDivision").load("/webrock/404.html");
+});
+}
+});
+onClickEventHandlerUsingHREF("#updateStudentDIV #homeButton");
+}
+
+
+function onClickEventHandlerUsingHREF(value)
+{
+$(value).click(function(){
+//alert("over here, home button event");
+var url=$(value).attr('href');
+//alert(url.substring(1)+"JS");
+$("#lMidBodyDivision").load("Student.html "+url,function(response,status,xhr){
+//alert($(url).html());
+if(status=="error")
+{
+$(this).load("404.html");
+}
+else
+{
+$(url).fadeIn('slow');
+window[url.substring(1)+"JS"]();   //calling its method
+}
+});
+});
+}
+</script>
+</head>
+<body>
+<div id='lMainContainer' class='ui-widget lMainContainer'>
+<div id='lHeaderDivision' class='lHeaderDivision'></div>
+<div id='lMidBodyDivision' class='lMidBodyDivision'></div>
+<div id='lFooterDivision' class='lFooterDivision'></div>
+</div>
+
+<div id='masterPageHeaderDIV' style='display:none;'>
+<table class='headerTable'>
+<tbody>
+<tr>
+<td colspan='4'>
+<div id='headerLogoImage'><img src='student.svg'>&nbsp;&nbsp;<b id='headerLogoName' class='headerLogoName'>Student Dashboard</b></div>
+</td>
+<td>
+<div id='headerMenuDivision' class='headerMenu'>
+<button type='button' href='#addStudentDIV'>Add Student</button>
+<button type='button' href='#getAllDIV'>All Students</button>
+<button type='button' href='#updateStudentDIV'>Edit Student</button>
+
+</div>
+</td>
+<td>
+<div id='themeToggleDivision'>
+<button id='toggleThemeButton' class='ui-button ui-corner-all ui-widget'><img  style="width:20px;height:20px;" id='themeImage' src='sun.svg' ></button>
+</div>
+</td>
+<td>
+<div id='loginDivision' class='loginButton'>
+<button id='loginButton' class='ui-button loginButton'><img src='log-in.svg' >&nbsp;Log-in</button>
+<div id='loginSignupDivision' class='ui-widget ui-front ui-widget-content ui-corner-all' title='log-in/sign-up'>
+<div id='loginTabs' class='ui-widget ui-front ui-widget-content ui-corner-all'>
+<ul>
+<li><a href='#loginContentDivision'>Log-in</a></li>
+<li><a href='#signupContentDivision'>Sign-up</a></li>
+</ul>
+<div id='loginContentDivision'>
+<form id='loginForm' class='login-form ui-widget'>
+<b>Username: </b>
+<input type='text' id='username' name='username' maxlength='16' size='16' required><br>
+<b>Password: </b>
+<input type='password' id='password' name='password' maxlength='16' size='16' required><br>
+<br>
+<div class="ui-widget">
+<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
+<p id='loginErrorSection'>
+<span  class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+<strong>Alert:</strong> </p>
+</div>
+</div>
+
+<button id='loginFormButton' type='submit' class='ui-button'>log-in</button>
+</form>
+</div>
+
+<div id='signupContentDivision'>
+<form id='signupForm' class='login-form ui-widget'>
+<b>Username: </b>
+<input type='text' id='username' name='username' maxlength='16' size='16' required><br>
+<b>Password: </b>
+<input type='password' id='password' name='password' maxlength='16' size='16' required><br>
+<span id='signupErrorSection' class='ui-state-error ui-icon ui-icon-alert'></span>
+<button id='signupFormButton' type='submit' class='ui-button'>sign-up</button>
+</form>
+</div>
+</div>
+</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<br>
+</div>
+
+<div id='homeDIV' style='display:none;'>
+It's one page Student Dashboard <br>
+
+</div>
+
+<div id='addStudentDIV' style='display:none;'>
+<h3 >Student (Add Module)</h3>
+<div id='addStudentForm'>
+Name: &nbsp;
+<input id='name' name='name' type='text' required><br>
+<span id='errorSection' style='color:red;'></span><br>
+Gender: &nbsp;&nbsp;&nbsp;Male<input id='male' name='gender' type='radio' value='Male'>&nbsp;&nbsp;
+Female<input id='female' name='gender' type='radio' value='Female'><br>
+<button id='addStudentButton'>Add Student</button><br><br>
+<br>
+</div>
+<div id='addStudentMessage' style='display:none;'>
+Student added<br>
+Want to add more student?
+<button type='button' id='yesButton' href='#addStudentDIV'>YES</button>&nbsp;&nbsp;&nbsp;<button type='button' id='noButton' href='#homeDIV'>NO</button><br>
+</div>
+<button id='homeButton' href='#homeDIV' type='button'>Home</button>
+<br>
+</div>
+
+<div id='getAllDIV' style='display:none;'>
+<div id='studentsDataTable'>
+<table class='ui-widget  ui-widget-content ui-corner-all studentTable' id='studentTable' >
+<thead>
+<tr>
+<th>S.No.</th><th>Roll number</th><th>Name</th><th>Gender</th>
+</tr>
+</thead>
+<tbody id='studentTableTBody'>
+</tbody>
+</table><br>
+</div>
+<button id='homeButton' href='#homeDIV' type='button'>Home</button>
+<br>
+</div>
+
+<div id='updateStudentDIV' style='display:none;'>
+<h3 >Student (Add Module)</h3>
+<div id='updateStudentForm'>
+Roll Number: &nbsp;
+<input id='rollNumber' name='rollNumber' type='text' required><br>
+Name: &nbsp;
+<input id='name' name='name' type='text' required><br>
+<span id='errorSection' style='color:red;'></span><br>
+Gender: &nbsp;&nbsp;&nbsp;Male<input id='male' name='gender' type='radio' value='Male'>&nbsp;&nbsp;
+Female<input id='female' name='gender' type='radio' value='Female'><br>
+<button id='updateStudentButton'>Edit Student</button><br><br>
+<br>
+</div>
+<div id='updateStudentMessage' style='display:none;'>
+Student updated<br>
+Want to edit more student?
+<button type='button' id='yesButton' href='#updateStudentDIV'>YES</button>&nbsp;&nbsp;&nbsp;<button type='button' id='noButton' href='#homeDIV'>NO</button><br>
+</div>
+<button id='homeButton' href='#homeDIV' type='button'>Home</button>
+<br>
+</div>
+
+
+<div id='masterPageFooterDIV' style='display:none;'>
+<div id='footerDivisionComponent'>
+<table id='footerTable'>
+<tbody>
+<tr>
+<td>
+<div id='descEVCharging' class='descCharging'>
+<div class='logoFooter'><img src='evCharging.svg' />&nbsp;&nbsp;<b style='padding-bottom:50px;'>Student Dashboard</b></div><br>
+Simple UI representation, created to test WEBRock Framework and their functionalities.
+</div>
+</td>
+<td>
+<div class='linksSection'>
+<h2>Quick Links</h2>
+<ul>
+<li>Home</li>
+<li>About us</li>
+<li>Students</li>
+<li>Faculty</li>
+<li>Contact Us</li>
+<ul>
+</div>
+</td>
+<td>
+</td>
+</tr>
+</div>
+</div>
+</body>
+</html>
+

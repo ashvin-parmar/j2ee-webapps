@@ -12,7 +12,7 @@ public class StudentManager
 @FORWARD(value="/webrock/index.html")
 public void addStudent(Student student)
 {
-
+System.out.println("Add Student method of StudentManager class called in bobby.test");
 }
 @PATH(value="/getAll")
 @SecuredAccess(checkPost="bobby.test.Authenticate",guard="login3")

@@ -75,7 +75,7 @@ if(service.getRunOnStartup())
 {
 if(service.getPriority()>=0)
 {
-System.out.println("Priority: "+service.getPriority());
+//System.out.println("Priority: "+service.getPriority());
 startupServices.add(service);
 }
 }
