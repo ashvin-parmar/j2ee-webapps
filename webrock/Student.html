@@ -11,7 +11,8 @@
 <script src='jquery/jquery.js'></script>
 <script src='jquery/jquery-ui.js'></script>
 <script src='jquery/jquery.validate.js'></script>
-<script src='js/students.js'></script>
+<script src='js/StudentManager.js'></script>
+<script src='js/StudentDTO.js'></script>
 <script>
 $(()=>{
 $("#lHeaderDivision").load('Student.html #masterPageHeaderDIV',function(){
@@ -237,11 +238,10 @@ $("#updateStudentMessage").fadeIn('slow');
 onClickEventHandlerUsingHREF("#updateStudentMessage #noButton");
 onClickEventHandlerUsingHREF("#updateStudentMessage #yesButton");
 });
-})
-.catch((err)=>{
+},(err)=>{
 $updateButton.removeAttr('disabled');
-alert("Error: "+JSON.stringify(err.responseText));
-var error=JSON.stringify(err.responseText);
+alert("Error: "+JSON.stringify(err));
+var error=err;
 $("#lMidBodyDivision").load("/webrock/404.html");
 });
 }
@@ -418,7 +418,7 @@ Want to edit more student?
 <tr>
 <td>
 <div id='descEVCharging' class='descCharging'>
-<div class='logoFooter'><img src='evCharging.svg' />&nbsp;&nbsp;<b style='padding-bottom:50px;'>Student Dashboard</b></div><br>
+<div class='logoFooter'><img src='student.svg' />&nbsp;&nbsp;<b>Student Dashboard</b></div><br>
 Simple UI representation, created to test WEBRock Framework and their functionalities.
 </div>
 </td>

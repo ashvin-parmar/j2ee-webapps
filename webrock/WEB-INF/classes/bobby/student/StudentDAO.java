@@ -83,7 +83,7 @@ throw new DAOException("Invalid data passed");
 }
 }
 @PATH("/delete")
-public void delete(@RequestParameter int rollNumber) throws DAOException
+public void delete(@RequestParameter("rollNumber") int rollNumber) throws DAOException
 {
 if(rollNumber<=0) throw new DAOException("Invalid roll number: "+rollNumber);
 try
@@ -115,7 +115,7 @@ throw new DAOException("Invalid roll number: "+rollNumber);
 }
 }
 @PATH("/getByRollNumber")
-public StudentDTO getByRollNumber(@RequestParameter int rollNumber) throws DAOException
+public StudentDTO getByRollNumber(@RequestParameter("rollNumber") int rollNumber) throws DAOException
 {
 if(rollNumber<=0) throw new DAOException("Invalid roll number: "+rollNumber);
 StudentDTO student=null;

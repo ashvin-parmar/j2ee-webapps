@@ -62,7 +62,7 @@ guard1=securityAccess.getGuard();
 guard2=service2.getServiceMethod();
 if(checkPost1!=null &&  checkPost2!=null &&  guard1!=null && guard2!=null && securityAccess.getCheckPost().equals(service2.getServiceClass()) && securityAccess.getGuard().equals(service2.getServiceMethod()))
 {
-System.out.println("PATH to secured: "+service2.getPath());
+//System.out.println("PATH to secured: "+service2.getPath());
 securityAccess.setServicePath(service2.getPath());
 //webRockModel.setPathService(service2.getPath(),service);
 }
@@ -141,8 +141,7 @@ f.delete();
 }
 jsFolder.delete();
 jsFolder.mkdir();
-System.out.println("JS Folder Path: "+jsFolder.getAbsolutePath());
-System.out.println("JS File: "+jsFileName);
+//System.out.println("JS Folder Path: "+jsFolder.getAbsolutePath());
 File jsFile=null;
 RandomAccessFile randomAccessFile=null;
 if(jsFileName!=null)
@@ -278,7 +277,7 @@ fields=loadedClass.getDeclaredFields();
 i=0;
 for(Field field:fields)
 {
-System.out.println("Field name: "+field.getName());
+//System.out.println("Field name: "+field.getName());
 fieldName=field.getName();
 fieldNameCamelCase=fieldName.substring(0,1).toUpperCase()+fieldName.substring(1);
 tmpRandomAccessFile.writeBytes("set"+fieldNameCamelCase+"("+fieldName+")\r\n");
@@ -367,7 +366,7 @@ requestParameterOnField.setName(injectRequestParameterAvailableOnField.value());
 requestParameterOnField.setField(field);
 injectRequestParameterFields.add(requestParameterOnField);
 }
-if(!(field.getType().equals(ApplicationScope.class) || field.getType().equals(SessionScope.class) || field.getType().equals(RequestScope.class) || field.getType().equals(ApplicationDirectory.class) || true)) //remove 'true' when confirm
+if(!(field.getType().equals(ApplicationScope.class) || field.getType().equals(SessionScope.class) || field.getType().equals(RequestScope.class) || field.getType().equals(ApplicationDirectory.class) || true)) //remove 'true' when confirm what to take in Service JS-class constructor
 {
 System.out.println("Field name: "+field.getName());
 fieldName=field.getName();
@@ -630,10 +629,9 @@ simpleName="";
 name=rpom.getName();
 parameterType=rpom.getParameterType();
 if(parameterType.equals(ApplicationScope.class) || parameterType.equals(SessionScope.class) || parameterType.equals(RequestScope.class) || parameterType.equals(ApplicationDirectory.class)) continue;
-System.out.println(name+", "+parameterType.getSimpleName());
+//System.out.println(name+", "+parameterType.getSimpleName());
 if(name!=null)
 {
-System.out.println("NOT NULL");
 simpleName=name;
 simpleName=simpleName.substring(0,1).toLowerCase()+simpleName.substring(1);
 if(j!=0) paramsStr+=",";
@@ -642,11 +640,9 @@ j++;
 }
 else
 {
-//System.out.println("NULL --"+parameterType.getSimpleName());
 simpleName=parameterType.getSimpleName();
 simpleName=simpleName.substring(0,1).toLowerCase()+simpleName.substring(1);
-bodyStr="let body=null;\r\n";
-bodyStr+="body=JSON.stringify("+simpleName+");\r\n";
+bodyStr+="const body=JSON.stringify("+simpleName+");\r\n";
 methodStr+=simpleName;
 count++;
 }
@@ -686,18 +682,18 @@ randomAccessFile.writeBytes("\",finalUrl);\r\n");
 randomAccessFile.writeBytes("xhr.setRequestHeader('Content-Type','application/json');\r\n");
 randomAccessFile.writeBytes("xhr.responseType='json';\r\n");
 
-randomAccessFile.writeBytes("xhr.onload = () => {\r\n");
-randomAccessFile.writeBytes("if (xhr.status >= 200 && xhr.status < 300) \r\n");
+randomAccessFile.writeBytes("xhr.onload=()=>{\r\n");
+randomAccessFile.writeBytes("if(xhr.status>=200 && xhr.status<300)\r\n");
 randomAccessFile.writeBytes("{\r\n");
 randomAccessFile.writeBytes("resolve(xhr.response);\r\n");
 randomAccessFile.writeBytes("}\r\n");
 randomAccessFile.writeBytes("else\r\n");
 randomAccessFile.writeBytes("{\r\n");
-randomAccessFile.writeBytes("reject(new Error('Request failed with status ${xhr.status}'));\r\n");
+randomAccessFile.writeBytes("reject(xhr.status);\r\n");
 randomAccessFile.writeBytes("}\r\n");
 randomAccessFile.writeBytes("};\r\n");
 
-randomAccessFile.writeBytes("xhr.onerror = () => reject(new Error('Network Error'));\r\n");
+randomAccessFile.writeBytes("xhr.onerror=()=>reject(new Error('Network Error'));\r\n");
 randomAccessFile.writeBytes(bodyStr);
 randomAccessFile.writeBytes("});\r\n}\r\n");
 
