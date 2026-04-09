@@ -8,109 +8,10 @@
 <link rel='stylesheet' href='jquery/jquery-ui.css' />
 <link rel='stylesheet' href='jquery/jquery-ui.theme.css' />
 <link rel='stylesheet' href='css/styles.css' />
-<style>
-</style>
-
 <script src='jquery/jquery.js'></script>
 <script src='jquery/jquery-ui.js'></script>
 <script src='jquery/jquery.validate.js'></script>
-<script>
-class Student
-{
-constructor(rollNumber,name,gender)
-{
-this.rollNumber=rollNumber;
-this.name=name;
-this.gender=gender;
-}
-getRollNumber()
-{
-return this.rollNumber;
-}
-setRollNumber(rollNumber)
-{
-this.rollNumber=rollNumber;
-}
-getName()
-{
-return this.name;
-}
-setName(name)
-{
-this.name=name;
-}
-getGender()
-{
-return this.gender;
-}
-setGender(gender)
-{
-this.gender=gender;
-}
-}
-class StudentManager
-{
-constructor()
-{
-}
-add(student)
-{
-if(student instanceof Student)
-{
-alert(JSON.stringify(student));
-return $.ajax({
-type:"POST",
-url:"StudentManager/add",
-contentType:"application/json",
-data:JSON.stringify(student)
-});
-}
-return null;
-}
-update(student)
-{
-if(student instanceof Student)
-{
-return $.ajax({
-type:"POST",
-url:"StudentManager/update",
-contentType:"application/json",
-data:JSON.stringify(student)
-});
-}
-return null;
-}
-delete(rollNumber)
-{
-var rn=Number(rollNumber);
-if(!Number.isInteger(rn)) return null;
-return $.ajax({
-type:"GET",
-url:"StudentManager/delete",
-contentType:"application/x-www-form-urlencoded",
-data:{rollNUmber:rn}
-});
-}
-getByRollNumber(rollNumber)
-{
-var rn=Number(rollNumber);
-if(!Number.isInteger(rn)) return null;
-return $.ajax({
-type:"POST",
-url:"StudentManager/getByRollNumber",
-data:{rollNumber:rn}
-});
-}
-getAll()
-{
-return $.ajax({
-type:"GET",
-url:"StudentManager/getAll",
-});
-}
-}
-</script>
-
+<script src='js/students.js'></script>
 <script>
 $(()=>{
 $("#lHeaderDivision").load('Student.html #masterPageHeaderDIV',function(){
@@ -233,7 +134,7 @@ function masterPageFooterDIVJS()
 
 function addStudentDIVJS()
 {
-var studentManager=new StudentManager();
+var studentManager=new StudentDAO();
 $("#addStudentDIV #addStudentButton").click(function(){
 var $addButton=$(this);
 $addButton.prop('disable',true);
@@ -241,7 +142,7 @@ var name=$("#addStudentDIV #name").val();
 var rollNumber=0;
 var gender=$("#addStudentDIV input[name='gender']:checked").val();
 //alert(name+", "+rollNumber+", "+gender);
-var student=new Student(rollNumber,name,gender);
+var student=new StudentDTO(rollNumber,name,gender);
 
 let addStudentPromise=studentManager.add(student);
 if(addStudentPromise!=null)
@@ -253,11 +154,10 @@ $("#addStudentMessage").fadeIn('slow');
 onClickEventHandlerUsingHREF("#addStudentMessage #noButton");
 onClickEventHandlerUsingHREF("#addStudentMessage #yesButton");
 });
-})
-.catch((err)=>{
+},(err)=>{
 $addButton.removeAttr('disabled');
-alert("Error: "+JSON.stringify(err.responseText));
-var error=JSON.stringify(err.responseText);
+alert("Error: "+JSON.stringify(err));
+var error=JSON.stringify(err);
 $("#lMidBodyDivision").load("/webrock/404.html");
 });
 }
@@ -267,7 +167,7 @@ onClickEventHandlerUsingHREF("#addStudentDIV #homeButton");
 
 function getAllDIVJS()
 {
-var studentManager=new StudentManager();
+var studentManager=new StudentDAO();
 
 let getStudentPromise=studentManager.getAll();
 if(getStudentPromise!=null)
@@ -306,10 +206,9 @@ rowTemplate.append(colTemplate);
 $studentsTbody.append(rowTemplate);
 }
 $("#getAllDIV table").fadeIn('slow');
-})
-.catch((err)=>{
-alert("Error: "+JSON.stringify(err.responseText));
-var error=JSON.stringify(err.responseText);
+},(err)=>{
+alert("Error: "+JSON.stringify(err));
+var error=JSON.stringify(err);
 $("#lMidBodyDivision").load("/webrock/404.html");
 });
 }
@@ -318,7 +217,7 @@ onClickEventHandlerUsingHREF("#getAllDIV #homeButton");
 
 function updateStudentDIVJS()
 {
-var studentManager=new StudentManager();
+var studentManager=new StudentDAO();
 $("#updateStudentDIV #updateStudentButton").click(function(){
 var $updateButton=$(this);
 $updateButton.prop('disable',true);
@@ -326,7 +225,7 @@ var name=$("#updateStudentDIV #name").val();
 var rollNumber=$("#updateStudentDIV #rollNumber").val();
 var gender=$("#updateStudentDIV input[name='gender']:checked").val();
 //alert(name+", "+rollNumber+", "+gender);
-var student=new Student(rollNumber,name,gender);
+var student=new StudentDTO(rollNumber,name,gender);
 
 let updateStudentPromise=studentManager.update(student);
 if(updateStudentPromise!=null)
@@ -474,7 +373,7 @@ Want to add more student?
 </div>
 
 <div id='getAllDIV' style='display:none;'>
-<div id='studentsDataTable'>
+<div id='studentsDataTable' style='width:500px;height:500px;overflow:auto;'>
 <table class='ui-widget  ui-widget-content ui-corner-all studentTable' id='studentTable' >
 <thead>
 <tr>

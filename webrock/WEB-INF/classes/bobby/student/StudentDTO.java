@@ -1,5 +1,8 @@
 package bobby.student;
+import com.ashvin.web.rock.annotations.*;
 
+
+@POJO
 public class StudentDTO implements java.io.Serializable
 {
 private int rollNumber;

@@ -16,6 +16,8 @@ import com.ashvin.web.rock.annotations.*;
 public class WebRockStarter extends HttpServlet
 {
 private WebRockModel webRockModel;
+private String jsFileName=null;
+private File webINFFolder;
 public WebRockStarter()
 {
 webRockModel=WebRockModel.getWebRockModel();
@@ -24,8 +26,11 @@ public void init()
 {
 ServletContext sc=getServletContext();
 String servicePackagePrefix=(String)sc.getInitParameter("SERVICE_PACKAGE_PREFIX");
+String jsFileName=(String)sc.getInitParameter("JS_FILE_NAME");
+if(jsFileName!=null) this.jsFileName=jsFileName;
 //System.out.println(servicePackagePrefix);
 String pathToClassFolder=sc.getRealPath("/WEB-INF/classes");
+this.webINFFolder=new File(sc.getRealPath("/WEB-INF"));
 //System.out.println(pathToClassFolder);
 File classesDir=new File(pathToClassFolder);
 //System.out.println(classesDir.exists());
@@ -126,6 +131,25 @@ return filesList;
 }
 private void loadAllPathServices(File folder)
 {
+File jsFolder=new File(webINFFolder,"js");
+if(jsFolder.exists() && jsFolder.isDirectory())
+{
+for(File f:jsFolder.listFiles())
+{
+f.delete();
+}
+}
+jsFolder.delete();
+jsFolder.mkdir();
+System.out.println("JS Folder Path: "+jsFolder.getAbsolutePath());
+System.out.println("JS File: "+jsFileName);
+File jsFile=null;
+RandomAccessFile randomAccessFile=null;
+if(jsFileName!=null)
+{
+jsFile=new File(jsFolder,jsFileName);
+if(jsFile.exists()) jsFile.delete();
+}
 try
 {
 String parentPath=folder.getParent();
@@ -137,6 +161,7 @@ InjectRequestScope injectRequestScopeAvailableOnClass=null;
 InjectApplicationDirectory injectApplicationDirectoryAvailableOnClass=null;
 PATH pathAvailableOnClass=null;
 PATH pathAvailableOnMethod=null;
+POJO pojoAvailableOnClass=null;
 GET getAvailableOnClass=null;
 GET getAvailableOnMethod=null;
 POST postAvailableOnClass=null;
@@ -164,7 +189,9 @@ RequestParameterOnField requestParameterOnField=null;
 RequestParameter requestParameterAvailableOnMethodParameter=null;
 SecurityAccess securityAccess=null;
 
-int i,priority;
+int i=0,priority;
+int j=0;
+int count;
 String checkPost=null;
 String guard=null;
 boolean valid=false;
@@ -173,6 +200,7 @@ int methodCount=0;
 for(Path path:classPaths)
 {
 pathAvailableOnClass=null;
+pojoAvailableOnClass=null;
 getAvailableOnClass=null;
 postAvailableOnClass=null;
 injectApplicationScopeAvailableOnClass=null;
@@ -191,6 +219,11 @@ for(Annotation anno:annos)
 if(pathAvailableOnClass==null && anno instanceof PATH)
 {    
 pathAvailableOnClass=(PATH)anno;
+}
+if(pojoAvailableOnClass==null && anno instanceof POJO)
+{
+pojoAvailableOnClass=(POJO)anno;
+break;
 }
 if(getAvailableOnClass==null && (anno instanceof GET))
 {
@@ -221,12 +254,89 @@ if(securedAccessAvailableOnClass==null && (anno instanceof SecuredAccess))
 securedAccessAvailableOnClass=(SecuredAccess)anno;
 }
 }
+if(pojoAvailableOnClass!=null && pathAvailableOnClass!=null) throw new Exception("@POJO and @PATH both annotations can't set at the same time");
+if(pojoAvailableOnClass!=null)
+{
+if(jsFileName==null)
+{
+jsFile=new File(jsFolder,pojoAvailableOnClass.value()+".js");
+if(jsFile.getName().equals(".js")) jsFile=new File(jsFolder,loadedClass.getSimpleName()+".js");
+}
+
+String constructorFirstLine="constructor(";
+String constructorInnerLine="{\r\n";
+String fieldName;
+String fieldNameCamelCase;
+RandomAccessFile tmpRandomAccessFile=null;
+File tmpFile=new File(jsFolder,UUID.randomUUID().toString());
+if(tmpFile.exists()) tmpFile.delete();
+
+tmpRandomAccessFile=new RandomAccessFile(tmpFile,"rw");
+tmpRandomAccessFile.seek(0);
+
+fields=loadedClass.getDeclaredFields();
+i=0;
+for(Field field:fields)
+{
+System.out.println("Field name: "+field.getName());
+fieldName=field.getName();
+fieldNameCamelCase=fieldName.substring(0,1).toUpperCase()+fieldName.substring(1);
+tmpRandomAccessFile.writeBytes("set"+fieldNameCamelCase+"("+fieldName+")\r\n");
+tmpRandomAccessFile.writeBytes("{\r\n");
+tmpRandomAccessFile.writeBytes("this."+fieldName+"="+fieldName+";\r\n");
+tmpRandomAccessFile.writeBytes("}\r\n");
+tmpRandomAccessFile.writeBytes("get"+fieldNameCamelCase+"()\r\n");
+tmpRandomAccessFile.writeBytes("{\r\n");
+tmpRandomAccessFile.writeBytes("return this."+fieldName+";\r\n");
+tmpRandomAccessFile.writeBytes("}\r\n");
+constructorFirstLine+=(fieldName+((i+1)==fields.length?"":","));
+constructorInnerLine+=("this."+fieldName+"="+fieldName+";\r\n");
+i++;
+}
+constructorFirstLine+=(")\r\n");
+constructorInnerLine+=("}\r\n");
+tmpRandomAccessFile.seek(0);
+
+randomAccessFile=new RandomAccessFile(jsFile,"rw");
+randomAccessFile.seek(randomAccessFile.length());
+randomAccessFile.writeBytes("class "+loadedClass.getSimpleName()+"\r\n");
+randomAccessFile.writeBytes("{\r\n");
+randomAccessFile.writeBytes(constructorFirstLine);
+randomAccessFile.writeBytes(constructorInnerLine);
+while(tmpRandomAccessFile.getFilePointer()<tmpRandomAccessFile.length())
+{
+randomAccessFile.writeBytes(tmpRandomAccessFile.readLine()+"\r\n");
+}
+tmpRandomAccessFile.close();
+randomAccessFile.writeBytes("}\r\n");
+randomAccessFile.close();
+tmpFile.delete();
+continue;
+}
 if(pathAvailableOnClass==null) continue;
 //System.out.println("-------------PATH ON CLASS AVAILABLE-------------");
+
+if(jsFileName==null)
+{
+jsFile=new File(jsFolder,pathAvailableOnClass.value().substring(1)+".js");
+if(jsFile.getName()==null || jsFile.getName().isBlank()) jsFile=new File(jsFolder,loadedClass.getSimpleName()+".js");
+}
+String constructorFirstLine="constructor(";
+String constructorInnerLine="{\r\n";
+String fieldName;
+String fieldNameCamelCase;
+File tmpFile=new File(UUID.randomUUID().toString());
+RandomAccessFile tmpRandomAccessFile=null;
+if(tmpFile.exists()) tmpFile.delete();
+
+tmpRandomAccessFile=new RandomAccessFile(tmpFile,"rw");
+tmpRandomAccessFile.seek(0);
+
 autoWiredFields=new LinkedList<>();
 injectRequestParameterFields=new LinkedList<>();
 
 fields=loadedClass.getDeclaredFields();
+i=0;
 for(Field field:fields)
 {
 autoWiredAvailableOnField=null;
@@ -257,9 +367,44 @@ requestParameterOnField.setName(injectRequestParameterAvailableOnField.value());
 requestParameterOnField.setField(field);
 injectRequestParameterFields.add(requestParameterOnField);
 }
+if(!(field.getType().equals(ApplicationScope.class) || field.getType().equals(SessionScope.class) || field.getType().equals(RequestScope.class) || field.getType().equals(ApplicationDirectory.class) || true)) //remove 'true' when confirm
+{
+System.out.println("Field name: "+field.getName());
+fieldName=field.getName();
+fieldNameCamelCase=fieldName.substring(0,1).toUpperCase()+fieldName.substring(1);
+tmpRandomAccessFile.writeBytes("set"+fieldNameCamelCase+"("+fieldName+")\r\n");
+tmpRandomAccessFile.writeBytes("{\r\n");
+tmpRandomAccessFile.writeBytes("this."+fieldName+"="+fieldName+";\r\n");
+tmpRandomAccessFile.writeBytes("}\r\n");
+tmpRandomAccessFile.writeBytes("get"+fieldNameCamelCase+"()\r\n");
+tmpRandomAccessFile.writeBytes("{\r\n");
+tmpRandomAccessFile.writeBytes("return this."+fieldName+";\r\n");
+tmpRandomAccessFile.writeBytes("}\r\n");
+//constructorFirstLine+=(fieldName+((i+1)==fields.length?"":","));
+//constructorInnerLine+=("this."+fieldName+"="+fieldName+";\r\n");
 }
+i++;
+}
+constructorFirstLine+=(")\r\n");
+constructorInnerLine+=("}\r\n");
+tmpRandomAccessFile.seek(0);
+
+randomAccessFile=new RandomAccessFile(jsFile,"rw");
+randomAccessFile.seek(randomAccessFile.length());
+randomAccessFile.writeBytes("class "+loadedClass.getSimpleName()+"\r\n");
+randomAccessFile.writeBytes("{\r\n");
+randomAccessFile.writeBytes(constructorFirstLine);
+randomAccessFile.writeBytes(constructorInnerLine);
+while(tmpRandomAccessFile.getFilePointer()<tmpRandomAccessFile.length())
+{
+randomAccessFile.writeBytes(tmpRandomAccessFile.readLine()+"\r\n");
+}
+tmpRandomAccessFile.close();
+tmpFile.delete();
 //System.out.println(autoWiredFields.size());
 methods=loadedClass.getDeclaredMethods();
+j=0;
+long positionToRewrite=randomAccessFile.getFilePointer();
 for(Method method:methods)
 {
 pathAvailableOnMethod=null;
@@ -317,7 +462,7 @@ requestParameterAvailableOnMethodParameter=(RequestParameter)pAnno;
 }
 if(requestParameterAvailableOnMethodParameter!=null)
 {
-requestParametersOnMethod.add(new RequestParameterOnMethod(requestParameterAvailableOnMethodParameter.value(),parameterTypes[i]));
+requestParametersOnMethod.add(new RequestParameterOnMethod(requestParameterAvailableOnMethodParameter.value().isBlank()?("val"+(i+1)):requestParameterAvailableOnMethodParameter.value(),parameterTypes[i]));
 }
 else
 {
@@ -468,9 +613,99 @@ if(injectApplicationDirectoryAvailableOnClass!=null)
 {
 service.setInjectApplicationDirectory(true);
 }
+String methodStr="";
+String simpleName="";
+methodStr=method.getName()+"(";
+
+j=0;
+count=0;
+String bodyStr="";
+String paramsStr="";
+String queryStr="";
+String name;
+Class parameterType;
+for(RequestParameterOnMethod rpom:requestParametersOnMethod)
+{
+simpleName="";
+name=rpom.getName();
+parameterType=rpom.getParameterType();
+if(parameterType.equals(ApplicationScope.class) || parameterType.equals(SessionScope.class) || parameterType.equals(RequestScope.class) || parameterType.equals(ApplicationDirectory.class)) continue;
+System.out.println(name+", "+parameterType.getSimpleName());
+if(name!=null)
+{
+System.out.println("NOT NULL");
+simpleName=name;
+simpleName=simpleName.substring(0,1).toLowerCase()+simpleName.substring(1);
+if(j!=0) paramsStr+=",";
+paramsStr+=simpleName;
+j++;
+}
+else
+{
+//System.out.println("NULL --"+parameterType.getSimpleName());
+simpleName=parameterType.getSimpleName();
+simpleName=simpleName.substring(0,1).toLowerCase()+simpleName.substring(1);
+bodyStr="let body=null;\r\n";
+bodyStr+="body=JSON.stringify("+simpleName+");\r\n";
+methodStr+=simpleName;
+count++;
+}
+}
+if(count>1 || (count==1 && j!=0)) continue;   //Service should not added, because wrong service.
+//Complete method String
+methodStr+=paramsStr;
+methodStr+=")\r\n{\r\n";
+//Complete Body String
+if(bodyStr.isBlank())  bodyStr+="xhr.send();\r\n";
+else bodyStr+="xhr.send(body);\r\n";
+//Complete Param Query String
+if(!paramsStr.isBlank()) 
+{
+queryStr="const queryString=new URLSearchParams({"+paramsStr+"}).toString();\r\n";
+queryStr+="finalUrl+=\"?${queryString}\";\r\n";
+}
+else
+{
+queryStr="";
+}
+positionToRewrite=randomAccessFile.getFilePointer();
+randomAccessFile.writeBytes(methodStr);
+randomAccessFile.writeBytes("return new Promise((resolve,reject)=>{\r\n");
+randomAccessFile.writeBytes("const xhr=new XMLHttpRequest();\r\n");
+randomAccessFile.writeBytes("let finalUrl='"+fullPath.substring(1)+"';\r\n");
+randomAccessFile.writeBytes(queryStr);
+randomAccessFile.writeBytes("xhr.open(\"");
+if(count==0 && service.isGetAllowed()) randomAccessFile.writeBytes("GET");
+else if(count==1 && service.isPostAllowed()) randomAccessFile.writeBytes("POST");
+else 
+{
+randomAccessFile.seek(positionToRewrite);
+continue;
+}
+randomAccessFile.writeBytes("\",finalUrl);\r\n");
+randomAccessFile.writeBytes("xhr.setRequestHeader('Content-Type','application/json');\r\n");
+randomAccessFile.writeBytes("xhr.responseType='json';\r\n");
+
+randomAccessFile.writeBytes("xhr.onload = () => {\r\n");
+randomAccessFile.writeBytes("if (xhr.status >= 200 && xhr.status < 300) \r\n");
+randomAccessFile.writeBytes("{\r\n");
+randomAccessFile.writeBytes("resolve(xhr.response);\r\n");
+randomAccessFile.writeBytes("}\r\n");
+randomAccessFile.writeBytes("else\r\n");
+randomAccessFile.writeBytes("{\r\n");
+randomAccessFile.writeBytes("reject(new Error('Request failed with status ${xhr.status}'));\r\n");
+randomAccessFile.writeBytes("}\r\n");
+randomAccessFile.writeBytes("};\r\n");
+
+randomAccessFile.writeBytes("xhr.onerror = () => reject(new Error('Network Error'));\r\n");
+randomAccessFile.writeBytes(bodyStr);
+randomAccessFile.writeBytes("});\r\n}\r\n");
 
 webRockModel.setPathService(fullPath,service);
 }
+randomAccessFile.writeBytes("}\r\n");
+randomAccessFile.setLength(randomAccessFile.getFilePointer());
+randomAccessFile.close();
 }
 }catch(Exception ioException)
 {
