@@ -1,0 +1,169 @@
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<title>Student Dashboard</title>
+</head>
+<body>
+<div id='masterPageHeaderDIV' style='display:none;'>
+<table class='headerTable'>
+<tbody>
+<tr>
+<td colspan='4'>
+<div id='headerLogoImage'><img src='student.svg'>&nbsp;&nbsp;<b id='headerLogoName' class='headerLogoName'>Student Dashboard</b></div>
+</td>
+<td>
+<div id='headerMenuDivision' class='headerMenu'>
+<button type='button' href='#addStudentDIV'>Add Student</button>
+<button type='button' href='#getAllDIV'>All Students</button>
+<button type='button' href='#updateStudentDIV'>Edit Student</button>
+
+</div>
+</td>
+<td>
+<div id='themeToggleDivision'>
+<button id='toggleThemeButton' class='ui-button ui-corner-all ui-widget'><img  style="width:20px;height:20px;" id='themeImage' src='sun.svg' ></button>
+</div>
+</td>
+<td>
+<div id='loginDivision' class='loginButton'>
+<button id='loginButton' class='ui-button loginButton'><img src='log-in.svg' >&nbsp;Log-in</button>
+<div id='loginSignupDivision' class='ui-widget ui-front ui-widget-content ui-corner-all' title='log-in/sign-up'>
+<div id='loginTabs' class='ui-widget ui-front ui-widget-content ui-corner-all'>
+<ul>
+<li><a href='#loginContentDivision'>Log-in</a></li>
+<li><a href='#signupContentDivision'>Sign-up</a></li>
+</ul>
+<div id='loginContentDivision'>
+<form id='loginForm' class='login-form ui-widget'>
+<b>Username: </b>
+<input type='text' id='username' name='username' maxlength='16' size='16' required><br>
+<b>Password: </b>
+<input type='password' id='password' name='password' maxlength='16' size='16' required><br>
+<br>
+<div class="ui-widget">
+<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
+<p id='loginErrorSection'>
+<span  class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+<strong>Alert:</strong> </p>
+</div>
+</div>
+
+<button id='loginFormButton' type='submit' class='ui-button'>log-in</button>
+</form>
+</div>
+
+<div id='signupContentDivision'>
+<form id='signupForm' class='login-form ui-widget'>
+<b>Username: </b>
+<input type='text' id='username' name='username' maxlength='16' size='16' required><br>
+<b>Password: </b>
+<input type='password' id='password' name='password' maxlength='16' size='16' required><br>
+<span id='signupErrorSection' class='ui-state-error ui-icon ui-icon-alert'></span>
+<button id='signupFormButton' type='submit' class='ui-button'>sign-up</button>
+</form>
+</div>
+</div>
+</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<br>
+</div>
+
+<div id='homeDIV' style='display:none;'>
+It's one page Student Dashboard <br>
+
+</div>
+
+<div id='addStudentDIV' style='display:none;'>
+<h3 >Student (Add Module)</h3>
+<div id='addStudentForm'>
+Name: &nbsp;
+<input id='name' name='name' type='text' required><br>
+<span id='errorSection' style='color:red;'></span><br>
+Gender: &nbsp;&nbsp;&nbsp;Male<input id='male' name='gender' type='radio' value='Male'>&nbsp;&nbsp;
+Female<input id='female' name='gender' type='radio' value='Female'><br>
+<button id='addStudentButton'>Add Student</button><br><br>
+<br>
+</div>
+<div id='addStudentMessage' style='display:none;'>
+Student added<br>
+Want to add more student?
+<button type='button' id='yesButton' href='#addStudentDIV'>YES</button>&nbsp;&nbsp;&nbsp;<button type='button' id='noButton' href='#homeDIV'>NO</button><br>
+</div>
+<button id='homeButton' href='#homeDIV' type='button'>Home</button>
+<br>
+</div>
+
+<div id='getAllDIV' style='display:none;'>
+<div id='studentsDataTable' style='width:500px;height:500px;overflow:auto;'>
+<table class='ui-widget  ui-widget-content ui-corner-all studentTable' id='studentTable' >
+<thead>
+<tr>
+<th>S.No.</th><th>Roll number</th><th>Name</th><th>Gender</th>
+</tr>
+</thead>
+<tbody id='studentTableTBody'>
+</tbody>
+</table><br>
+</div>
+<button id='homeButton' href='#homeDIV' type='button'>Home</button>
+<br>
+</div>
+
+<div id='updateStudentDIV' style='display:none;'>
+<h3 >Student (Add Module)</h3>
+<div id='updateStudentForm'>
+Roll Number: &nbsp;
+<input id='rollNumber' name='rollNumber' type='text' required><br>
+Name: &nbsp;
+<input id='name' name='name' type='text' required><br>
+<span id='errorSection' style='color:red;'></span><br>
+Gender: &nbsp;&nbsp;&nbsp;Male<input id='male' name='gender' type='radio' value='Male'>&nbsp;&nbsp;
+Female<input id='female' name='gender' type='radio' value='Female'><br>
+<button id='updateStudentButton'>Edit Student</button><br><br>
+<br>
+</div>
+<div id='updateStudentMessage' style='display:none;'>
+Student updated<br>
+Want to edit more student?
+<button type='button' id='yesButton' href='#updateStudentDIV'>YES</button>&nbsp;&nbsp;&nbsp;<button type='button' id='noButton' href='#homeDIV'>NO</button><br>
+</div>
+<button id='homeButton' href='#homeDIV' type='button'>Home</button>
+<br>
+</div>
+
+
+<div id='masterPageFooterDIV' style='display:none;'>
+<div id='footerDivisionComponent'>
+<table id='footerTable'>
+<tbody>
+<tr>
+<td>
+<div id='descEVCharging' class='descCharging'>
+<div class='logoFooter'><img src='student.svg' />&nbsp;&nbsp;<b>Student Dashboard</b></div><br>
+Simple UI representation, created to test WEBRock Framework and their functionalities.
+</div>
+</td>
+<td>
+<div class='linksSection'>
+<h2>Quick Links</h2>
+<ul>
+<li>Home</li>
+<li>About us</li>
+<li>Students</li>
+<li>Faculty</li>
+<li>Contact Us</li>
+<ul>
+</div>
+</td>
+<td>
+</td>
+</tr>
+</div>
+</div>
+</body>
+</html>
+

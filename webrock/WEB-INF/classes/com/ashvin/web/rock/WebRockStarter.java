@@ -368,7 +368,7 @@ newPage=true;
 }
 }
 document.close();
-System.out.println(pdfFileName+"PDF created");
+System.out.println(pdfFileName+" PDF created");
 }catch(IOException ioException)
 {
 System.out.println(ioException.getMessage());
@@ -989,16 +989,17 @@ continue;
 }
 randomAccessFile.writeBytes("\",finalUrl);\r\n");
 randomAccessFile.writeBytes("xhr.setRequestHeader('Content-Type','application/json');\r\n");
-randomAccessFile.writeBytes("xhr.responseType='json';\r\n");
-
 randomAccessFile.writeBytes("xhr.onload=()=>{\r\n");
 randomAccessFile.writeBytes("if(xhr.status>=200 && xhr.status<300)\r\n");
 randomAccessFile.writeBytes("{\r\n");
-randomAccessFile.writeBytes("resolve(xhr.response);\r\n");
+randomAccessFile.writeBytes("resolve(JSON.parse(xhr.responseText));\r\n");
 randomAccessFile.writeBytes("}\r\n");
 randomAccessFile.writeBytes("else\r\n");
 randomAccessFile.writeBytes("{\r\n");
-randomAccessFile.writeBytes("reject(xhr.status);\r\n");
+randomAccessFile.writeBytes("reject({\r\n");
+randomAccessFile.writeBytes("status:xhr.status,\r\n");
+randomAccessFile.writeBytes("message:xhr.responseText\r\n");
+randomAccessFile.writeBytes("});\r\n");
 randomAccessFile.writeBytes("}\r\n");
 randomAccessFile.writeBytes("};\r\n");
 

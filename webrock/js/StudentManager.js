@@ -17,14 +17,13 @@ resolve(JSON.parse(xhr.responseText));
 }
 else
 {
-let errorBody=xhr.responseText;
 reject({
 status:xhr.status,
-message:errorBody
+message:xhr.responseText
 });
 }
 };
-xhr.onerror=()=>reject({status:xhr.status,message:"Network Error"});
+xhr.onerror=()=>reject(new Error('Network Error'));
 const body=JSON.stringify(studentDTO);
 xhr.send(body);
 });
@@ -36,15 +35,17 @@ const xhr=new XMLHttpRequest();
 let finalUrl='StudentManager/add';
 xhr.open("POST",finalUrl);
 xhr.setRequestHeader('Content-Type','application/json');
-xhr.responseType='json';
 xhr.onload=()=>{
 if(xhr.status>=200 && xhr.status<300)
 {
-resolve(xhr.response);
+resolve(JSON.parse(xhr.responseText));
 }
 else
 {
-reject(xhr.status);
+reject({
+status:xhr.status,
+message:xhr.responseText
+});
 }
 };
 xhr.onerror=()=>reject(new Error('Network Error'));
@@ -52,24 +53,26 @@ const body=JSON.stringify(studentDTO);
 xhr.send(body);
 });
 }
-delete(rollNumber)
+delete(val1)
 {
 return new Promise((resolve,reject)=>{
 const xhr=new XMLHttpRequest();
 let finalUrl='StudentManager/delete';
-const queryString=new URLSearchParams({rollNumber}).toString();
+const queryString=new URLSearchParams({val1}).toString();
 finalUrl+="?${queryString}";
 xhr.open("GET",finalUrl);
 xhr.setRequestHeader('Content-Type','application/json');
-xhr.responseType='json';
 xhr.onload=()=>{
 if(xhr.status>=200 && xhr.status<300)
 {
-resolve(xhr.response);
+resolve(JSON.parse(xhr.responseText));
 }
 else
 {
-reject(xhr.status);
+reject({
+status:xhr.status,
+message:xhr.responseText
+});
 }
 };
 xhr.onerror=()=>reject(new Error('Network Error'));
@@ -83,39 +86,43 @@ const xhr=new XMLHttpRequest();
 let finalUrl='StudentManager/getAll';
 xhr.open("GET",finalUrl);
 xhr.setRequestHeader('Content-Type','application/json');
-xhr.responseType='json';
 xhr.onload=()=>{
 if(xhr.status>=200 && xhr.status<300)
 {
-resolve(xhr.response);
+resolve(JSON.parse(xhr.responseText));
 }
 else
 {
-reject(xhr.status);
+reject({
+status:xhr.status,
+message:xhr.responseText
+});
 }
 };
 xhr.onerror=()=>reject(new Error('Network Error'));
 xhr.send();
 });
 }
-getByRollNumber(rollNumber)
+getByRollNumber(val1)
 {
 return new Promise((resolve,reject)=>{
 const xhr=new XMLHttpRequest();
 let finalUrl='StudentManager/getByRollNumber';
-const queryString=new URLSearchParams({rollNumber}).toString();
+const queryString=new URLSearchParams({val1}).toString();
 finalUrl+="?${queryString}";
 xhr.open("GET",finalUrl);
 xhr.setRequestHeader('Content-Type','application/json');
-xhr.responseType='json';
 xhr.onload=()=>{
 if(xhr.status>=200 && xhr.status<300)
 {
-resolve(xhr.response);
+resolve(JSON.parse(xhr.responseText));
 }
 else
 {
-reject(xhr.status);
+reject({
+status:xhr.status,
+message:xhr.responseText
+});
 }
 };
 xhr.onerror=()=>reject(new Error('Network Error'));

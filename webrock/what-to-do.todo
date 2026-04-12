@@ -1,3 +1,6 @@
+[Done]
+
+
 //add these lines to send response error [1]
 response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // 400
 response.setContentType("application/json");
@@ -7,18 +10,18 @@ response.getWriter().write("{\"error\": \"Your custom message here\"}");
 xhr.responseType = 'json'     //remove this line [2]
 
 //update code based on this and json response [error from 1 change]
-xhr.onload = ()=>{
-  if (xhr.status >= 200 && xhr.status < 300) 
-  {
-    resolve(JSON.parse(xhr.responseText));    //here PARSE if success
-  } 
-  else 
-  {
-    reject({
-      status: xhr.status,
-      message: xhr.responseText
-    });
-  }
+xhr.onload=()=>{
+if (xhr.status >= 200 && xhr.status < 300) 
+{
+resolve(JSON.parse(xhr.responseText));    //here PARSE if success
+} 
+else 
+{
+reject({
+status: xhr.status,
+message: xhr.responseText
+});
+}
 };
 
 

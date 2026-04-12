@@ -30,12 +30,16 @@ String fullPathToService=requestURI.substring(siteName.length()+1);
 //System.out.println(fullPathToService.substring(0,fullPathToService.lastIndexOf('/')));
 String resourcePath=fullPathToService.substring(0,fullPathToService.lastIndexOf('/'));
 Service service=webRockModel.getPathService(fullPathToService,type);
+PrintWriter pw=null;
 if(service==null)
 {
 System.out.println("No Service");
 try
 {
-response.sendError(HttpServletResponse.SC_NOT_FOUND);
+response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+response.setContentType("application/json");
+pw=response.getWriter();
+pw.println("{\"error\": \"Requested service not found.\"}");
 }catch(IOException ioException)
 {
 System.out.println("Some problem: "+ioException);
@@ -53,6 +57,7 @@ ApplicationDirectory applicationDirectory=null;
 SecurityAccess securityAccess=service.getSecurityAccess();
 if(securityAccess!=null)
 {
+Class<?> exceptionClasses[]=null;
 try
 {
 Class checkPost=securityAccess.getCheckPost();
@@ -65,6 +70,7 @@ throw new com.ashvin.web.rock.exceptions.SecurityException("Unahuthorized access
 }
 Class securityServiceClass=checkPost;
 Method securityServiceMethod=guard;
+exceptionClasses=securityServiceMethod.getExceptionTypes();
 String forwardTo=securityService.getForwardTo();
 boolean injectApplicationScope=securityService.getInjectApplicationScope();
 boolean injectSessionScope=securityService.getInjectSessionScope();
@@ -303,32 +309,47 @@ else
 {
 throw new com.ashvin.web.rock.exceptions.SecurityException("UNAUTHORIZED security method should not have to return anything.");
 }
-}catch(com.ashvin.web.rock.exceptions.SecurityException se)
+}catch(InvocationTargetException ite)
+{
+Throwable t=ite.getCause();
+//t.printStackTrace();
+for(Class exceptionClass:exceptionClasses)
+{
+if(t.getClass().equals(exceptionClass))
 {
 try
 {
-System.out.println("Message: "+se.getMessage());
-response.sendError(HttpServletResponse.SC_UNAUTHORIZED,se.getMessage());
+response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+response.setContentType("application/json");
+if(pw==null) pw=response.getWriter();
+pw.println("{\"error\":\"Unauthorized access.\"}");
+pw.flush();
 }catch(Exception e)
 {
 }
 return;
-}catch(InvocationTargetException ite)
-{
-Throwable t=ite.getCause();
-if(t!=null && t instanceof com.ashvin.web.rock.exceptions.SecurityException se)
-{
+}
+}
 try
 {
-System.out.println("message"+se.getMessage());
-response.sendError(HttpServletResponse.SC_UNAUTHORIZED,"UNAUTHORIZED Access");
+response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+response.setContentType("application/json");
+if(pw==null) pw=response.getWriter();
+pw.println("{\"error\": \"Internal server error.\"}");
+pw.flush();
 }catch(Exception e)
 {
 }
-}
+return;
+}catch(com.ashvin.web.rock.exceptions.SecurityException se)
+{
 try
 {
-response.sendError(HttpServletResponse.SC_UNAUTHORIZED,"UNAUTHORIZED Access");
+response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+response.setContentType("application/json");
+if(pw==null) pw=response.getWriter();
+pw.println("{\"error\": \"Unauthorized access.\"}");
+pw.flush();
 }catch(Exception e)
 {
 }
@@ -337,7 +358,12 @@ return;
 {
 try
 {
-response.sendError(HttpServletResponse.SC_UNAUTHORIZED,"UNAUTHORIZED Access");
+System.out.println("message: "+se.getMessage());
+response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+response.setContentType("application/json");
+if(pw==null) pw=response.getWriter();
+pw.println("{\"error\": \""+se.getMessage()+"\"}");
+pw.flush();
 }catch(Exception e)
 {
 }
@@ -347,7 +373,11 @@ return;
 try
 {
 System.out.println("Exception: "+exception);
-response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+response.setContentType("application/json");
+if(pw==null) pw=response.getWriter();
+pw.println("{\"error\": \"Internal server error\"}");
+pw.flush();
 }catch(Exception e)
 {
 }
@@ -384,6 +414,7 @@ Object result;
 Class returnType;
 String jsonString="";
 Object[] parametersValue=null;
+Class<?> exceptionClasses[]=serviceMethod.getExceptionTypes();
 try
 {
 serviceClassObject=serviceClass.newInstance();
@@ -751,58 +782,97 @@ else
 {
 //System.out.println(jsonString);
 response.setContentType("application/json");
-PrintWriter pw=response.getWriter();
+if(pw==null) pw=response.getWriter();
 pw.println(jsonString);
 pw.flush();
 }
-
 }catch(InvocationTargetException ite)
 {
 Throwable t=ite.getCause();
+System.out.println(t.getMessage());
 //t.printStackTrace();
+for(Class exceptionClass:exceptionClasses)
+{
+if(t.getClass().equals(exceptionClass))
+{
 try
 {
-System.out.println("Message: "+t.getMessage());
-response.sendError(HttpServletResponse.SC_UNAUTHORIZED,t.getMessage());
+response.setContentType("application/json");
+if(pw==null) pw=response.getWriter();
+pw.println("{\"error\":\""+t.getMessage()+"\"}");
+pw.flush();
 }catch(Exception e)
 {
 }
+return;
+}
+}
+try
+{
+response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+response.setContentType("application/json");
+if(pw==null) pw=response.getWriter();
+pw.println("{\"error\": \"Internal server error.\"}");
+pw.flush();
+}catch(Exception e)
+{
+}
+return;
 }catch(com.ashvin.web.rock.exceptions.SecurityException se)
 {
 try
 {
-System.out.println("Message: "+se.getMessage());
-response.sendError(HttpServletResponse.SC_UNAUTHORIZED,se.getMessage());
+response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+response.setContentType("application/json");
+if(pw==null) pw=response.getWriter();
+pw.println("{\"error\": \"Unauthorized access.\"}");
+pw.flush();
 }catch(Exception e)
 {
 }
+return;
 }catch(ServiceException se)
 {
 try
 {
 System.out.println("message: "+se.getMessage());
-response.sendError(HttpServletResponse.SC_NOT_FOUND,se.getMessage());
+response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+response.setContentType("application/json");
+if(pw==null) pw=response.getWriter();
+pw.println("{\"error\": \""+se.getMessage()+"\"}");
+pw.flush();
 }catch(Exception e)
 {
 }
+return;
 }catch(IOException ioException)
 {
 try
 {
 System.out.println("IOException: "+ioException.getMessage());
-response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+response.setContentType("application/json");
+if(pw==null) pw=response.getWriter();
+pw.println("{\"error\": \"Internal server error\"}");
+pw.flush();
 }catch(Exception e)
 {
 }
+return;
 }catch(Exception exception)
 {
 try
 {
 System.out.println("Exception: "+exception);
-response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+response.setContentType("application/json");
+if(pw==null) pw=response.getWriter();
+pw.println("{\"error\": \"Internal server error\"}");
+pw.flush();
 }catch(Exception e)
 {
 }
+return;
 }
 }
 }
