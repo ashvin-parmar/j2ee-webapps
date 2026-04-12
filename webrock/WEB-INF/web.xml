@@ -115,6 +115,14 @@
 <servlet-class>com.ashvin.web.rock.WebRockStarter</servlet-class>
 <load-on-startup>0</load-on-startup>
 </servlet>
+<servlet>
+<servlet-name>JSFileLoading</servlet-name>
+<servlet-class>com.ashvin.web.rock.JSFileLoading</servlet-class>
+</servlet>
+<servlet-mapping>
+<servlet-name>JSFileLoading</servlet-name>
+<url-pattern>/jsFile</url-pattern>
+</servlet-mapping>
 <!-- Over here Amit [WebRock Framework Developer] works ends -->
 
 

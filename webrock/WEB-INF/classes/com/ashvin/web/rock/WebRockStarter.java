@@ -207,7 +207,7 @@ innerMostTable=new Table(UnitValue.createPercentArray(threeTableColumn)).useAllA
 j=1;
 for(RequestParameterOnMethod rpom:rpoms)
 {
-innerMostTable.addCell(new Cell().add((new Paragraph("Field"+j)).setFont(titleFont)).setPaddingLeft(5));
+innerMostTable.addCell(new Cell().add((new Paragraph("Parameter "+j)).setFont(titleFont)).setPaddingLeft(5));
 if(rpom.getName()!=null) innerMostTable.addCell(new Cell().add((new Paragraph(rpom.getName()))).setPaddingLeft(5));
 else 
 {
@@ -998,7 +998,7 @@ randomAccessFile.writeBytes("else\r\n");
 randomAccessFile.writeBytes("{\r\n");
 randomAccessFile.writeBytes("reject({\r\n");
 randomAccessFile.writeBytes("status:xhr.status,\r\n");
-randomAccessFile.writeBytes("message:xhr.responseText\r\n");
+randomAccessFile.writeBytes("message:JSON.parse(xhr.responseText).error\r\n");
 randomAccessFile.writeBytes("});\r\n");
 randomAccessFile.writeBytes("}\r\n");
 randomAccessFile.writeBytes("};\r\n");
