@@ -1,0 +1,65 @@
+<!DOCTYPE HTML>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<title>MVC Framework</title>
+<script src='jquery/jquery.js'></script>
+<script>
+//Written by Amit [Framework Developer]
+var mvcfm={
+"model":null
+};
+$(()=>{
+if(mvcfm.model!=null)
+{
+$.each(mvcfm.model,function(key,value){
+var $elem=$("input[mvcfm-attribute="+key+"]");
+$elem.val(mvcfm.model[key]);
+$elem.on('input',(ev)=>{
+mvcfm.model[key]=ev.target.value;
+//alert(mvcfm.model[key]);    //On each changes -> it will show up.
+});
+});
+}
+});
+</script>
+
+<script>
+//Written by Bobby [Framework User]
+var ds={
+"num":0
+};
+window.addEventListener('load',function(){
+mvcfm.model=ds;
+});
+function calFactorial()
+{
+alert("here calculate");
+//var num=document.getElementById('num').value;
+var num=ds.num;
+alert(num);
+if(num<0)
+{
+alert("Factorial is undefined for negative number: "+num);
+return;
+}
+var facVal=1;
+for(var i=num;i>=1;i--)
+{
+facVal*=i;
+}
+alert("Factorial of "+num+" is "+facVal);
+}
+</script>
+</head>
+<body>
+<center>
+<div style='height:300px;width:300px;'>
+<center>
+Number: <input type='number' id='num' name='num' mvcfm-attribute='num'><br>
+<button type='button' onclick='calFactorial()'>Factorial</button>
+</center>
+</div>
+</center>
+</body>
+</html>
