@@ -1,0 +1,134 @@
+<!DOCTYPE HTML>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<title>MVC Framework</title>
+<script src='jquery/jquery.js'></script>
+<script>
+//Written by Amit [Framework Developer]
+var mvcfm={
+"model":null
+};
+$(()=>{
+if(mvcfm.model!=null)
+{
+$.each(mvcfm.model,function(key,value){
+var $elems=$("input[mvcfm-attribute="+key+"]");
+var $elemType=$elems.attr('type');
+//alert($elems.length+", "+$elemType);
+if($elemType=="radio")
+{
+$elems.on('change',(ev)=>{
+for(var i=0;i<$elems.length;i++)
+{
+var $elem=$($elems[i]);
+var $elemBindTo=$elem.attr("mvcfm-bind-to") || "value";
+if($elem.is(":checked")) mvcfm.model[key]=$elem.attr($elemBindTo);
+}
+});
+}
+else if($elemType=="checkbox")
+{
+$elems.on('change',(ev)=>{
+var $elem=$($elems[0]);
+var $elemBindTo=$elem.attr("mvcfm-bind-to") || "value";
+if(typeof mvcfm.model[key]=="boolean")
+{
+$elem.prop($elemBindTo,$elem.is(":checked"));
+mvcfm.model[key]=$elem.is(":checked");
+}
+else if(typeof mvcfm.model[key]=="string")
+{
+mvcfm.model[key]=$elem.is(":checked")?$elem.attr($elemBindTo):"";
+}
+else if(typeof mvcfm.model[key]=="object")
+{
+mvcfm.model[key]=[];
+for(var i=0;i<$elems.length;i++)
+{
+$elem=$($elems[i]);
+if($elem.is(":checked")) mvcfm.model[key].push($elem.attr($elemBindTo));
+}
+}
+});
+}
+else
+{
+$.each($elems,function(index,value2){
+var $elem=$(value2);
+$elem.prop("value",value);
+var $elemBindTo=$elem.prop("mvcfm-bind-to") || "value";
+$elem.on('change',(ev)=>{
+var $elemBindToValue=$elem.prop("value");
+$elem.prop($elemBindTo,$elemBindToValue);
+mvcfm.model[key]=$elemBindToValue;
+});
+});
+}
+//alert(mvcfm.model[key]);    //On each changes -> it will show up.
+});
+}
+});
+</script>
+
+<script>
+//Written by Bobby [Framework User]
+var ds={
+"rollNumber":0,
+"name":"",
+"gender":"",
+"isIndian":false,
+"interest":[],
+"anime":"",
+"city":""
+};
+window.addEventListener('load',function(){
+mvcfm.model=ds;
+});
+function changedLogs()
+{
+alert(ds.rollNumber);
+alert(ds.name);
+alert(ds.gender);
+alert(ds.isIndian);
+alert(ds.interest)
+alert(ds.anime);
+}
+</script>
+</head>
+<body>
+<div style='height:300px;width:300px;'>
+<center>
+Number: <input type='number' id='rollNumber' name='rollNumber' mvcfm-attribute='rollNumber'><br>
+
+Name: <input type='text' id='name' name='name' mvcfm-attribute='name'><br>
+
+Gender: &nbsp;&nbsp;
+Male <input type='radio' id='male' name='gender' mvcfm-attribute='gender' value="M">&nbsp;
+Female <input type='radio' id='female' name='gender' mvcfm-attribute='gender' val="F" mvcfm-bind-to='val'><br>
+
+Is Indian?: <input type='checkbox' id='isIndian' name='isIndian' mvcfm-attribute='isIndian' mvcfm-bind-to='val' val='true'><br>
+
+
+  <label><input type="checkbox" name="interest" value="coding" mvcfm-attribute='interest'> Coding</label><br>
+  <label><input type="checkbox" name="interest" value="music" mvcfm-attribute='interest'> Music</label><br>
+  <label><input type="checkbox" name="interest" value="sports" mvcfm-attribute='interest'> Sports</label><br>
+<br>
+ Anime: Monkey the loffy <input type='checkbox' name='garage' punch-line='Monkey The Loffy' mvcfm-attribute='anime' mvcfm-bind-to='punch-line'><br>
+<br>
+
+City: &nbsp;
+<select mvcfm-attribute='city'>
+<option value="mumbai">Mumbai</option>
+<option value="delhi">Delhi</option>
+<option value="indore">Indore</option>
+<option value='ujjain'>Ujjain</option>
+</select>
+<br>
+<br>
+<button type='button' onclick='changedLogs()'>Check Logs</button>
+</center>
+</div>
+</body>
+</html>
+
