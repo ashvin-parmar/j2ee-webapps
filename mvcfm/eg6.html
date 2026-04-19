@@ -10,159 +10,212 @@
 <script>
 //Written by Amit [Framework Developer]
 var mvcfm={
-"model":null
+"model":null,
+"controller":null
 };
-function replaceText(node, find, replace) 
-{
-if(node.nodeType===3) // Node.TEXT_NODE
-{ 
-node.nodeValue=node.nodeValue.replace(new RegExp(find, 'g'), replace);
-}
-else
-{
-for (let child of node.childNodes) replaceText(child, find, replace);
-}
-}
-function triggerBodyStringInterpolation()
-{
-//alert(mvcfm.model.name);
-for(let key in mvcfm.model)
-{
-let value=mvcfm.model[key];
-alert("Key: "+key+", Value: "+value);
-//document.body.innerHTML=document.body.innerHTML.replaceAll("{{"+key+"}}",mvcfm.model[key]);   //it will change the complete alloted DOM element
-replaceText(document.body,"{{"+key+"}}",mvcfm.model[key]);  //perform DOM manipulation by targeting only the text nodes
-}
-}
 $(()=>{
-if(mvcfm.model!=null)
-{
-$.each(mvcfm.model,function(key,value){
-var $elems=$("[mvcfm-attribute="+key+"]");
-if($elems.is("input"))
-{
-var $elemType=$elems.attr('type');
-//alert($elems.length+", "+$elemType);
-if($elemType=="radio")
-{
-for(var i=0;i<$elems.length;i++)
-{
-var $elem=$($elems[i]);
-var $elemBindTo=$elem.attr("mvcfm-bind-to") || "value";
-//alert($elem.attr($elemBindTo)+", "+value);
-if(value==$elem.attr($elemBindTo)) $elem.prop("checked","true");
-}
-$elems.on('change',(ev)=>{
-for(var i=0;i<$elems.length;i++)
-{
-var $elem=$($elems[i]);
-var $elemBindTo=$elem.attr("mvcfm-bind-to") || "value";
-if($elem.is(":checked")) mvcfm.model[key]=$elem.attr($elemBindTo);
-}
+testFeat();
 });
-}
-else if($elemType=="checkbox")
+function testFeat()
 {
-
-$elems.on('change',(ev)=>{
-var $elem=$($elems[0]);
-var $elemBindTo=$elem.attr("mvcfm-bind-to") || "value";
-if(typeof mvcfm.model[key]=="boolean")
+let $elems=$("[mvcfm-if]");
+$.each($elems,function(index,value){
+let $elem=$(value);
+let expr=$elem.attr("mvcfm-if");
+//alert(expr);
+let result=eval(expr);
+//alert(result);
+if(result===true)
 {
-$elem.prop($elemBindTo,$elem.is(":checked"));
-mvcfm.model[key]=$elem.is(":checked");
-}
-else if(typeof mvcfm.model[key]=="string")
-{
-mvcfm.model[key]=$elem.is(":checked")?$elem.attr($elemBindTo):"";
-}
-else if(typeof mvcfm.model[key]=="object")
-{
-mvcfm.model[key]=[];
-for(var i=0;i<$elems.length;i++)
-{
-$elem=$($elems[i]);
-if($elem.is(":checked")) mvcfm.model[key].push($elem.attr($elemBindTo));
-}
-}
-});
+$elem.show('slow');
 }
 else
 {
-$.each($elems,function(index,value2){
-var $elem=$(value2);
-$elem.prop("value",value);
-var $elemBindTo=$elem.prop("mvcfm-bind-to") || "value";
-$elem.on('change',(ev)=>{
-var $elemBindToValue=$elem.prop("value");
-$elem.prop($elemBindTo,$elemBindToValue);
-mvcfm.model[key]=$elemBindToValue;
-});
-});
-}
-//alert(mvcfm.model[key]);    //On each changes -> it will show up.
-}
-else if($elems.is("select"))
-{
-$.each($elems,function(index,value3){
-var $elem=$(value3);
-var selectedAny=false;
-$.each($elem.children("option"),function(index,value4){
-var $child=$(value4);
-if($child.val()===value) selectedAny=true;
-});
-if(!selectedAny)
-{
-$elems.prepend("<option value='-1'> &lt;Select &gt;</option>");
-$elem.prop("value","-1");
-}
-else
-{
-$elem.prop("value",value);
-}
-var $elemBindTo=$elem.prop("mvcfm-bind-to") || "value";
-$elem.on('change',(ev)=>{
-var $elemBindToValue=$elem.prop("value");
-$elem.prop($elemBindTo,$elemBindToValue);
-mvcfm.model[key]=$elemBindToValue;
-});
-});
+$elem.hide('fast');
 }
 });
-triggerBodyStringInterpolation();
 }
-});
 </script>
 
 <script>
 //Written by Bobby [Framework User]
+var mode="";
+class Student
+{
+contructor(rollNumber,name,gender,isIndian,interest,city)
+{
+this.rollNumber=rollNumber;
+this.name=name;
+this.gender=gender;
+this.isIndian=isIndian;
+this.interest=interest;
+this.city=city;
+}
+}
+class StudentManager
+{
+constructor()
+{
+this.students=[];
+}
+update(student)
+{
+return new Promise((resolve,reject)=>{
+const xhr=new XMLHttpRequest();
+let finalUrl='StudentManager/update';
+xhr.open("POST",finalUrl);
+xhr.setRequestHeader('Content-Type','application/json');
+xhr.onload=()=>{
+if(xhr.status>=200 && xhr.status<300)
+{
+resolve(JSON.parse(xhr.responseText));
+}
+else
+{
+reject({
+status:xhr.status,
+message:JSON.parse(xhr.responseText).error
+});
+}
+};
+xhr.onerror=()=>reject(new Error('Network Error'));
+const body=JSON.stringify(student);
+xhr.send(body);
+});
+}
+add(student)
+{
+return new Promise((resolve,reject)=>{
+const xhr=new XMLHttpRequest();
+let finalUrl='StudentManager/add';
+xhr.open("POST",finalUrl);
+xhr.setRequestHeader('Content-Type','application/json');
+xhr.onload=()=>{
+if(xhr.status>=200 && xhr.status<300)
+{
+resolve(JSON.parse(xhr.responseText));
+}
+else
+{
+reject({
+status:xhr.status,
+message:JSON.parse(xhr.responseText).error
+});
+}
+};
+xhr.onerror=()=>reject(new Error('Network Error'));
+const body=JSON.stringify(student);
+xhr.send(body);
+});
+}
+delete(val1)
+{
+return new Promise((resolve,reject)=>{
+const xhr=new XMLHttpRequest();
+let finalUrl='StudentManager/delete';
+const queryString=new URLSearchParams({val1}).toString();
+finalUrl+="?${queryString}";
+xhr.open("GET",finalUrl);
+xhr.setRequestHeader('Content-Type','application/json');
+xhr.onload=()=>{
+if(xhr.status>=200 && xhr.status<300)
+{
+resolve(JSON.parse(xhr.responseText));
+}
+else
+{
+reject({
+status:xhr.status,
+message:JSON.parse(xhr.responseText).error
+});
+}
+};
+xhr.onerror=()=>reject(new Error('Network Error'));
+xhr.send();
+});
+}
+getAll()
+{
+return new Promise((resolve,reject)=>{
+const xhr=new XMLHttpRequest();
+let finalUrl='StudentManager/getAll';
+xhr.open("GET",finalUrl);
+xhr.setRequestHeader('Content-Type','application/json');
+xhr.onload=()=>{
+if(xhr.status>=200 && xhr.status<300)
+{
+resolve(JSON.parse(xhr.responseText));
+}
+else
+{
+reject({
+status:xhr.status,
+message:JSON.parse(xhr.responseText).error
+});
+}
+};
+xhr.onerror=()=>reject(new Error('Network Error'));
+xhr.send();
+});
+}
+getByRollNumber(val1)
+{
+return new Promise((resolve,reject)=>{
+const xhr=new XMLHttpRequest();
+let finalUrl='StudentManager/getByRollNumber';
+const queryString=new URLSearchParams({val1}).toString();
+finalUrl+="?${queryString}";
+xhr.open("GET",finalUrl);
+xhr.setRequestHeader('Content-Type','application/json');
+xhr.onload=()=>{
+if(xhr.status>=200 && xhr.status<300)
+{
+resolve(JSON.parse(xhr.responseText));
+}
+else
+{
+reject({
+status:xhr.status,
+message:JSON.parse(xhr.responseText).error
+});
+}
+};
+xhr.onerror=()=>reject(new Error('Network Error'));
+xhr.send();
+});
+}
+}
 var ds={
 "rollNumber":0,
 "name":"Kumar",
 "gender":"F",
 "isIndian":true,
 "interest":["music","sports"],
-"anime":"",
 "city":"indore"
 };
 window.addEventListener('load',function(){
 mvcfm.model=ds;
+mvcfm.controller=new StudentManager();
 });
-function changedLogs()
+function addStudent()
 {
 alert(ds.rollNumber);
 alert(ds.name);
 alert(ds.gender);
 alert(ds.isIndian);
 alert(ds.interest)
-alert(ds.anime);
 alert(ds.city);
+}
+function setAddMode()
+{
+mode="A";
 }
 </script>
 </head>
 <body>
 <div style='height:300px;width:300px;'>
 <center>
+<div id='addForm' mvcfm-if="mode=='A'" >
 Number: <input type='number' id='rollNumber' name='rollNumber' mvcfm-attribute='rollNumber'><br>
 
 Name: <input type='text' id='name' name='name' mvcfm-attribute='name'><br>
@@ -178,8 +231,6 @@ Is Indian?: <input type='checkbox' id='isIndian' name='isIndian' mvcfm-attribute
   <label><input type="checkbox" name="interest" value="music" mvcfm-attribute='interest'> Music</label><br>
   <label><input type="checkbox" name="interest" value="sports" mvcfm-attribute='interest'> Sports</label><br>
 <br>
- Anime: Monkey the loffy <input type='checkbox' name='garage' punch-line='Monkey The Loffy' mvcfm-attribute='anime' mvcfm-bind-to='punch-line'><br>
-<br>
 
 City: &nbsp;
 <select mvcfm-attribute='city' id='city' name='city'>
@@ -190,17 +241,13 @@ City: &nbsp;
 </select>
 <br>
 <br>
-<button type='button' onclick='changedLogs()'>Check Logs</button>
+<button type='button' onclick='addStudent()'>Add</button>
+</div>
 </center>
+<button type='button' onclick='setAddMode()'>Set Add Mode</button>
 <br>
-Number: {{rollNumber}}<br>
-Name: {{name}}<br>
-Gender: {{gender}}<br>
-Is Indian: {{isIndian}}<br>
-Hobby: {{interest}}<br>
-City: {{city}}<br>
+<button type='button' onclick='testFeat()'>Testing</button>
 <br>
-
 </div>
 </body>
 </html>
