@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<head lang='en'>
+<meta charset='utf-8'>
+<title>function calling using thier name, Reflection</title>
+<script>
+function func1(arg1,arg2)
+{
+alert(arg1+", "+arg2);
+}
+function add(...args)
+{
+let sum=0;
+for(let i=0;i<args.length;i++)
+{
+sum+=args[i];
+}
+return sum;
+}
+function func2()
+{
+var a="Ujjain";
+var b="Indore";
+var funcName="func1";
+window[funcName](a,b);
+
+funcName="add";
+let func=window[funcName];
+let sum=Reflect.apply(func,undefined,[10,20,30,40,50]);
+alert("Sum: "+sum);
+}
+</script>
+</head>
+<body>
+<button onclick='func2()'>Click Me!</button>
+</body>
+</html>

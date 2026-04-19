@@ -9,6 +9,28 @@
 var mvcfm={
 "model":null
 };
+function replaceText(node, find, replace) 
+{
+if(node.nodeType===3) // Node.TEXT_NODE
+{ 
+node.nodeValue=node.nodeValue.replace(new RegExp(find, 'g'), replace);
+}
+else
+{
+for (let child of node.childNodes) replaceText(child, find, replace);
+}
+}
+function triggerBodyStringInterpolation()
+{
+//alert(mvcfm.model.name);
+for(let key in mvcfm.model)
+{
+let value=mvcfm.model[key];
+alert("Key: "+key+", Value: "+value);
+//document.body.innerHTML=document.body.innerHTML.replaceAll("{{"+key+"}}",mvcfm.model[key]);   //it will change the complete alloted DOM element
+replaceText(document.body,"{{"+key+"}}",mvcfm.model[key]);  //perform DOM manipulation by targeting only the text nodes
+}
+}
 $(()=>{
 if(mvcfm.model!=null)
 {
@@ -20,6 +42,13 @@ var $elemType=$elems.attr('type');
 //alert($elems.length+", "+$elemType);
 if($elemType=="radio")
 {
+for(var i=0;i<$elems.length;i++)
+{
+var $elem=$($elems[i]);
+var $elemBindTo=$elem.attr("mvcfm-bind-to") || "value";
+//alert($elem.attr($elemBindTo)+", "+value);
+if(value==$elem.attr($elemBindTo)) $elem.prop("checked","true");
+}
 $elems.on('change',(ev)=>{
 for(var i=0;i<$elems.length;i++)
 {
@@ -31,6 +60,7 @@ if($elem.is(":checked")) mvcfm.model[key]=$elem.attr($elemBindTo);
 }
 else if($elemType=="checkbox")
 {
+
 $elems.on('change',(ev)=>{
 var $elem=$($elems[0]);
 var $elemBindTo=$elem.attr("mvcfm-bind-to") || "value";
@@ -96,6 +126,7 @@ mvcfm.model[key]=$elemBindToValue;
 });
 }
 });
+triggerBodyStringInterpolation();
 }
 });
 </script>
@@ -104,12 +135,12 @@ mvcfm.model[key]=$elemBindToValue;
 //Written by Bobby [Framework User]
 var ds={
 "rollNumber":0,
-"name":"",
-"gender":"",
-"isIndian":false,
-"interest":[],
+"name":"Kumar",
+"gender":"F",
+"isIndian":true,
+"interest":["music","sports"],
 "anime":"",
-"city":""
+"city":"indore"
 };
 window.addEventListener('load',function(){
 mvcfm.model=ds;
@@ -148,7 +179,7 @@ Is Indian?: <input type='checkbox' id='isIndian' name='isIndian' mvcfm-attribute
 <br>
 
 City: &nbsp;
-<select mvcfm-attribute='city'>
+<select mvcfm-attribute='city' id='city' name='city'>
 <option value="mumbai">Mumbai</option>
 <option value="delhi">Delhi</option>
 <option value="indore">Indore</option>
@@ -158,6 +189,15 @@ City: &nbsp;
 <br>
 <button type='button' onclick='changedLogs()'>Check Logs</button>
 </center>
+<br>
+Number: {{rollNumber}}<br>
+Name: {{name}}<br>
+Gender: {{gender}}<br>
+Is Indian: {{isIndian}}<br>
+Hobby: {{interest}}<br>
+City: {{city}}<br>
+<br>
+
 </div>
 </body>
 </html>

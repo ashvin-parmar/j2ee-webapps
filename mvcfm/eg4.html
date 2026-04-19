@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<title>ES6 Based class method calling, Using Reflection</title>
+<script>
+class SomeClass
+{
+someMethod(arg1,arg2)
+{
+alert(arg1+", "+arg2);
+return arg1+arg2;
+}
+}
+function func2()
+{
+let funcName="someMethod";
+let arg1="Good";
+let arg2="Morning";
+let someClassObj=new SomeClass();
+let actualFunc=Reflect.get(someClassObj,funcName);
+let result=Reflect.apply(actualFunc,someClassObj,[arg1,arg2]);
+alert("Result: "+result);
+}
+</script>
+</head>
+<body>
+<button onclick='func2()'>Click me!</button>
+</body>
+</html>
