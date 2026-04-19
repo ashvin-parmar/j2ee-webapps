@@ -1,0 +1,114 @@
+<!-- [feat]: Only {{key}} to mvcfm.model.key data replacement [pending- NOT DONE YET]-->
+
+<!DOCTYPE HTML>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<title>MVC Framework</title>
+<script src='jquery/jquery.js'></script>
+<script>
+//Written by Amit [Framework Developer]
+var mvcfm={
+"model":null
+};
+function replaceText(node, find, replace) 
+{
+if(node.nodeType===3) // Node.TEXT_NODE
+{ 
+node.nodeValue=node.nodeValue.replace(new RegExp(find, 'g'), replace);
+}
+else
+{
+for (let child of node.childNodes) replaceText(child, find, replace);
+}
+}
+function triggerBodyStringInterpolation()
+{
+//alert(mvcfm.model.name);
+for(let key in mvcfm.model)
+{
+let value=mvcfm.model[key];
+alert("Key: "+key+", Value: "+value);
+//document.body.innerHTML=document.body.innerHTML.replaceAll("{{"+key+"}}",mvcfm.model[key]);   //it will change the complete alloted DOM element
+replaceText(document.body,"{{"+key+"}}",mvcfm.model[key]);  //perform DOM manipulation by targeting only the text nodes
+}
+}
+$(()=>{
+if(mvcfm.model!=null)
+{
+triggerBodyStringInterpolation();
+}
+});
+</script>
+
+<script>
+//Written by Bobby [Framework User]
+var ds={
+"rollNumber":0,
+"name":"Kumar",
+"gender":"F",
+"isIndian":true,
+"interest":["music","sports"],
+"anime":"",
+"city":"indore"
+};
+window.addEventListener('load',function(){
+mvcfm.model=ds;
+});
+function changedLogs()
+{
+alert(ds.rollNumber);
+alert(ds.name);
+alert(ds.gender);
+alert(ds.isIndian);
+alert(ds.interest)
+alert(ds.anime);
+alert(ds.city);
+}
+</script>
+</head>
+<body>
+<div style='height:300px;width:300px;'>
+<center>
+Number: <input type='number' id='rollNumber' name='rollNumber' mvcfm-attribute='rollNumber'><br>
+
+Name: <input type='text' id='name' name='name' mvcfm-attribute='name'><br>
+
+Gender: &nbsp;&nbsp;
+Male <input type='radio' id='male' name='gender' mvcfm-attribute='gender' value="M">&nbsp;
+Female <input type='radio' id='female' name='gender' mvcfm-attribute='gender' val="F" mvcfm-bind-to='val'><br>
+
+Is Indian?: <input type='checkbox' id='isIndian' name='isIndian' mvcfm-attribute='isIndian' mvcfm-bind-to='val' val='true'><br>
+
+
+  <label><input type="checkbox" name="interest" value="coding" mvcfm-attribute='interest'> Coding</label><br>
+  <label><input type="checkbox" name="interest" value="music" mvcfm-attribute='interest'> Music</label><br>
+  <label><input type="checkbox" name="interest" value="sports" mvcfm-attribute='interest'> Sports</label><br>
+<br>
+ Anime: Monkey the loffy <input type='checkbox' name='garage' punch-line='Monkey The Loffy' mvcfm-attribute='anime' mvcfm-bind-to='punch-line'><br>
+<br>
+
+City: &nbsp;
+<select mvcfm-attribute='city' id='city' name='city'>
+<option value="mumbai">Mumbai</option>
+<option value="delhi">Delhi</option>
+<option value="indore">Indore</option>
+<option value='ujjain'>Ujjain</option>
+</select>
+<br>
+<br>
+<button type='button' onclick='changedLogs()'>Check Logs</button>
+</center>
+<br>
+Number: {{rollNumber}}<br>
+Name: {{name}}<br>
+Gender: {{gender}}<br>
+Is Indian: {{isIndian}}<br>
+Hobby: {{interest}}<br>
+City: {{city}}<br>
+<br>
+
+</div>
+</body>
+</html>
+

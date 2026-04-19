@@ -1,4 +1,5 @@
-<!-- [feat]: Auto management of the -->
+<!-- [feat]: Provide a controller to mvcfm, such that you can manage complete functionlity by that controller class. -->
+<!-- This class is used to write all the method, fields required for working. Additionaly, it has a ds, which covers all ds required for those fields. refer: getAll() data from DS. -->
 
 <!DOCTYPE HTML>
 <html lang='en'>
@@ -11,6 +12,28 @@
 var mvcfm={
 "model":null
 };
+function replaceText(node, find, replace) 
+{
+if(node.nodeType===3) // Node.TEXT_NODE
+{ 
+node.nodeValue=node.nodeValue.replace(new RegExp(find, 'g'), replace);
+}
+else
+{
+for (let child of node.childNodes) replaceText(child, find, replace);
+}
+}
+function triggerBodyStringInterpolation()
+{
+//alert(mvcfm.model.name);
+for(let key in mvcfm.model)
+{
+let value=mvcfm.model[key];
+alert("Key: "+key+", Value: "+value);
+//document.body.innerHTML=document.body.innerHTML.replaceAll("{{"+key+"}}",mvcfm.model[key]);   //it will change the complete alloted DOM element
+replaceText(document.body,"{{"+key+"}}",mvcfm.model[key]);  //perform DOM manipulation by targeting only the text nodes
+}
+}
 $(()=>{
 if(mvcfm.model!=null)
 {
@@ -106,6 +129,7 @@ mvcfm.model[key]=$elemBindToValue;
 });
 }
 });
+triggerBodyStringInterpolation();
 }
 });
 </script>
@@ -114,7 +138,7 @@ mvcfm.model[key]=$elemBindToValue;
 //Written by Bobby [Framework User]
 var ds={
 "rollNumber":0,
-"name":"Ashvin",
+"name":"Kumar",
 "gender":"F",
 "isIndian":true,
 "interest":["music","sports"],
@@ -168,6 +192,13 @@ City: &nbsp;
 <br>
 <button type='button' onclick='changedLogs()'>Check Logs</button>
 </center>
+<br>
+Number: {{rollNumber}}<br>
+Name: {{name}}<br>
+Gender: {{gender}}<br>
+Is Indian: {{isIndian}}<br>
+Hobby: {{interest}}<br>
+City: {{city}}<br>
 <br>
 
 </div>
