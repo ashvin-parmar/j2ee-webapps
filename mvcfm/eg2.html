@@ -13,7 +13,9 @@ $(()=>{
 if(mvcfm.model!=null)
 {
 $.each(mvcfm.model,function(key,value){
-var $elems=$("input[mvcfm-attribute="+key+"]");
+var $elems=$("[mvcfm-attribute="+key+"]");
+if($elems.is("input"))
+{
 var $elemType=$elems.attr('type');
 //alert($elems.length+", "+$elemType);
 if($elemType=="radio")
@@ -66,6 +68,33 @@ mvcfm.model[key]=$elemBindToValue;
 });
 }
 //alert(mvcfm.model[key]);    //On each changes -> it will show up.
+}
+else if($elems.is("select"))
+{
+$.each($elems,function(index,value3){
+var $elem=$(value3);
+var selectedAny=false;
+$.each($elem.children("option"),function(index,value4){
+var $child=$(value4);
+if($child.val()===value) selectedAny=true;
+});
+if(!selectedAny)
+{
+$elems.prepend("<option value='-1'> &lt;Select &gt;</option>");
+$elem.prop("value","-1");
+}
+else
+{
+$elem.prop("value",value);
+}
+var $elemBindTo=$elem.prop("mvcfm-bind-to") || "value";
+$elem.on('change',(ev)=>{
+var $elemBindToValue=$elem.prop("value");
+$elem.prop($elemBindTo,$elemBindToValue);
+mvcfm.model[key]=$elemBindToValue;
+});
+});
+}
 });
 }
 });
@@ -93,6 +122,7 @@ alert(ds.gender);
 alert(ds.isIndian);
 alert(ds.interest)
 alert(ds.anime);
+alert(ds.city);
 }
 </script>
 </head>
