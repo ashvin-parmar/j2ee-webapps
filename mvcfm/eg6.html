@@ -15,6 +15,23 @@ var mvcfm={
 };
 $(()=>{
 testFeat();
+let $mvcClickElems=$("[mvcfm-click]");
+$.each($mvcClickElems,function(index,value){
+let $mvcClickElem=$(value);
+$mvcClickElem.on('click',function(ev){
+ev.preventDefault();
+let funcName=$mvcClickElem.attr("mvcfm-click");
+//alert(funcName);
+let originalFunc=Reflect.get(mvcfm.controller,funcName);
+let resultPromise=Reflect.apply(originalFunc,mvcfm.controller,{});
+resultPromise.then((response)=>{
+alert(JSON.stringify(response));
+},(error)=>{
+alert(JSON.stringify(error));
+});
+});
+});
+
 });
 function testFeat()
 {
@@ -22,9 +39,9 @@ let $elems=$("[mvcfm-if]");
 $.each($elems,function(index,value){
 let $elem=$(value);
 let expr=$elem.attr("mvcfm-if");
-//alert(expr);
+alert(expr);
 let result=eval(expr);
-//alert(result);
+alert(result);
 if(result===true)
 {
 $elem.show('slow');
@@ -72,9 +89,19 @@ resolve(JSON.parse(xhr.responseText));
 }
 else
 {
+var contentType = xhr.getResponseHeader("Content-Type");
+var messageData;
+if (contentType && contentType.indexOf("application/json") !== -1) 
+{
+messageData=JSON.parse(xhr.responseText).error;
+} 
+else if (contentType && contentType.indexOf("text/html") !== -1) 
+{
+messageData=xhr.responseText;
+}
 reject({
 status:xhr.status,
-message:JSON.parse(xhr.responseText).error
+message:messageData
 });
 }
 };
@@ -85,6 +112,7 @@ xhr.send(body);
 }
 add(student)
 {
+alert("Add Method called");
 return new Promise((resolve,reject)=>{
 const xhr=new XMLHttpRequest();
 let finalUrl='StudentManager/add';
@@ -97,9 +125,19 @@ resolve(JSON.parse(xhr.responseText));
 }
 else
 {
+var contentType = xhr.getResponseHeader("Content-Type");
+var messageData;
+if (contentType && contentType.indexOf("application/json") !== -1) 
+{
+messageData=JSON.parse(xhr.responseText).error;
+} 
+else if (contentType && contentType.indexOf("text/html") !== -1) 
+{
+messageData=xhr.responseText;
+}
 reject({
 status:xhr.status,
-message:JSON.parse(xhr.responseText).error
+message:messageData
 });
 }
 };
@@ -241,7 +279,7 @@ City: &nbsp;
 </select>
 <br>
 <br>
-<button type='button' onclick='addStudent()'>Add</button>
+<button type='button' mvcfm-click='add'>Add</button>
 </div>
 </center>
 <button type='button' onclick='setAddMode()'>Set Add Mode</button>
