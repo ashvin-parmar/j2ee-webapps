@@ -12,6 +12,7 @@ public java.lang.String firstName;
 public java.lang.String lastName;
 @Column(name="aadharCardNumber")
 public java.lang.String aadharCardNumber;
+@ForeignKey(parent="Course",column="code")
 @Column(name="courseCode")
 public java.lang.Integer courseCode;
 @Column(name="gender")

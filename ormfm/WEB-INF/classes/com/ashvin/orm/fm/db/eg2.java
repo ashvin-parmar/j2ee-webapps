@@ -73,9 +73,10 @@ String tableName=tables.getString("TABLE_NAME");
 System.out.println("Table name: "+tableName);
 String standardTableName=camelCaseRepresent(tableName);
 standardTableName=standardTableName.substring(0,1).toUpperCase()+standardTableName.substring(1);
-System.out.println("standardTableName: "+standardTableName);
+//System.out.println("standardTableName: "+standardTableName);
 
 javaFile=new File(standardTableName+".java");
+if(javaFile.exists()) javaFile.delete();
 RandomAccessFile randomAccessFile=new RandomAccessFile(javaFile,"rw");
 
 randomAccessFile.writeBytes("import com.ashvin.orm.fm.annotations.*;\r\n\r\n");
@@ -88,12 +89,28 @@ ResultSet tableColumns=dbMetaData.getColumns(null,null,tableName,null);
 ResultSet pkTableColumns=dbMetaData.getPrimaryKeys(null,null,tableName);
 ResultSet fkTableColumns=dbMetaData.getImportedKeys(null,null,tableName);
 List<String> pkColumnNames=new LinkedList<>();
+Map<String,List<String>> fkColumnNames=new HashMap<>();
+List<String> fkList;
+
 while(pkTableColumns.next())
 {
 String pkColumnName=pkTableColumns.getString("COLUMN_NAME");
 System.out.println("Primary key Column: "+pkColumnName);
 pkColumnNames.add(pkColumnName);
 }
+while(fkTableColumns.next())
+{
+fkList=new LinkedList<>();
+String fkColumnName=fkTableColumns.getString("FKCOLUMN_NAME");
+fkList.add(fkColumnName);
+fkList.add(fkTableColumns.getString("FKTABLE_NAME"));
+fkList.add(fkTableColumns.getString("PKCOLUMN_NAME"));
+fkList.add(fkTableColumns.getString("PKTABLE_NAME"));
+fkColumnNames.put(fkColumnName,fkList);
+
+System.out.printf("Foreign Keys: %s -> references %s(%s)\n",fkTableColumns.getString("FKCOLUMN_NAME"),fkTableColumns.getString("PKTABLE_NAME"),fkTableColumns.getString("PKCOLUMN_NAME"));
+}
+
 while(tableColumns.next())
 {
 String columnName=tableColumns.getString("COLUMN_NAME");
@@ -102,6 +119,14 @@ if(pkColumnNames.contains(columnName))
 System.out.println("add primary key annotation: "+columnName);
 randomAccessFile.writeBytes("@PrimaryKey\r\n");
 //Add primary key annotation.
+}
+if((fkList=fkColumnNames.get(columnName))!=null)
+{
+String fkParent=camelCaseRepresent(fkList.get(3));
+fkParent=fkParent.substring(0,1).toUpperCase()+fkParent.substring(1);
+String fkColumn=camelCaseRepresent(fkList.get(2));
+
+randomAccessFile.writeBytes("@ForeignKey(parent=\""+fkParent+"\",column=\""+fkColumn+"\")\r\n");
 }
 String columnType=tableColumns.getString("TYPE_NAME");
 int size=tableColumns.getInt("COLUMN_SIZE");
@@ -115,10 +140,6 @@ String camelCaseColumnName=camelCaseRepresent(columnName);
 randomAccessFile.writeBytes("@Column(name=\""+camelCaseColumnName+"\")\r\n");
 randomAccessFile.writeBytes("public "+ORMUtils.jdbcToJavaMappedType(JDBCType.valueOf(tableColumns.getInt("DATA_TYPE"))).getName()+" "+camelCaseColumnName+";\r\n");
 System.out.printf("Field: %s | Type: %s(%d) | Nullable: %s | Auto Increment: %s\n",columnName,columnType,size,nullable,isAutoIncrement);
-}
-while(fkTableColumns.next())
-{
-System.out.printf("Foreign Keys: %s -> references %s(%s)\n",fkTableColumns.getString("FKCOLUMN_NAME"),fkTableColumns.getString("PKTABLE_NAME"),fkTableColumns.getString("PKCOLUMN_NAME"));
 }
 randomAccessFile.writeBytes("}\r\n");
 }
