@@ -2,7 +2,7 @@ import java.io.*;
 import com.google.gson.*; 
 import java.sql.*;
 
-class psp
+class eg1psp
 {
 public static void main(String args[])
 {

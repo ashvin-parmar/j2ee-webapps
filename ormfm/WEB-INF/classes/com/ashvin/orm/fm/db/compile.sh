@@ -1,1 +1,1 @@
-javac -classpath ../../../../../../libs/*:. *.java
+javac -classpath ../../../../../../libs/*:../../../../../../classes/:.  *.java
