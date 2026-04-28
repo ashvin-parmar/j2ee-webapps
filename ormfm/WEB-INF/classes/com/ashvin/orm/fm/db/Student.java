@@ -5,18 +5,81 @@ class Student
 {
 @PrimaryKey
 @Column(name="rollNumber")
-public java.lang.Integer rollNumber;
+@SetterGetter
+private java.lang.Integer rollNumber;
+public void setRollNumber(java.lang.Integer rollNumber)
+{
+this.rollNumber=rollNumber;
+}
+public java.lang.Integer getRollNumber()
+{
+return this.rollNumber;
+}
 @Column(name="firstName")
-public java.lang.String firstName;
+@SetterGetter
+private java.lang.String firstName;
+public void setFirstName(java.lang.String firstName)
+{
+this.firstName=firstName;
+}
+public java.lang.String getFirstName()
+{
+return this.firstName;
+}
 @Column(name="lastName")
-public java.lang.String lastName;
+@SetterGetter
+private java.lang.String lastName;
+public void setLastName(java.lang.String lastName)
+{
+this.lastName=lastName;
+}
+public java.lang.String getLastName()
+{
+return this.lastName;
+}
 @Column(name="aadharCardNumber")
-public java.lang.String aadharCardNumber;
+@SetterGetter
+private java.lang.String aadharCardNumber;
+public void setAadharCardNumber(java.lang.String aadharCardNumber)
+{
+this.aadharCardNumber=aadharCardNumber;
+}
+public java.lang.String getAadharCardNumber()
+{
+return this.aadharCardNumber;
+}
 @ForeignKey(parent="Course",column="code")
 @Column(name="courseCode")
-public java.lang.Integer courseCode;
+@SetterGetter
+private java.lang.Integer courseCode;
+public void setCourseCode(java.lang.Integer courseCode)
+{
+this.courseCode=courseCode;
+}
+public java.lang.Integer getCourseCode()
+{
+return this.courseCode;
+}
 @Column(name="gender")
-public java.lang.String gender;
+@SetterGetter
+private java.lang.String gender;
+public void setGender(java.lang.String gender)
+{
+this.gender=gender;
+}
+public java.lang.String getGender()
+{
+return this.gender;
+}
 @Column(name="dateOfBirth")
-public java.util.Date dateOfBirth;
+@SetterGetter
+private java.util.Date dateOfBirth;
+public void setDateOfBirth(java.util.Date dateOfBirth)
+{
+this.dateOfBirth=dateOfBirth;
+}
+public java.util.Date getDateOfBirth()
+{
+return this.dateOfBirth;
+}
 }

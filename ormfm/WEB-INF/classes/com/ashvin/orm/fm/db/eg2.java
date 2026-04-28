@@ -42,6 +42,8 @@ return camelCaseField.toString();
 
 public static void main(String args[])
 {
+StringBuilder sb;
+
 File file=new File("conf.json");
 if(file.exists())
 {
@@ -54,10 +56,10 @@ String connectionURL=(jsonObj.get("connection-url")!=null?jsonObj.get("connectio
 String username=(jsonObj.get("username")!=null?jsonObj.get("username").getAsString():"");
 String password=(jsonObj.get("password")!=null?jsonObj.get("password").getAsString():"");
 
-System.out.println(jdbcDriver);
-System.out.println(connectionURL);
-System.out.println(username);
-System.out.println(password);
+//System.out.println(jdbcDriver);
+//System.out.println(connectionURL);
+//System.out.println(username);
+//System.out.println(password);
 
 Class c=Class.forName(jdbcDriver);
 Connection connection=DriverManager.getConnection(connectionURL,username,password);
@@ -137,8 +139,17 @@ if(isAutoIncrement.equals("YES"))
 randomAccessFile.writeBytes("@AutoIncrement\r\n");
 }
 String camelCaseColumnName=camelCaseRepresent(columnName);
+String javaTypeName=ORMUtils.jdbcToJavaMappedType(JDBCType.valueOf(tableColumns.getInt("DATA_TYPE"))).getName();
 randomAccessFile.writeBytes("@Column(name=\""+camelCaseColumnName+"\")\r\n");
-randomAccessFile.writeBytes("public "+ORMUtils.jdbcToJavaMappedType(JDBCType.valueOf(tableColumns.getInt("DATA_TYPE"))).getName()+" "+camelCaseColumnName+";\r\n");
+randomAccessFile.writeBytes("@SetterGetter\r\n");
+randomAccessFile.writeBytes("private "+javaTypeName+" "+camelCaseColumnName+";\r\n");
+String sCamelCaseColumnName=camelCaseColumnName.substring(0,1).toUpperCase()+camelCaseColumnName.substring(1);
+sb=new StringBuilder();
+sb.append("public void set").append(sCamelCaseColumnName).append("(").append(javaTypeName).append(" ").append(camelCaseColumnName).append(")\r\n");
+sb.append("{\r\n").append("this.").append(camelCaseColumnName).append("=").append(camelCaseColumnName).append(";\r\n").append("}\r\n");
+sb.append("public ").append(javaTypeName).append(" get").append(sCamelCaseColumnName).append("(").append(")\r\n");
+sb.append("{\r\n").append("return this.").append(camelCaseColumnName).append(";\r\n").append("}\r\n");
+randomAccessFile.writeBytes(sb.toString());
 System.out.printf("Field: %s | Type: %s(%d) | Nullable: %s | Auto Increment: %s\n",columnName,columnType,size,nullable,isAutoIncrement);
 }
 randomAccessFile.writeBytes("}\r\n");
