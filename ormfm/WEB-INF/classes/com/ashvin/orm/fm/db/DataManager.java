@@ -219,15 +219,72 @@ List<FieldSchema> nonAutoIncrementFields=tableSchema.getNonAutoIncrementFields()
 List<FieldSchema> primaryKeyFields=tableSchema.getPrimaryKeyFields();
 if(primaryKeyFields.isEmpty()) throw new DataException("No @PrimaryKey found in : "+objClass.getName());
 
+StringBuilder wherePart=new StringBuilder();
+String primaryKeyColumnName="";
+Object primaryKeyValue=null;
+String sqlStatement;
+PreparedStatement preparedStatement;
+ResultSet resultSet;
+for(int i=0;i<primaryKeyFields.size();i++)
+{
+FieldSchema fs=primaryKeyFields.get(i);
+String fieldName=fs.getFieldName();
+String columnName=fs.getColumnName();
+Object value=null;
+try
+{
+if(fs.isGetterAllowed())
+{
+try
+{
+String sFieldName=fieldName.substring(0,1).toUpperCase()+fieldName.substring(1);
+Method getterMethod=objClass.getMethod("get"+sFieldName);
+value=getterMethod.invoke(obj);
+}catch(Exception e)
+{
+//System.out.println("invoke exception: "+e);
+}
+}
+else if(fs.isPublicAllowed())
+{
+Field field=objClass.getField(fieldName);
+value=field.get(obj);
+}
+primaryKeyColumnName=columnName;
+primaryKeyValue=formatValue(value);
+wherePart.append(fs.getColumnName()).append("=").append(formatValue(value));
+}catch(Exception exception)
+{
+wherePart.append(fs.getColumnName()).append("=").append("null");
+}
+if(fs.isPrimaryKey())
+{
+sqlStatement="select "+columnName+" from "+tableSchema.getTableName()+" where "+columnName+"="+formatValue(value)+";";
+System.out.println(sqlStatement);
+preparedStatement=connection.prepareStatement(sqlStatement);
+resultSet=preparedStatement.executeQuery();
+if(!resultSet.next())
+{
+resultSet.close();
+preparedStatement.close();
+throw new DataException("Invalid "+columnName+": "+formatValue(value));
+}
+resultSet.close();
+preparedStatement.close();
+}
+if(i+1<primaryKeyFields.size()) wherePart.append(",");
+}
+
+
 StringBuilder setPart=new StringBuilder();
 for(int i=0;i<nonAutoIncrementFields.size();i++)
 {
 FieldSchema fs=nonAutoIncrementFields.get(i);
 String fieldName=fs.getFieldName();
 String columnName=fs.getColumnName();
+Object value=null;
 try
 {
-Object value=null;
 if(fs.isGetterAllowed())
 {
 try
@@ -250,46 +307,46 @@ setPart.append(fs.getColumnName()).append("=").append(formatValue(value));
 {
 setPart.append(fs.getColumnName()).append("=").append("null");
 }
+if(fs.isUnique())
+{
+sqlStatement="select "+columnName+" from "+tableSchema.getTableName()+" where "+columnName+"="+formatValue(value)+" and "+primaryKeyColumnName+" <> "+formatValue(primaryKeyValue)+";";
+System.out.println(sqlStatement);
+preparedStatement=connection.prepareStatement(sqlStatement);
+resultSet=preparedStatement.executeQuery();
+if(resultSet.next())
+{
+resultSet.close();
+preparedStatement.close();
+throw new DataException("Column: "+columnName+" must unique.");
+}
+resultSet.close();
+preparedStatement.close();
+}
+if(fs.isForeignKey())
+{
+String fkParentClass=fs.getFKParentClass();
+String fkParentColumn=fs.getFKParentColumn();
+sqlStatement="select "+fkParentColumn+" from "+fkParentClass+" where "+fkParentColumn+"="+formatValue(value)+";";
+System.out.println(sqlStatement);
+preparedStatement=connection.prepareStatement(sqlStatement);
+resultSet=preparedStatement.executeQuery();
+if(!resultSet.next())
+{
+resultSet.close();
+preparedStatement.close();
+throw new DataException("Column "+columnName+" value must need to matched with "+fkParentClass+"'s "+fkParentColumn);
+}
+resultSet.close();
+preparedStatement.close();
+}
+
 if(i+1<nonAutoIncrementFields.size()) setPart.append(",");
 }
-StringBuilder wherePart=new StringBuilder();
-for(int i=0;i<primaryKeyFields.size();i++)
-{
-FieldSchema fs=primaryKeyFields.get(i);
-String fieldName=fs.getFieldName();
-String columnName=fs.getColumnName();
-try
-{
-Object value=null;
-if(fs.isGetterAllowed())
-{
-try
-{
-String sFieldName=fieldName.substring(0,1).toUpperCase()+fieldName.substring(1);
-Method getterMethod=objClass.getMethod("get"+sFieldName);
-value=getterMethod.invoke(obj);
-}catch(Exception e)
-{
-//System.out.println("invoke exception: "+e);
-}
-}
-else if(fs.isPublicAllowed())
-{
-Field field=objClass.getField(fieldName);
-value=field.get(obj);
-}
-wherePart.append(fs.getColumnName()).append("=").append(formatValue(value));
-}catch(Exception exception)
-{
-wherePart.append(fs.getColumnName()).append("=").append("null");
-}
-if(i+1<primaryKeyFields.size()) wherePart.append(",");
-}
-String sqlStatement="update "+tableSchema.getTableName()
+sqlStatement="update "+tableSchema.getTableName()
 +" set "+setPart
 +" where "+wherePart;
 System.out.println("SQL: "+sqlStatement);
-PreparedStatement preparedStatement=connection.prepareStatement(sqlStatement);
+preparedStatement=connection.prepareStatement(sqlStatement);
 preparedStatement.executeUpdate();
 preparedStatement.close();
 }catch(DataException de)
