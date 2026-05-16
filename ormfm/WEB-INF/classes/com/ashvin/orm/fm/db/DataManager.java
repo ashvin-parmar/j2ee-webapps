@@ -2,6 +2,7 @@
 import java.sql.*;
 import java.io.*;
 import java.util.*;
+import java.text.*;
 import com.google.gson.*;
 import java.lang.reflect.*;
 import com.ashvin.orm.fm.utils.*;
@@ -103,15 +104,20 @@ TableSchema tableSchema=Data.getInfo(objClass);
 List<FieldSchema> nonAutoIncrementFields=tableSchema.getNonAutoIncrementFields();
 StringBuilder values=new StringBuilder();
 StringBuilder columns=new StringBuilder();
+String sqlStatement="";
+PreparedStatement preparedStatement;
+ResultSet resultSet;
+ResultSet generatedKeys;
 for(int i=0;i<nonAutoIncrementFields.size();i++)
 {
 FieldSchema fs=nonAutoIncrementFields.get(i);
 String fieldName=fs.getFieldName();
 String columnName=fs.getColumnName();
+
 columns.append(columnName);
+Object value=null;
 try
 {
-Object value=null;
 if(fs.isGetterAllowed())
 {
 try
@@ -134,17 +140,49 @@ values.append(formatValue(value));
 {
 values.append("null");
 }
+if(fs.isPrimaryKey() || fs.isUnique())
+{
+sqlStatement="select "+columnName+" from "+tableSchema.getTableName()+" where "+columnName+"="+formatValue(value)+";";
+System.out.println(sqlStatement);
+preparedStatement=connection.prepareStatement(sqlStatement);
+resultSet=preparedStatement.executeQuery();
+if(resultSet.next())
+{
+resultSet.close();
+preparedStatement.close();
+throw new DataException("Column: "+columnName+" must unique.");
+}
+resultSet.close();
+preparedStatement.close();
+}
+if(fs.isForeignKey())
+{
+String fkParentClass=fs.getFKParentClass();
+String fkParentColumn=fs.getFKParentColumn();
+sqlStatement="select "+fkParentColumn+" from "+fkParentClass+" where "+fkParentColumn+"="+formatValue(value)+";";
+System.out.println(sqlStatement);
+preparedStatement=connection.prepareStatement(sqlStatement);
+resultSet=preparedStatement.executeQuery();
+if(!resultSet.next())
+{
+resultSet.close();
+preparedStatement.close();
+throw new DataException("Column "+columnName+" value must need to matched with "+fkParentClass+"'s "+fkParentColumn);
+}
+resultSet.close();
+preparedStatement.close();
+}
 if(i+1<nonAutoIncrementFields.size())
 {
 columns.append(",");
 values.append(",");
 }
 }
-String sqlStatement="insert into "+tableSchema.getTableName()+" ("+columns.toString()+") values("+values.toString()+");";
+sqlStatement="insert into "+tableSchema.getTableName()+" ("+columns.toString()+") values("+values.toString()+");";
 //System.out.println(sqlStatement);
-PreparedStatement preparedStatement=connection.prepareStatement(sqlStatement,Statement.RETURN_GENERATED_KEYS);
+preparedStatement=connection.prepareStatement(sqlStatement,Statement.RETURN_GENERATED_KEYS);
 preparedStatement.executeUpdate();
-ResultSet generatedKeys=preparedStatement.getGeneratedKeys();
+generatedKeys=preparedStatement.getGeneratedKeys();
 if(generatedKeys.next())
 {
 Object result=generatedKeys.getString(1);
@@ -412,6 +450,12 @@ private String formatValue(Object value)
 {
 if(value==null) return "null";
 if(value instanceof String) return "'"+value+"'";
+if(value instanceof java.util.Date) 
+{
+SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
+return "'"+sdf.format(value)+"'";
+}
 return String.valueOf(value);
 }
 }
+

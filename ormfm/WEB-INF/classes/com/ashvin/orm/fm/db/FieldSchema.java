@@ -9,6 +9,7 @@ private boolean isForeignKey;
 private boolean isSetterAllowed;
 private boolean isGetterAllowed;
 private boolean isPublicAllowed;
+private boolean isUnique;
 private String fkParentClass;
 private String fkParentColumn;
 public FieldSchema(String fieldName,String columnName,Class<?> type)
@@ -22,6 +23,7 @@ this.isForeignKey=false;
 this.isSetterAllowed=false;
 this.isGetterAllowed=false;
 this.isPublicAllowed=false;
+this.isUnique=false;
 this.fkParentClass=null;
 this.fkParentColumn=null;
 }
@@ -96,6 +98,14 @@ this.isPublicAllowed=isPublicAllowed;
 public boolean isPublicAllowed()
 {
 return this.isPublicAllowed;
+}
+public void setUnique(boolean isUnique)
+{
+this.isUnique=isUnique;
+}
+public boolean isUnique()
+{
+return this.isUnique;
 }
 public void setFKParentClass(String fkParentClass)
 {

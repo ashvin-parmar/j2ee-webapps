@@ -112,7 +112,7 @@ fkColumnNames.put(fkColumnName,fkList);
 
 System.out.printf("Foreign Keys: %s -> references %s(%s)\n",fkTableColumns.getString("FKCOLUMN_NAME"),fkTableColumns.getString("PKTABLE_NAME"),fkTableColumns.getString("PKCOLUMN_NAME"));
 }
-
+//Unique constraints adding is pending -> done later on.
 while(tableColumns.next())
 {
 String columnName=tableColumns.getString("COLUMN_NAME");

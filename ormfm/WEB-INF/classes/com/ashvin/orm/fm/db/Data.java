@@ -41,6 +41,11 @@ if(javaField.isAnnotationPresent(AutoIncrement.class))
 boolean trueValue=true;
 fieldSchema.setAutoIncrement(trueValue);
 }
+if(javaField.isAnnotationPresent(Unique.class))
+{
+boolean trueValue=true;
+fieldSchema.setUnique(trueValue);
+}
 if(javaField.isAnnotationPresent(ForeignKey.class))
 {
 ForeignKey fkAnnotation=javaField.getAnnotation(ForeignKey.class);
