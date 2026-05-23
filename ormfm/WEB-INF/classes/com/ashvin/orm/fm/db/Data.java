@@ -72,4 +72,9 @@ tableSchema.addField(fieldSchema);
 cache.put(objClass,tableSchema);
 return tableSchema;
 }
+public static List<TableSchema> getAllInfo() throws DataException
+{
+List<TableSchema> tables=new ArrayList<>(cache.values());
+return tables;
+}
 }

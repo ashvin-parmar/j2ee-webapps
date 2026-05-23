@@ -364,14 +364,115 @@ if(connection==null) throw new DataException("Call begin() before delete()");
 try
 {
 TableSchema tableSchema=Data.getInfo(objClass);
+Object obj=objClass.getDeclaredConstructor().newInstance();
+
 List<FieldSchema> primaryKeyFields=tableSchema.getPrimaryKeyFields();
 if(primaryKeyFields.isEmpty()) throw new DataException("No @PrimaryKey found in: "+objClass.getName());
 FieldSchema primaryKeyField=primaryKeyFields.get(0);
-String sqlStatement="delete from "+tableSchema.getTableName()
+PreparedStatement preparedStatement;
+ResultSet resultSet;
+String sqlStatement;
+preparedStatement=connection.prepareStatement("select * from "+tableSchema.getTableName()+" where "+primaryKeyField.getColumnName()+"="+formatValue(primaryKey));
+resultSet=preparedStatement.executeQuery();
+if(resultSet.next())
+{
+for(FieldSchema fs:tableSchema.getAllFields())
+{
+try
+{
+String fieldName=fs.getFieldName();
+Object value=resultSet.getObject(fs.getColumnName());
+if(fs.isSetterAllowed())
+{
+String sFieldName=fieldName.substring(0,1).toUpperCase()+fieldName.substring(1);
+Method setterMethod=objClass.getMethod("set"+sFieldName,fs.getType());
+setterMethod.invoke(obj,value);
+}
+else if(fs.isPublicAllowed())
+{
+Field field=objClass.getField(fieldName);
+field.set(obj,value);
+}
+else
+{
+System.out.println("Field: "+fieldName+" not allowed to show");
+}
+}catch(Exception exception)
+{
+System.out.println("Exception: "+exception);
+}
+}
+resultSet.close();
+preparedStatement.close();
+}
+else
+{
+preparedStatement.close();
+throw new DataException("Invalid "+primaryKeyField.getFieldName()+": "+primaryKey);
+}
+
+//donedone
+List<TableSchema> tables=Data.getAllInfo();
+System.out.println("table size: "+tables.size());
+for(TableSchema table:tables)
+{
+System.out.println(table.getTableName());
+if(tableSchema.equals(table)) continue;
+List<FieldSchema> fkFields=table.getForeignKeyFields();
+for(FieldSchema fkField:fkFields)
+{
+System.out.println(fkField.getFKParentClass()+", "+fkField.getFKParentColumn()+", "+fkField.getColumnName()+", "+fkField.getFieldName());
+
+if(fkField.getFKParentClass().equals(tableSchema.getTableName()))
+{
+String fkParentColumn=fkField.getFKParentColumn();
+FieldSchema fs=tableSchema.getFieldByName(fkParentColumn);
+String fieldName=fs.getFieldName();
+String columnName=fs.getColumnName();
+System.out.println(fieldName+", "+columnName);
+Object value=null;
+try
+{
+if(fs.isGetterAllowed())
+{
+try
+{
+String sFieldName=fieldName.substring(0,1).toUpperCase()+fieldName.substring(1);
+Method getterMethod=objClass.getMethod("get"+sFieldName);
+value=getterMethod.invoke(obj);
+}catch(Exception e)
+{
+//System.out.println("invoke exception: "+e);
+}
+}
+else if(fs.isPublicAllowed())
+{
+Field field=objClass.getField(fieldName);
+value=field.get(obj);
+}
+}catch(Exception exception)
+{
+}
+value=formatValue(value);
+sqlStatement="select * from "+table.getTableName()+" where "+fkField.getColumnName()+"="+value+";";
+System.out.println(sqlStatement);
+preparedStatement=connection.prepareStatement(sqlStatement);
+resultSet=preparedStatement.executeQuery();
+if(resultSet.next())
+{
+resultSet.close();
+preparedStatement.close();
+throw new DataException("Unable to delete record, since this record is attached with other child record(s).");
+}
+preparedStatement.close();
+}
+}
+}
+sqlStatement="delete from "+tableSchema.getTableName()
 +" where "+primaryKeyField.getColumnName()
 +"="+formatValue(primaryKey);
 System.out.println("SQL Statement: "+sqlStatement);
-PreparedStatement preparedStatement=connection.prepareStatement(sqlStatement);
+preparedStatement=connection.prepareStatement(sqlStatement);
 preparedStatement.executeUpdate();
 preparedStatement.close();
 }catch(DataException de)

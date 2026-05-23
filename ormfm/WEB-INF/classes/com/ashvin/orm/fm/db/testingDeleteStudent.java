@@ -3,7 +3,7 @@ import java.lang.*;
 import java.util.*;
 import java.text.*;
 
-public class testingUpdateStudent
+public class testingDeleteStudent
 {
 public static void main(String args[])
 {
@@ -13,34 +13,12 @@ try
 dm.begin();
 if(args.length<6) 
 {
-System.out.println("[order: roll_number first_name last_name aadhar_card_number course_code gender date]");
+System.out.println("[order: roll_number]");
 return;
 }
-Student s=new Student();
-//s.setRollNumber(10001);   //To test unique student roll number constraint
-s.setRollNumber(Integer.parseInt(args[0]));
-s.setFirstName(args[1]);
-s.setLastName(args[2]);
-s.setAadharCardNumber(args[3]);
-s.setCourseCode(Integer.parseInt(args[4]));
-s.setGender(args[5]);
-SimpleDateFormat sdf=new SimpleDateFormat("dd/MM/yy");
-Date date=new Date();
-try
-{
-//date=sdf.parse("02/01/2001");
-date=sdf.parse(args[6]);
-}catch(Exception e)
-{
-System.out.println(e);
-return;
-}
-System.out.println("Date: "+date);
-s.setDateOfBirth(date);
-
-dm.update(s);
+dm.delete(Student.class,Integer.parseInt(args[0]));
 dm.end();
-System.out.println("Student updated");
+System.out.println("Student deleted");
 
 dm.begin();
 List<Student> students=(List<Student>)dm.query(Student.class).fire();
