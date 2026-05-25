@@ -8,9 +8,11 @@ import java.sql.*;
 
 import java.util.*;
 import com.google.gson.*;
+import java.lang.reflect.*;
 import java.util.jar.*;
 import javax.tools.*;
 
+import com.ashvin.orm.fm.annotations.*;
 import com.ashvin.orm.fm.utils.*;
 import com.ashvin.orm.fm.exceptions.*;
 import com.ashvin.orm.fm.model.*;
@@ -18,8 +20,14 @@ import com.ashvin.orm.fm.model.*;
 public class ORMFMStarter extends HttpServlet
 {
 private File webINFFolder;
+private File packageFolder;
 private ORMDataModel ormDataModel;
 private String configFileName="conf.json";		//default name of configuration file, have to created in folder '/WEB-INF/conf.json'
+private String jdbcDriver;
+private String connectionURL;
+private String username;
+private String password;
+private String packageName;
 public ORMFMStarter()
 {
 ormDataModel=ORMDataModel.getORMDataModel();
@@ -33,11 +41,7 @@ System.out.println(this.webINFFolder.getAbsolutePath());
 
 String configFileName=(String)sc.getInitParameter("CONFIG_FILE_NAME");
 if(configFileName!=null && !configFileName.isBlank()) this.configFileName=configFileName;
-createPojoJar();
-}
-private void createPojoJar()
-{
-StringBuilder sb;
+
 File file=new File(this.webINFFolder,this.configFileName);
 //System.out.println("File: "+file.getAbsolutePath());
 if(!file.exists())
@@ -54,11 +58,11 @@ if(jsonObj==null)
 System.out.println("Invalid json configuration file");
 return;
 }
-String jdbcDriver=(jsonObj.get("jdbc-driver")!=null?jsonObj.get("jdbc-driver").getAsString():"");
-String connectionURL=(jsonObj.get("connection-url")!=null?jsonObj.get("connection-url").getAsString():"");
-String username=(jsonObj.get("username")!=null?jsonObj.get("username").getAsString():"");
-String password=(jsonObj.get("password")!=null?jsonObj.get("password").getAsString():"");
-String packageName=(jsonObj.get("package-name")!=null?jsonObj.get("package-name").getAsString():"testing.pojo");
+jdbcDriver=(jsonObj.get("jdbc-driver")!=null?jsonObj.get("jdbc-driver").getAsString():"");
+connectionURL=(jsonObj.get("connection-url")!=null?jsonObj.get("connection-url").getAsString():"");
+username=(jsonObj.get("username")!=null?jsonObj.get("username").getAsString():"");
+password=(jsonObj.get("password")!=null?jsonObj.get("password").getAsString():"");
+packageName=(jsonObj.get("package-name")!=null?jsonObj.get("package-name").getAsString():"testing.pojo");
 
 //System.out.println("JDBC Driver: "+jdbcDriver);
 //System.out.println("Connection URL: "+connectionURL);
@@ -67,6 +71,30 @@ String packageName=(jsonObj.get("package-name")!=null?jsonObj.get("package-name"
 //System.out.println("Package name: "+packageName);
 
 Class c=Class.forName(jdbcDriver);
+}catch(Exception e)
+{
+System.out.println("Exception: "+e);
+return;
+}
+createPojoJar();
+loadAllPojoClassesToDS();
+/* testing
+   try
+   {
+   	System.out.println(ormDataModel.getInfo(Class.forName("testing.school.pojo.Course")));
+   	System.out.println(ormDataModel.getInfo(Class.forName("testing.school.pojo.Student")));
+   }catch(Exception de)
+   {
+   	System.out.println(de);
+   }
+*/
+
+}
+private void createPojoJar()
+{
+StringBuilder sb;
+try
+{
 Connection connection=DriverManager.getConnection(connectionURL,username,password);
 
 DatabaseMetaData dbMetaData=connection.getMetaData();
@@ -81,7 +109,7 @@ srcFolder.mkdir();
 }
 String packageNameWithSeperator=packageName.replace(".",File.separator);
 
-File packageFolder=new File(srcFolder,packageNameWithSeperator);
+packageFolder=new File(srcFolder,packageNameWithSeperator);
 if(!packageFolder.exists())
 {
 packageFolder.mkdirs();
@@ -265,17 +293,92 @@ jos.write(buffer,0,bytesRead);
 {
 jos.closeEntry(); 
 }
-
-}
-
 }
 }
-public void doGet(HttpServletRequest request,HttpServletResponse response)
+}
+private void loadAllPojoClassesToDS()
 {
-
-}
-public void doPost(HttpServletRequest request,HttpServletResponse response)
+File[] files=packageFolder.listFiles();
+for(File file:files)
 {
+try
+{
+if(file.exists() && !file.isDirectory() && file.getName().endsWith(".class"))
+{
+System.out.println(file.getName());
+Class objClass=Class.forName(packageName+"."+file.getName().replace(".class",""));
+if(objClass==null) continue;
+if(!objClass.isAnnotationPresent(Table.class))
+{
+//System.out.println("Class: "+objClass.getName()+" has no @Table annotation");
+//continue;
+throw new DataException("Class "+objClass.getName()+" has no @Table annotation"); 
+}
+//com.ashvin.orm.fm.annotations.Table tableAnnotation=objClass.getAnnotation(com.ashvin.orm.fm.annotations.Table.class);
+Table tableAnnotation=(Table)objClass.getAnnotation(Table.class);
+String tableName=tableAnnotation.name();
+TableSchema tableSchema=new TableSchema(tableName);
+Field[] javaFields=objClass.getDeclaredFields();
+for(Field javaField:javaFields)
+{
+if(!javaField.isAnnotationPresent(Column.class)) continue;
+Column columnAnnotation=javaField.getAnnotation(Column.class);
+String columnName=columnAnnotation.name();
+String fieldName=javaField.getName();
+Class<?> fieldType=javaField.getType();
 
+FieldSchema fieldSchema=new FieldSchema(fieldName,columnName,fieldType);
+
+if(javaField.isAnnotationPresent(PrimaryKey.class))
+{
+fieldSchema.setPrimaryKey(true);
+}
+if(javaField.isAnnotationPresent(AutoIncrement.class))
+{
+boolean trueValue=true;
+fieldSchema.setAutoIncrement(trueValue);
+}
+if(javaField.isAnnotationPresent(Unique.class))
+{
+boolean trueValue=true;
+fieldSchema.setUnique(trueValue);
+}
+if(javaField.isAnnotationPresent(ForeignKey.class))
+{
+ForeignKey fkAnnotation=javaField.getAnnotation(ForeignKey.class);
+String fkParentClass=fkAnnotation.parent();
+String fkParentColumn=fkAnnotation.column();
+fieldSchema.setForeignKey(fkParentClass,fkParentColumn);
+}
+int mods=javaField.getModifiers();
+if(javaField.isAnnotationPresent(SetterGetter.class))
+{
+fieldSchema.setSetterAllowed(true);
+fieldSchema.setGetterAllowed(true);
+}
+else if(Modifier.isPublic(mods))
+{
+fieldSchema.setPublicAllowed(true);
+}
+else
+{
+continue;   //Private properties with no setter getter are not included in this scenario
+}
+tableSchema.addField(fieldSchema);
+}
+this.ormDataModel.addInfo(objClass,tableSchema);
+//cache.put(objClass,tableSchema);
+}
+}catch(ClassNotFoundException cnfe)
+{
+System.out.println("Exception: "+cnfe);
+}catch(DataException de)
+{
+System.out.println(de);
+}catch(Exception e)
+{
+System.out.println("Exception: "+e);
+}
+}
 }
 }

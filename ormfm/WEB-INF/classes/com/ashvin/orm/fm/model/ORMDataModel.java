@@ -28,6 +28,7 @@ if(!objClass.isAnnotationPresent(Table.class))
 {
 throw new DataException("Class "+objClass.getName()+" has no @Table annotation"); 
 }
+System.out.println("Over here, everything not calculated at start-up. Do something about it.");
 Table tableAnnotation=objClass.getAnnotation(Table.class);
 String tableName=tableAnnotation.name();
 TableSchema tableSchema=new TableSchema(tableName);
@@ -81,6 +82,11 @@ tableSchema.addField(fieldSchema);
 }
 cache.put(objClass,tableSchema);
 return tableSchema;
+}
+public static void addInfo(Class<?> objClass,TableSchema tableSchema) throws DataException
+{
+if(objClass==null || tableSchema==null) throw new DataException("No information available, null passed");
+cache.put(objClass,tableSchema);
 }
 public static List<TableSchema> getAllInfo() throws DataException
 {
