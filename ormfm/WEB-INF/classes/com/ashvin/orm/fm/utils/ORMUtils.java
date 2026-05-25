@@ -153,4 +153,37 @@ public static final String toJSON(Object obj)
 {
 return gson.toJson(obj);
 }
+
+static int uniqueFieldCount=1;
+public static String camelCaseRepresent(String field)
+{
+StringBuilder camelCaseField=new StringBuilder("");
+int i=0;
+while(i<field.length() && !Character.isLetter(field.charAt(i))) i++;
+if(i==field.length()) return "tmp"+(uniqueFieldCount++);
+char m=field.charAt(i);
+if(Character.isUpperCase(m)) m=Character.toLowerCase(m);
+camelCaseField.append(m);
+i++;
+while(i<field.length())
+{
+if(Character.isLetterOrDigit(field.charAt(i)))
+{
+camelCaseField.append(field.charAt(i));
+}
+else
+{
+while(i<field.length() && !Character.isLetterOrDigit(field.charAt(i))) i++;
+if(i<field.length())
+{
+m=field.charAt(i);
+if(Character.isLowerCase(m)) m=Character.toUpperCase(m);
+//if(m>=97 && m<=122) m=(m-(char)32);
+camelCaseField.append(m);
+}
+}
+i++;
+}
+return camelCaseField.toString();
+}
 }

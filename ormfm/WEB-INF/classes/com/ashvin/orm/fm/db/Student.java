@@ -4,7 +4,7 @@ import com.ashvin.orm.fm.annotations.*;
 class Student
 {
 @PrimaryKey
-@Column(name="roll_number")
+@Column(name="rollNumber")
 @SetterGetter
 private java.lang.Integer rollNumber;
 public void setRollNumber(java.lang.Integer rollNumber)
@@ -15,7 +15,7 @@ public java.lang.Integer getRollNumber()
 {
 return this.rollNumber;
 }
-@Column(name="first_name")
+@Column(name="firstName")
 @SetterGetter
 private java.lang.String firstName;
 public void setFirstName(java.lang.String firstName)
@@ -26,7 +26,7 @@ public java.lang.String getFirstName()
 {
 return this.firstName;
 }
-@Column(name="last_name")
+@Column(name="lastName")
 @SetterGetter
 private java.lang.String lastName;
 public void setLastName(java.lang.String lastName)
@@ -37,9 +37,8 @@ public java.lang.String getLastName()
 {
 return this.lastName;
 }
-@Column(name="aadhar_card_number")
+@Column(name="aadharCardNumber")
 @SetterGetter
-@Unique
 private java.lang.String aadharCardNumber;
 public void setAadharCardNumber(java.lang.String aadharCardNumber)
 {
@@ -49,8 +48,8 @@ public java.lang.String getAadharCardNumber()
 {
 return this.aadharCardNumber;
 }
-@ForeignKey(parent="course",column="code")
-@Column(name="course_code")
+@ForeignKey(parent="Course",column="code")
+@Column(name="courseCode")
 @SetterGetter
 private java.lang.Integer courseCode;
 public void setCourseCode(java.lang.Integer courseCode)
@@ -72,7 +71,7 @@ public java.lang.String getGender()
 {
 return this.gender;
 }
-@Column(name="date_of_birth")
+@Column(name="dateOfBirth")
 @SetterGetter
 private java.util.Date dateOfBirth;
 public void setDateOfBirth(java.util.Date dateOfBirth)
