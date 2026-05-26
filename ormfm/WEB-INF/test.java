@@ -1,12 +1,18 @@
-import testing.school.pojo.*;
+import com.ashvin.orm.fm.model.*;
+import com.ashvin.orm.fm.exceptions.*;
+import java.io.*;
 
 class testing
 {
 public static void main(String args[])
 {
-Course course=new Course();
-course.setCode(101);
-course.setTitle("C++");
-System.out.println(course);
+try
+{
+DataManager.initialize(new File(System.getProperty("user.dir")));
+DataManager dataManager=DataManager.getDataManager();
+}catch(DataException dataException)
+{
+System.out.println(dataException);
+}
 }
 }

@@ -272,8 +272,7 @@ this.qStatement="";
 this.qClass=null;
 this.whereUsed=false;
 }
-//donedone
-public Object insert(Object obj) throws DataException
+public Object save(Object obj) throws DataException
 {
 if(connection==null) throw new DataException("Call begin() before save()");
 try
@@ -368,11 +367,9 @@ jdbcSetterMethods.get(i).invoke(preparedStatement,i+1,convertedData);
 }catch(Exception e)
 {
 preparedStatement.setNull(i+1,sqlTypes.get(i));	//null set
-//donedone
 System.out.println("Error: "+e);
 }
 }
-
 preparedStatement.executeUpdate();
 generatedKeys=preparedStatement.getGeneratedKeys();
 if(generatedKeys.next())
@@ -380,120 +377,6 @@ if(generatedKeys.next())
 Object result=generatedKeys.getString(1);
 List<FieldSchema> autoIncrementFields=tableSchema.getAutoIncrementFields();
 if(!autoIncrementFields.isEmpty())	//handles only one auto increment key
-{
-Class<?> autoIncrementType=autoIncrementFields.get(0).getType();
-String keyValue=generatedKeys.getString(1);
-generatedKeys.close();
-preparedStatement.close();
-return ORMUtils.parseTo(autoIncrementType,keyValue);
-}
-}
-generatedKeys.close();
-preparedStatement.close();
-return null;
-}catch(DataException de)
-{
-throw de;
-}
-catch(Exception exception)
-{
-throw new DataException(exception);
-}
-}
-public Object save(Object obj) throws DataException
-{
-if(connection==null) throw new DataException("Call begin() before save()");
-try
-{
-Class<?> objClass=obj.getClass();
-TableSchema tableSchema=ORMDataModel.getInfo(objClass);
-List<FieldSchema> nonAutoIncrementFields=tableSchema.getNonAutoIncrementFields();
-StringBuilder values=new StringBuilder();
-StringBuilder columns=new StringBuilder();
-String sqlStatement="";
-PreparedStatement preparedStatement;
-ResultSet resultSet;
-ResultSet generatedKeys;
-for(int i=0;i<nonAutoIncrementFields.size();i++)
-{
-FieldSchema fs=nonAutoIncrementFields.get(i);
-String fieldName=fs.getMethodName();
-String columnName=fs.getColumnName();
-
-columns.append(columnName);
-Object value=null;
-try
-{
-if(fs.isGetterAllowed())
-{
-try
-{
-String sFieldName=fieldName.substring(0,1).toUpperCase()+fieldName.substring(1);
-Method getterMethod=objClass.getMethod("get"+sFieldName);
-value=getterMethod.invoke(obj);
-}catch(Exception e)
-{
-//System.out.println("invoke exception: "+e);
-}
-}
-else if(fs.isPublicAllowed())
-{
-Field field=objClass.getField(fieldName);
-value=field.get(obj);
-}
-values.append(formatValue(value));
-}catch(Exception exception)
-{
-values.append("null");
-}
-if(fs.isPrimaryKey() || fs.isUnique())
-{
-sqlStatement="select "+columnName+" from "+tableSchema.getTableName()+" where "+columnName+"="+formatValue(value)+";";
-System.out.println(sqlStatement);
-preparedStatement=connection.prepareStatement(sqlStatement);
-resultSet=preparedStatement.executeQuery();
-if(resultSet.next())
-{
-resultSet.close();
-preparedStatement.close();
-throw new DataException("Column: "+columnName+" must unique.");
-}
-resultSet.close();
-preparedStatement.close();
-}
-if(fs.isForeignKey())
-{
-String fkParentClass=fs.getFKParentClass();
-String fkParentColumn=fs.getFKParentColumn();
-sqlStatement="select "+fkParentColumn+" from "+fkParentClass+" where "+fkParentColumn+"="+formatValue(value)+";";
-System.out.println(sqlStatement);
-preparedStatement=connection.prepareStatement(sqlStatement);
-resultSet=preparedStatement.executeQuery();
-if(!resultSet.next())
-{
-resultSet.close();
-preparedStatement.close();
-throw new DataException("Column "+columnName+" value must need to matched with "+fkParentClass+"'s "+fkParentColumn);
-}
-resultSet.close();
-preparedStatement.close();
-}
-if(i+1<nonAutoIncrementFields.size())
-{
-columns.append(",");
-values.append(",");
-}
-}
-sqlStatement="insert into "+tableSchema.getTableName()+" ("+columns.toString()+") values("+values.toString()+");";
-//System.out.println(sqlStatement);
-preparedStatement=connection.prepareStatement(sqlStatement,Statement.RETURN_GENERATED_KEYS);
-preparedStatement.executeUpdate();
-generatedKeys=preparedStatement.getGeneratedKeys();
-if(generatedKeys.next())
-{
-Object result=generatedKeys.getString(1);
-List<FieldSchema> autoIncrementFields=tableSchema.getAutoIncrementFields();
-if(!autoIncrementFields.isEmpty())
 {
 Class<?> autoIncrementType=autoIncrementFields.get(0).getType();
 String keyValue=generatedKeys.getString(1);
