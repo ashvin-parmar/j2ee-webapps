@@ -340,6 +340,108 @@ jos.closeEntry();
 }
 }
 }
+
+public void loadAllPojoClassesToDS() throws DataException
+{
+File srcFolder=new File(this.parentWorkingDirectory,"src");
+//System.out.println("Source file: "+srcFolder.getAbsolutePath());
+if(!srcFolder.exists())
+{
+throw new DataException("No source file available to create JAR file.");
+}
+String packageNameWithSeperator=packageName.replace(".",File.separator);
+File packageFolder=new File(srcFolder,packageNameWithSeperator);
+if(!packageFolder.exists())
+{
+throw new DataException("No source file available to create JAR file.");
+}
+//System.out.println(packageFolder.getAbsolutePath());
+
+File[] files=packageFolder.listFiles();
+for(File file:files)
+{
+try
+{
+if(file.exists() && !file.isDirectory() && file.getName().endsWith(".class"))
+{
+System.out.println(file.getName());
+Class objClass=Class.forName(packageName+"."+file.getName().replace(".class",""));
+if(objClass==null) continue;
+if(!objClass.isAnnotationPresent(Table.class))
+{
+//System.out.println("Class: "+objClass.getName()+" has no @Table annotation");
+//continue;
+throw new DataException("Class "+objClass.getName()+" has no @Table annotation"); 
+}
+//com.ashvin.orm.fm.annotations.Table tableAnnotation=objClass.getAnnotation(com.ashvin.orm.fm.annotations.Table.class);
+Table tableAnnotation=(Table)objClass.getAnnotation(Table.class);
+String tableName=tableAnnotation.name();
+TableSchema tableSchema=new TableSchema(objClass,tableName);
+Field[] javaFields=objClass.getDeclaredFields();
+for(Field javaField:javaFields)
+{
+if(!javaField.isAnnotationPresent(Column.class)) continue;
+Column columnAnnotation=javaField.getAnnotation(Column.class);
+String columnName=columnAnnotation.name();
+String fieldName=javaField.getName();
+Class<?> fieldType=javaField.getType();
+
+FieldSchema fieldSchema=new FieldSchema(fieldName,columnName,fieldType);
+
+if(javaField.isAnnotationPresent(PrimaryKey.class))
+{
+fieldSchema.setPrimaryKey(true);
+}
+if(javaField.isAnnotationPresent(AutoIncrement.class))
+{
+boolean trueValue=true;
+fieldSchema.setAutoIncrement(trueValue);
+}
+if(javaField.isAnnotationPresent(Unique.class))
+{
+boolean trueValue=true;
+fieldSchema.setUnique(trueValue);
+}
+if(javaField.isAnnotationPresent(ForeignKey.class))
+{
+ForeignKey fkAnnotation=javaField.getAnnotation(ForeignKey.class);
+String fkParentClass=fkAnnotation.parent();
+String fkParentColumn=fkAnnotation.column();
+fieldSchema.setForeignKey(fkParentClass,fkParentColumn);
+}
+int mods=javaField.getModifiers();
+if(javaField.isAnnotationPresent(SetterGetter.class))
+{
+fieldSchema.setSetterAllowed(true);
+fieldSchema.setGetterAllowed(true);
+}
+else if(Modifier.isPublic(mods))
+{
+fieldSchema.setPublicAllowed(true);
+}
+else
+{
+continue;   //Private properties with no setter getter are not included in this scenario
+}
+tableSchema.addField(fieldSchema);
+}
+ORMDataModel.addInfo(objClass,tableSchema);
+//cache.put(objClass,tableSchema);
+}
+}catch(ClassNotFoundException cnfe)
+{
+System.out.println("Exception: "+cnfe);
+}catch(DataException de)
+{
+System.out.println(de);
+}catch(Exception e)
+{
+System.out.println("Exception: "+e);
+}
+}
+}
+
+
 public static void main(String args[])
 {
 ORMFMTool ormTool=new ORMFMTool();

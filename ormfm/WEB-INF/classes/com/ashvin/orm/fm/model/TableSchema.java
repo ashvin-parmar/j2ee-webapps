@@ -5,8 +5,10 @@ public class TableSchema
 {
 private String tableName;
 private List<FieldSchema> fields;
-public TableSchema(String tableName)
+private Class<?> objectClass;
+public TableSchema(Class<?> objectClass,String tableName)
 {
+this.objectClass=objectClass;
 this.tableName=tableName;
 this.fields=new ArrayList<>();
 }
@@ -18,6 +20,10 @@ fields.add(fieldSchema);
 public String getTableName()
 {
 return this.tableName;
+}
+public Class<?> getObjectClass()
+{
+return objectClass;
 }
 public List<FieldSchema> getAllFields()
 {

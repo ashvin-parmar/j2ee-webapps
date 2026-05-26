@@ -13,7 +13,7 @@ private static final ORMDataModel ormDataModel=new ORMDataModel();
 private ORMDataModel()
 {
 }
-public static ORMDataModel getORMDataModel()
+public static final ORMDataModel getORMDataModel()
 {
 return ormDataModel;
 }
@@ -28,10 +28,9 @@ if(!objClass.isAnnotationPresent(Table.class))
 {
 throw new DataException("Class "+objClass.getName()+" has no @Table annotation"); 
 }
-System.out.println("Over here, everything not calculated at start-up. Do something about it.");
 Table tableAnnotation=objClass.getAnnotation(Table.class);
 String tableName=tableAnnotation.name();
-TableSchema tableSchema=new TableSchema(tableName);
+TableSchema tableSchema=new TableSchema(objClass,tableName);
 Field[] javaFields=objClass.getDeclaredFields();
 for(Field javaField:javaFields)
 {

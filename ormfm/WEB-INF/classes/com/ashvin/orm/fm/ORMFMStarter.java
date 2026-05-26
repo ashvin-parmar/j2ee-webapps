@@ -22,7 +22,7 @@ public class ORMFMStarter extends HttpServlet
 private File webINFFolder;
 private File packageFolder;
 private ORMDataModel ormDataModel;
-private String configFileName="conf.json";		//default name of configuration file, have to created in folder '/WEB-INF/conf.json'
+private String configFileName="conf.json";		//default name of configuration file, have to created in folder '/WEB-INF/conf.json', default is only solution
 private String jdbcDriver;
 private String connectionURL;
 private String username;
@@ -39,6 +39,7 @@ ServletContext sc=getServletContext();
 this.webINFFolder=new File(sc.getRealPath("/WEB-INF"));
 System.out.println(this.webINFFolder.getAbsolutePath());
 
+//This feature is not work, because DataManager uses configuration file. 
 String configFileName=(String)sc.getInitParameter("CONFIG_FILE_NAME");
 if(configFileName!=null && !configFileName.isBlank()) this.configFileName=configFileName;
 
@@ -88,7 +89,13 @@ loadAllPojoClassesToDS();
    	System.out.println(de);
    }
 */
-
+try
+{
+DataManager.initialize(this.webINFFolder);
+}catch(DataException de)
+{
+System.out.println(de);
+}
 }
 private void createPojoJar()
 {
@@ -317,7 +324,7 @@ throw new DataException("Class "+objClass.getName()+" has no @Table annotation")
 //com.ashvin.orm.fm.annotations.Table tableAnnotation=objClass.getAnnotation(com.ashvin.orm.fm.annotations.Table.class);
 Table tableAnnotation=(Table)objClass.getAnnotation(Table.class);
 String tableName=tableAnnotation.name();
-TableSchema tableSchema=new TableSchema(tableName);
+TableSchema tableSchema=new TableSchema(objClass,tableName);
 Field[] javaFields=objClass.getDeclaredFields();
 for(Field javaField:javaFields)
 {
