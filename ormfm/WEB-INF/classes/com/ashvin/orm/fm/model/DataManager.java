@@ -25,7 +25,6 @@ private boolean whereUsed=false;
 
 private static DataManager dataManager=null;
 private static File parentWorkingDirectory;
-private static List<TableSchema> tables;
 private DataManager() throws DataException
 {
 try
@@ -66,87 +65,183 @@ this.password=password;
 this.packageName=packageName;
 
 //load all class files to Model
+List<TableSchema> tables;
 tables=new ArrayList<>();
-loadAllPojoClassesToDS();		//Also loaded all table in tables.
+loadAllPojoClassesToDS(tables);		//Also loaded all table in tables.
+
+String tableName;
+Map<String,StatementDS> tableMap;
+DatabaseMetaData dbMetaData;
+List<FieldSchema> fields;
+List<Method> jdbcSetterMethods;
+List<Method> classGetterMethods;
+List<Integer> paramsType;
+List<String> columns;
+List<String> values;
+String fieldName;
+String columnName;
+String standardFieldName;
+Method classGetterMethod;
+Method jdbcSetterMethod;
+ResultSet colRS;
+int sqlType;
 
 //Creating DataManager DS
 for(TableSchema tableSchema:tables)
 {
 Class<?> objClass=tableSchema.getObjectClass();
-String tableName=tableSchema.getTableName();
-Map<String,StatementDS> tableMap=new HashMap<>();
+tableName=tableSchema.getTableName();
+tableMap=new HashMap<>();
 //insert statement start here.
 try
 {
 connection=DriverManager.getConnection(connectionURL,username,password);
-DatabaseMetaData dbMetaData=connection.getMetaData();
+dbMetaData=connection.getMetaData();
 
-List<Method> jdbcSetterMethods=new ArrayList<>();
-List<Method> classGetterMethods=new ArrayList<>();
-List<FieldSchema> nonAutoIncrementFields=tableSchema.getNonAutoIncrementFields();
-List<Integer> paramsType=new ArrayList<>();
-StringBuilder values=new StringBuilder();
-StringBuilder columns=new StringBuilder();
-String sqlStatement="";
-PreparedStatement preparedStatement;
-ResultSet resultSet;
-ResultSet generatedKeys;
-for(int i=0;i<nonAutoIncrementFields.size();i++)
+fields=tableSchema.getAllFields();
+
+jdbcSetterMethods=new ArrayList<>();
+classGetterMethods=new ArrayList<>();
+paramsType=new ArrayList<>();
+columns=new ArrayList<>();
+values=new ArrayList<>();
+
+for(FieldSchema fs:fields)
 {
-FieldSchema fs=nonAutoIncrementFields.get(i);
-String fieldName=fs.getMethodName();
-String columnName=fs.getColumnName();
-columns.append(columnName);
+fieldName=fs.getMethodName();
+columnName=fs.getColumnName();
 try
 {
-String sFieldName=fieldName.substring(0,1).toUpperCase()+fieldName.substring(1);
-Method getterMethod=objClass.getMethod("get"+sFieldName);
-classGetterMethods.add(getterMethod);
-values.append("?");
+standardFieldName=fieldName.substring(0,1).toUpperCase()+fieldName.substring(1);
+classGetterMethod=objClass.getMethod("get"+standardFieldName);
 }catch(Exception exception)
 {
-classGetterMethods.add(i,null);
-values.append("?");
-}
-if(i+1<nonAutoIncrementFields.size())
-{
-columns.append(",");
-values.append(",");
+classGetterMethod=null;
 }
 
-ResultSet colRS=dbMetaData.getColumns(null,null,tableSchema.getTableName(),columnName);
-int sqlType=Types.OTHER;
-if(colRS.next())
-{
-sqlType=colRS.getInt("DATA_TYPE");
-}
+colRS=dbMetaData.getColumns(null,null,tableName,columnName);
+sqlType=Types.OTHER;
+if(colRS.next()) sqlType=colRS.getInt("DATA_TYPE");
 colRS.close();
-Method setter=JDBCMethodExtractor.getJDBCSetter(sqlType);
-jdbcSetterMethods.add(setter);
-paramsType.add(sqlType);
-}
-sqlStatement="insert into "+tableSchema.getTableName()+" ("+columns.toString()+") values("+values.toString()+")";
-System.out.println(sqlStatement);
-/*
-preparedStatement=connection.prepareStatement(sqlStatement);	//No need to create PreparedStatement.
+jdbcSetterMethod=JDBCMethodExtractor.getJDBCSetter(sqlType);
 
-ParameterMetaData pmd=preparedStatement.getParameterMetaData();
-for(int i=1;i<=pmd.getParameterCount();i++)
-{
-int sqlType=pmd.getParameterType(i);
-String typeName=pmd.getParameterTypeName(i);
-Method setter=JDBCMethodExtractor.getJDBCSetter(sqlType);
-jdbcSetterMethods.add(setter);
+columns.add(columnName);
+values.add("?");
 paramsType.add(sqlType);
+jdbcSetterMethods.add(jdbcSetterMethod);
+classGetterMethods.add(classGetterMethod);
 }
-*/
-StatementDS statementDS=new StatementDS();
-statementDS.setJDBCMethods(jdbcSetterMethods);
-statementDS.setClassMethods(classGetterMethods);
-statementDS.setStatement(sqlStatement);
-statementDS.setParamsCount(paramsType.size());
-statementDS.setParamsType(paramsType);
-tableMap.put("insert",statementDS);
+
+StatementDS wherePartOfPrimaryKeyDS=new StatementDS();
+wherePartOfPrimaryKeyDS.append(" WHERE ");
+
+StatementDS insertStatementDS=new StatementDS();
+insertStatementDS.append("INSERT INTO ").append(tableName).append(" SET ");
+
+StatementDS updateStatementDS=new StatementDS();
+updateStatementDS.append("UPDATE ").append(tableName).append(" SET ");
+
+StatementDS deleteStatementDS=new StatementDS();
+deleteStatementDS.append("DELETE FROM ").append(tableName);
+
+StatementDS primaryKeyValidation=new StatementDS();
+StatementDS getByPrimaryKey=new StatementDS();
+
+int primaryCount=0;
+int nonAutoIncrementCount=0;
+for(int i=0;i<fields.size();i++)
+{
+FieldSchema fs=fields.get(i);
+if(fs.isPrimaryKey())
+{
+if(primaryCount!=0) throw new DataException("Multiple primary key are not allowed");
+wherePartOfPrimaryKeyDS.append(columns.get(i)).append("=").append(values.get(i));
+wherePartOfPrimaryKeyDS.addJDBCMethod(jdbcSetterMethods.get(i));
+wherePartOfPrimaryKeyDS.addClassMethod(classGetterMethods.get(i));
+wherePartOfPrimaryKeyDS.addParamType(paramsType.get(i));
+
+primaryKeyValidation.append("SELECT ").append(columns.get(i)).append(" FROM ").append(tableName).append(" WHERE ").append(columns.get(i)).append("=?");
+primaryKeyValidation.addJDBCMethod(jdbcSetterMethods.get(i));
+primaryKeyValidation.addClassMethod(classGetterMethods.get(i));
+primaryKeyValidation.addParamType(paramsType.get(i));
+
+getByPrimaryKey.append("SELECT * FROM ").append(tableName).append(" WHERE ").append(columns.get(i)).append("=?");
+getByPrimaryKey.addJDBCMethod(jdbcSetterMethods.get(i));
+getByPrimaryKey.addClassMethod(classGetterMethods.get(i));
+getByPrimaryKey.addParamType(paramsType.get(i));
+
+primaryCount++;
+}
+if(fs.isAutoIncrement())
+{
+}
+else
+{
+if(nonAutoIncrementCount!=0) 
+{
+insertStatementDS.append(",");
+updateStatementDS.append(",");
+}
+insertStatementDS.append(columns.get(i)).append("=").append(values.get(i));
+insertStatementDS.addJDBCMethod(jdbcSetterMethods.get(i));
+insertStatementDS.addClassMethod(classGetterMethods.get(i));
+insertStatementDS.addParamType(paramsType.get(i));
+
+updateStatementDS.append(columns.get(i)).append("=").append(values.get(i));
+updateStatementDS.addJDBCMethod(jdbcSetterMethods.get(i));
+updateStatementDS.addClassMethod(classGetterMethods.get(i));
+updateStatementDS.addParamType(paramsType.get(i));
+nonAutoIncrementCount++;
+}
+if(fs.isUnique())
+{
+
+}
+if(fs.isForeignKey())
+{
+
+}
+}
+if(primaryCount!=0)
+{
+updateStatementDS.append(wherePartOfPrimaryKeyDS.getStatement().toString());
+updateStatementDS.addJDBCMethods(wherePartOfPrimaryKeyDS.getJDBCMethods());
+updateStatementDS.addClassMethods(wherePartOfPrimaryKeyDS.getClassMethods());
+updateStatementDS.addParamsType(wherePartOfPrimaryKeyDS.getParamsType());
+
+deleteStatementDS.append(wherePartOfPrimaryKeyDS.getStatement().toString());
+deleteStatementDS.addJDBCMethods(wherePartOfPrimaryKeyDS.getJDBCMethods());
+deleteStatementDS.addClassMethods(wherePartOfPrimaryKeyDS.getClassMethods());
+deleteStatementDS.addParamsType(wherePartOfPrimaryKeyDS.getParamsType());
+}
+else		//Primary Key Required for DELETE and UPDATE
+{
+deleteStatementDS.clear();
+updateStatementDS.clear();
+primaryKeyValidation.clear();
+getByPrimaryKey.clear();
+}
+System.out.println(insertStatementDS.getStatement().toString());
+System.out.println(updateStatementDS.getStatement().toString());
+System.out.println(deleteStatementDS.getStatement().toString());
+System.out.println(primaryKeyValidation.getStatement().toString());
+System.out.println(getByPrimaryKey.getStatement().toString());
+
+tableMap.put("insert",insertStatementDS);
+tableMap.put("INSERT",insertStatementDS);
+tableMap.put("update",updateStatementDS);
+tableMap.put("UPDATE",updateStatementDS);
+tableMap.put("delete",deleteStatementDS);
+tableMap.put("DELETE",deleteStatementDS);
+
+tableMap.put("SELECT_BY_PRIMARY_KEY",getByPrimaryKey);
+tableMap.put("select_by_primary_key",getByPrimaryKey);
+tableMap.put("GET_BY_PRIMARY_KEY",getByPrimaryKey);
+tableMap.put("get_by_primary_key",getByPrimaryKey);
+tableMap.put("PRIMARY_KEY_VALIDATION",primaryKeyValidation);
+tableMap.put("primary_key_validation",primaryKeyValidation);
+
+
 connection.close();
 }catch(Exception e)
 {
@@ -163,7 +258,7 @@ throw de;
 System.out.println(e);
 }
 }
-private  void loadFiles(File rootFolder,File currentFile) throws DataException
+private  void loadFiles(File rootFolder,File currentFile,List<TableSchema> tables) throws DataException
 {
 File[] files=currentFile.listFiles();
 if(files==null) return;
@@ -171,7 +266,7 @@ for(File file:files)
 {
 if(file.isDirectory())
 {
-loadFiles(rootFolder,file);
+loadFiles(rootFolder,file,tables);
 }
 else if(file.getName().endsWith(".class"))
 {
@@ -180,7 +275,6 @@ relativePath=relativePath.replace("\\","/");
 System.out.println("Adding entry: "+relativePath);
 try
 {
-
 String classNameWithPackage=relativePath.replace(".class","").replace("/",".");
 Class objClass=Class.forName(classNameWithPackage);
 if(objClass==null) continue;
@@ -200,7 +294,7 @@ System.out.println("Exception: "+e);
 }
 }
 }
-private void loadAllPojoClassesToDS() throws DataException
+private void loadAllPojoClassesToDS(List<TableSchema> tables) throws DataException
 {
 File srcFolder=new File(parentWorkingDirectory,"src");
 if(!srcFolder.exists())
@@ -209,7 +303,7 @@ throw new DataException("No source file available to create JAR file.");
 }
 try
 {
-loadFiles(srcFolder,srcFolder);
+loadFiles(srcFolder,srcFolder,tables);
 }catch(DataException de)
 {
 System.out.println(de);
@@ -346,7 +440,9 @@ preparedStatement.close();
 }
 }
 StatementDS statementDS=statements.get(objClass).get("insert");
-preparedStatement=connection.prepareStatement(statementDS.getStatement(),Statement.RETURN_GENERATED_KEYS);
+sqlStatement=statementDS.getStatement().toString();
+if(sqlStatement.isBlank()) throw new DataException("Some problem occured");		//donedone change the message
+preparedStatement=connection.prepareStatement(sqlStatement,Statement.RETURN_GENERATED_KEYS);
 List<Method> jdbcSetterMethods=statementDS.getJDBCMethods();
 List<Method> classGetterMethods=statementDS.getClassMethods();
 List<Integer> sqlTypes=statementDS.getParamsType();

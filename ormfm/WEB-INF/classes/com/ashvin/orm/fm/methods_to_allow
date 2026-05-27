@@ -1,0 +1,46 @@
+
+// Is Primary KEY AVAILABLE INSERT, IF NOT AUTO_INCREMENT -> not null, otherwise null
+sqlStatement="select "+columnName+" from "+tableSchema.getTableName()+" where "+columnName+"="+formatValue(value)+";";
+
+//Is Primary KEY AVAILABLE UPDATE
+sqlStatement="select "+columnName+" from "+tableSchema.getTableName()+" where "+columnName+"="+formatValue(value)+";";
+
+//Is PRIMARY KEY AVAILABLE DELETE -> fetch all thier data [getByPrimaryKey statement]
+"select * from "+tableSchema.getTableName()+" where "+primaryKeyField.getColumnName()+"="+formatValue(primaryKey);
+
+// UNIQUE KEY for INSERT
+
+
+//UNIQUE KEY FOR UPDATE	[NEED TO APPLY FOR EACH UNIQUE KEY]
+sqlStatement="select "+columnName+" from "+tableSchema.getTableName()+" where "+columnName+"="+formatValue(value)+" and "+primaryKeyColumnName+" <> "+formatValue(primaryKeyValue)+";";
+ACTUAL: "select "+uniqueColumnName+" from "+tableSchema.getTableName()+" where "+uniqueColumnName+"=?"+" and "+primaryKeyColumnName+" <> ?;";
+
+
+//FOREIGN KEY for INSERT
+sqlStatement="select "+fkParentColumn+" from "+fkParentClass+" where "+fkParentColumn+"="+formatValue(value)+";";
+ACTUAL: sqlStatement="select "+fkParentColumn+" from "+fkParentClass+" where "+fkParentColumn+"=?;";
+
+//FOREIGN KEY for UPDATE
+sqlStatement="select "+fkParentColumn+" from "+fkParentClass+" where "+fkParentColumn+"="+formatValue(value)+";";
+ACTUAL: sqlStatement="select "+fkParentColumn+" from "+fkParentClass+" where "+fkParentColumn+"=?;";
+
+//FOREIGN KEY for DELETE
+//OVER HERE, THIS CALLED FOR ALL OTHER TABLES THAT ARE AVAILABLE, TO CHECK FOR EACH VALUE EXISTANCE TOWARDS FOREIGN KEY.
+sqlStatement="select * from "+table.getTableName()+" where "+fkField.getColumnName()+"="+value+";";
+
+ACTUAL: sqlStatement="select * from "+table.getTableName()+" where "+fk.getColumnName()+"=?;";
+
+//INSERT
+sqlStatement="insert into "+tableSchema.getTableName()+" ("+columns.toString()+") values("+values.toString()+")";
+
+//UPDATE
+sqlStatement="update "+tableSchema.getTableName()
++" set "+setPart
++" where "+wherePart;
+
+//DELETE
+sqlStatement="delete from "+tableSchema.getTableName()
++" where "+primaryKeyField.getColumnName()
++"="+formatValue(primaryKey);
+
+
