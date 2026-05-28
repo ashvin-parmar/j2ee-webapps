@@ -233,7 +233,7 @@ if(fs.isForeignKey())
 {
 try
 {
-foreignKeyValidation.append("SELECT ").append(fs.getFKParentColumn()).append(" FROM ").append(ORMDataModel.getInfo(Class.forName(fs.getFKParentClass())).getTableName()).append(" WHERE ").append(fs.getFKParentColumn()).append("=? ;");
+foreignKeyValidation.append("SELECT ").append(fs.getFKParentColumn()).append(" FROM ").append(fs.getFKParentClass()).append(" WHERE ").append(fs.getFKParentColumn()).append("=? ;");
 foreignKeyValidation.addJDBCSetterMethod(jdbcSetterMethods.get(i));
 foreignKeyValidation.addClassGetterMethod(classGetterMethods.get(i));
 foreignKeyValidation.addStatementParamType(paramsType.get(i));
@@ -242,10 +242,13 @@ foreignKeyValidation.addJDBCGetterMethod(jdbcGetterMethods.get(i));
 foreignKeyValidation.addResultParamType(paramsType.get(i));
 }catch(Exception exception)
 {
+System.out.println("Problem: "+foreignKeyValidation.getStatement());
+System.out.println("Exception: "+exception);
+exception.printStackTrace();
 foreignKeyValidation.clear();
 }
 
-getByForeignKey.append("SELECT * FROM ").append(columns.get(i)).append(" FROM ").append(tableName).append(" WHERE ").append(columns.get(i)).append("=? ;");
+getByForeignKey.append("SELECT * FROM ").append(tableName).append(" WHERE ").append(columns.get(i)).append("=? ;");
 getByForeignKey.addJDBCSetterMethod(jdbcSetterMethods.get(i));
 getByForeignKey.addClassGetterMethod(classGetterMethods.get(i));
 getByForeignKey.addStatementParamType(paramsType.get(i));
@@ -268,7 +271,7 @@ if(primaryKeyIndex!=-1)
 StringBuilder replaceWith=new StringBuilder();
 replaceWith.append(" AND ").append(columns.get(primaryKeyIndex)).append(" <> ").append("? ;");
 String uapkvStatement=uniqueAndPrimaryKeyValidation.getStatement().toString();
-uapkvStatement.replace(";",replaceWith.toString());
+uapkvStatement=uapkvStatement.replace(";",replaceWith.toString());
 uniqueAndPrimaryKeyValidation.setStatement(new StringBuilder(uapkvStatement));
 uniqueAndPrimaryKeyValidation.addJDBCSetterMethod(jdbcSetterMethods.get(primaryKeyIndex));
 uniqueAndPrimaryKeyValidation.addClassGetterMethod(classGetterMethods.get(primaryKeyIndex));

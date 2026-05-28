@@ -41,6 +41,7 @@ return this.lastName;
 }
 @Column(name="aadhar_card_number")
 @SetterGetter
+@Unique
 private java.lang.String aadharCardNumber;
 public void setAadharCardNumber(java.lang.String aadharCardNumber)
 {
