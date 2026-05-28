@@ -1,0 +1,3 @@
+//StatementDS -> Create such method to get the getStatement().split(";").contains(columnName)
+
+//is primary key is auto increment key

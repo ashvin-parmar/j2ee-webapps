@@ -5,22 +5,42 @@ import java.lang.reflect.*;
 public class StatementDS
 {
 private StringBuilder statement;
-private List<Method> jdbcMethods;
-private List<Method> classMethods;
-private List<Integer> paramsType;
+private boolean isQuery;
+private List<Method> jdbcSetterMethods;
+private List<Method> classGetterMethods;
+private List<Method> jdbcGetterMethods;
+private List<Method> classSetterMethods;
+private List<Integer> statementParamsType;
+private List<Integer> resultParamsType;
 public StatementDS()
 {
 statement=new StringBuilder();
-jdbcMethods=new ArrayList<>();
-classMethods=new ArrayList<>();
-paramsType=new ArrayList<>();
+jdbcSetterMethods=new ArrayList<>();
+classGetterMethods=new ArrayList<>();
+statementParamsType=new ArrayList<>();
+isQuery=false;
 }
 public void clear()
 {
 statement=new StringBuilder();
-jdbcMethods=new ArrayList<>();
-classMethods=new ArrayList<>();
-paramsType=new ArrayList<>();
+jdbcSetterMethods=new ArrayList<>();
+classGetterMethods=new ArrayList<>();
+statementParamsType=new ArrayList<>();
+isQuery=false;
+}
+public void setQuery(boolean isQuery)
+{
+if(isQuery==true && this.isQuery==false)
+{
+this.isQuery=true;
+jdbcGetterMethods=new ArrayList<>();
+classSetterMethods=new ArrayList<>();
+resultParamsType=new ArrayList<>();
+}
+}
+public boolean isQuery()
+{
+return this.isQuery;
 }
 public void setStatement(StringBuilder statement)
 {
@@ -40,65 +60,131 @@ public StringBuilder getStatement()
 {
 return this.statement;
 }
-public int getParamsCount()
+public int getStatementParamsCount()
 {
-return this.paramsType.size();
+return this.statementParamsType.size();
 }
-public void setJDBCMethods(List<Method> jdbcMethods)
+public int getResultParamsCount()
 {
-this.jdbcMethods=jdbcMethods;
+return this.resultParamsType.size();
 }
-public List<Method> getJDBCMethods()
+public void setJDBCSetterMethods(List<Method> jdbcSetterMethods)
 {
-return this.jdbcMethods;
+this.jdbcSetterMethods=jdbcSetterMethods;
 }
-public void addJDBCMethod(Method jdbcMethod)
+public List<Method> getJDBCSetterMethods()
 {
-this.jdbcMethods.add(jdbcMethod);
+return this.jdbcSetterMethods;
 }
-public void addJDBCMethods(List<Method> jdbcMethods)
+public void addJDBCSetterMethod(Method jdbcSetterMethod)
 {
-for(Method method:jdbcMethods)
-{
-this.jdbcMethods.add(method);
+this.jdbcSetterMethods.add(jdbcSetterMethod);
 }
-}
-public void setClassMethods(List<Method> classMethods)
+public void addJDBCSetterMethods(List<Method> jdbcSetterMethods)
 {
-this.classMethods=classMethods;
-}
-public List<Method> getClassMethods()
+for(Method method:jdbcSetterMethods)
 {
-return this.classMethods;
-}
-public void addClassMethod(Method classMethod)
-{
-this.classMethods.add(classMethod);
-}
-public void addClassMethods(List<Method> classMethods)
-{
-for(Method method:classMethods)
-{
-this.classMethods.add(method);
+this.jdbcSetterMethods.add(method);
 }
 }
-public void setParamsType(List<Integer> paramsType)
+public void setJDBCGetterMethods(List<Method> jdbcGetterMethods)
 {
-this.paramsType=paramsType;
+if(this.isQuery) this.jdbcGetterMethods=jdbcGetterMethods;
 }
-public List<Integer> getParamsType()
+public List<Method> getJDBCGetterMethods()
 {
-return this.paramsType;
+if(this.isQuery) return this.jdbcGetterMethods;
+return null;
 }
-public void addParamType(int paramType)
+public void addJDBCGetterMethod(Method jdbcGetterMethod)
 {
-this.paramsType.add(paramType);
+if(this.isQuery) this.jdbcGetterMethods.add(jdbcGetterMethod);
 }
-public void addParamsType(List<Integer> paramsType)
+public void addJDBCGetterMethods(List<Method> jdbcGetterMethods)
 {
-for(Integer type:paramsType)
+if(!this.isQuery) return;
+for(Method method:jdbcGetterMethods)
 {
-this.paramsType.add(type);
+this.jdbcGetterMethods.add(method);
+}
+}
+public void setClassSetterMethods(List<Method> classSetterMethods)
+{
+if(this.isQuery) this.classSetterMethods=classSetterMethods;
+}
+public List<Method> getClassSetterMethods()
+{
+if(this.isQuery) return this.classSetterMethods;
+return null;
+}
+public void addClassSetterMethod(Method classSetterMethod)
+{
+if(this.isQuery) this.classSetterMethods.add(classSetterMethod);
+}
+public void addClassSetterMethods(List<Method> classSetterMethods)
+{
+if(!this.isQuery) return;
+for(Method method:classSetterMethods)
+{
+this.classSetterMethods.add(method);
+}
+}
+public void setClassGetterMethods(List<Method> classGetterMethods)
+{
+this.classGetterMethods=classGetterMethods;
+}
+public List<Method> getClassGetterMethods()
+{
+return this.classGetterMethods;
+}
+public void addClassGetterMethod(Method classGetterMethod)
+{
+this.classGetterMethods.add(classGetterMethod);
+}
+public void addClassGetterMethods(List<Method> classGetterMethods)
+{
+for(Method method:classGetterMethods)
+{
+this.classGetterMethods.add(method);
+}
+}
+public void setStatementParamsType(List<Integer> statementParamsType)
+{
+this.statementParamsType=statementParamsType;
+}
+public List<Integer> getStatementParamsType()
+{
+return this.statementParamsType;
+}
+public void addStatementParamType(int statementParamType)
+{
+this.statementParamsType.add(statementParamType);
+}
+public void addStatementParamsType(List<Integer> statementParamsType)
+{
+for(Integer type:statementParamsType)
+{
+this.statementParamsType.add(type);
+}
+}
+
+public void setResultParamsType(List<Integer> resultParamsType)
+{
+this.resultParamsType=resultParamsType;
+}
+public List<Integer> getResultParamsType()
+{
+return this.resultParamsType;
+}
+public void addResultParamType(int resultParamType)
+{
+this.resultParamsType.add(resultParamType);
+}
+public void addResultParamsType(List<Integer> resultParamsType)
+{
+for(Integer type:resultParamsType)
+{
+this.resultParamsType.add(type);
 }
 }
 }
