@@ -74,7 +74,9 @@ Map<String,StatementDS> tableMap;
 DatabaseMetaData dbMetaData;
 List<FieldSchema> fields;
 List<Method> jdbcSetterMethods;
+List<Method> jdbcGetterMethods;
 List<Method> classGetterMethods;
+List<Method> classSetterMethods;
 List<Integer> paramsType;
 List<String> columns;
 List<String> values;
@@ -82,11 +84,15 @@ String fieldName;
 String columnName;
 String standardFieldName;
 Method classGetterMethod;
+Method classSetterMethod;
 Method jdbcSetterMethod;
+Method jdbcGetterMethod;
 ResultSet colRS;
 int sqlType;
 
 //Creating DataManager DS
+connection=DriverManager.getConnection(connectionURL,username,password);
+dbMetaData=connection.getMetaData();
 for(TableSchema tableSchema:tables)
 {
 Class<?> objClass=tableSchema.getObjectClass();
@@ -95,13 +101,13 @@ tableMap=new HashMap<>();
 //insert statement start here.
 try
 {
-connection=DriverManager.getConnection(connectionURL,username,password);
-dbMetaData=connection.getMetaData();
 
 fields=tableSchema.getAllFields();
 
 jdbcSetterMethods=new ArrayList<>();
+jdbcGetterMethods=new ArrayList<>();
 classGetterMethods=new ArrayList<>();
+classSetterMethods=new ArrayList<>();
 paramsType=new ArrayList<>();
 columns=new ArrayList<>();
 values=new ArrayList<>();
@@ -110,13 +116,20 @@ for(FieldSchema fs:fields)
 {
 fieldName=fs.getMethodName();
 columnName=fs.getColumnName();
+standardFieldName=fieldName.substring(0,1).toUpperCase()+fieldName.substring(1);
 try
 {
-standardFieldName=fieldName.substring(0,1).toUpperCase()+fieldName.substring(1);
 classGetterMethod=objClass.getMethod("get"+standardFieldName);
 }catch(Exception exception)
 {
 classGetterMethod=null;
+}
+try
+{
+classSetterMethod=objClass.getMethod("set"+standardFieldName);
+}catch(Exception exception)
+{
+classSetterMethod=null;
 }
 
 colRS=dbMetaData.getColumns(null,null,tableName,columnName);
@@ -124,16 +137,16 @@ sqlType=Types.OTHER;
 if(colRS.next()) sqlType=colRS.getInt("DATA_TYPE");
 colRS.close();
 jdbcSetterMethod=JDBCMethodExtractor.getJDBCSetter(sqlType);
+jdbcGetterMethod=JDBCMethodExtractor.getJDBCGetter(sqlType);
 
 columns.add(columnName);
 values.add("?");
 paramsType.add(sqlType);
 jdbcSetterMethods.add(jdbcSetterMethod);
 classGetterMethods.add(classGetterMethod);
+jdbcGetterMethods.add(jdbcGetterMethod);
+classSetterMethods.add(classSetterMethod);
 }
-
-StatementDS wherePartOfPrimaryKeyDS=new StatementDS();
-wherePartOfPrimaryKeyDS.append(" WHERE ");
 
 StatementDS insertStatementDS=new StatementDS();
 insertStatementDS.append("INSERT INTO ").append(tableName).append(" SET ");
@@ -145,32 +158,31 @@ StatementDS deleteStatementDS=new StatementDS();
 deleteStatementDS.append("DELETE FROM ").append(tableName);
 
 StatementDS primaryKeyValidation=new StatementDS();
+primaryKeyValidation.setQuery(true);
 StatementDS getByPrimaryKey=new StatementDS();
+getByPrimaryKey.setQuery(true);
 
-int primaryCount=0;
+StatementDS uniqueKeyValidation=new StatementDS();		//All unique key are set in one go.
+uniqueKeyValidation.setQuery(true);
+StatementDS uniqueAndPrimaryKeyValidation=new StatementDS();
+uniqueAndPrimaryKeyValidation.setQuery(true);
+StatementDS getByUniqueKey=new StatementDS();
+getByUniqueKey.setQuery(true);
+
+StatementDS foreignKeyValidation=new StatementDS();		//All foreign key are set in one go.
+foreignKeyValidation.setQuery(true);
+StatementDS getByForeignKey=new StatementDS();
+getByForeignKey.setQuery(true);
+
 int nonAutoIncrementCount=0;
+int primaryKeyIndex=-1;
 for(int i=0;i<fields.size();i++)
 {
 FieldSchema fs=fields.get(i);
 if(fs.isPrimaryKey())
 {
-if(primaryCount!=0) throw new DataException("Multiple primary key are not allowed");
-wherePartOfPrimaryKeyDS.append(columns.get(i)).append("=").append(values.get(i));
-wherePartOfPrimaryKeyDS.addJDBCMethod(jdbcSetterMethods.get(i));
-wherePartOfPrimaryKeyDS.addClassMethod(classGetterMethods.get(i));
-wherePartOfPrimaryKeyDS.addParamType(paramsType.get(i));
-
-primaryKeyValidation.append("SELECT ").append(columns.get(i)).append(" FROM ").append(tableName).append(" WHERE ").append(columns.get(i)).append("=?");
-primaryKeyValidation.addJDBCMethod(jdbcSetterMethods.get(i));
-primaryKeyValidation.addClassMethod(classGetterMethods.get(i));
-primaryKeyValidation.addParamType(paramsType.get(i));
-
-getByPrimaryKey.append("SELECT * FROM ").append(tableName).append(" WHERE ").append(columns.get(i)).append("=?");
-getByPrimaryKey.addJDBCMethod(jdbcSetterMethods.get(i));
-getByPrimaryKey.addClassMethod(classGetterMethods.get(i));
-getByPrimaryKey.addParamType(paramsType.get(i));
-
-primaryCount++;
+if(primaryKeyIndex!=-1) throw new DataException("Multiple primary key are not allowed");		//FM User may add Annotation, so secure it.
+primaryKeyIndex=i;
 }
 if(fs.isAutoIncrement())
 {
@@ -183,36 +195,108 @@ insertStatementDS.append(",");
 updateStatementDS.append(",");
 }
 insertStatementDS.append(columns.get(i)).append("=").append(values.get(i));
-insertStatementDS.addJDBCMethod(jdbcSetterMethods.get(i));
-insertStatementDS.addClassMethod(classGetterMethods.get(i));
-insertStatementDS.addParamType(paramsType.get(i));
+insertStatementDS.addJDBCSetterMethod(jdbcSetterMethods.get(i));
+insertStatementDS.addClassGetterMethod(classGetterMethods.get(i));
+insertStatementDS.addStatementParamType(paramsType.get(i));
 
 updateStatementDS.append(columns.get(i)).append("=").append(values.get(i));
-updateStatementDS.addJDBCMethod(jdbcSetterMethods.get(i));
-updateStatementDS.addClassMethod(classGetterMethods.get(i));
-updateStatementDS.addParamType(paramsType.get(i));
+updateStatementDS.addJDBCSetterMethod(jdbcSetterMethods.get(i));
+updateStatementDS.addClassGetterMethod(classGetterMethods.get(i));
+updateStatementDS.addStatementParamType(paramsType.get(i));
 nonAutoIncrementCount++;
 }
 if(fs.isUnique())
 {
+uniqueKeyValidation.append("SELECT ").append(columns.get(i)).append(" FROM ").append(tableName).append(" WHERE ").append(columns.get(i)).append("=? ;");
+uniqueKeyValidation.addJDBCSetterMethod(jdbcSetterMethods.get(i));
+uniqueKeyValidation.addClassGetterMethod(classGetterMethods.get(i));
+uniqueKeyValidation.addStatementParamType(paramsType.get(i));
+uniqueKeyValidation.addClassSetterMethod(classSetterMethods.get(i));
+uniqueKeyValidation.addJDBCGetterMethod(jdbcGetterMethods.get(i));
+uniqueKeyValidation.addResultParamType(paramsType.get(i));
+
+uniqueAndPrimaryKeyValidation.append("SELECT ").append(columns.get(i)).append(" FROM ").append(tableName).append(" WHERE ").append(columns.get(i)).append("=? ;");
+uniqueAndPrimaryKeyValidation.addJDBCSetterMethod(jdbcSetterMethods.get(i));
+uniqueAndPrimaryKeyValidation.addClassGetterMethod(classGetterMethods.get(i));
+uniqueAndPrimaryKeyValidation.addStatementParamType(paramsType.get(i));
+uniqueAndPrimaryKeyValidation.addClassSetterMethod(classSetterMethods.get(i));
+uniqueAndPrimaryKeyValidation.addJDBCGetterMethod(jdbcGetterMethods.get(i));
+uniqueAndPrimaryKeyValidation.addResultParamType(paramsType.get(i));
+
+getByUniqueKey.append("SELECT * FROM ").append(columns.get(i)).append(" FROM ").append(tableName).append(" WHERE ").append(columns.get(i)).append("=? ;");
+getByUniqueKey.addJDBCSetterMethod(jdbcSetterMethods.get(i));
+getByUniqueKey.addClassGetterMethod(classGetterMethods.get(i));
+getByUniqueKey.addStatementParamType(paramsType.get(i));
 
 }
 if(fs.isForeignKey())
 {
-
-}
-}
-if(primaryCount!=0)
+try
 {
-updateStatementDS.append(wherePartOfPrimaryKeyDS.getStatement().toString());
-updateStatementDS.addJDBCMethods(wherePartOfPrimaryKeyDS.getJDBCMethods());
-updateStatementDS.addClassMethods(wherePartOfPrimaryKeyDS.getClassMethods());
-updateStatementDS.addParamsType(wherePartOfPrimaryKeyDS.getParamsType());
+foreignKeyValidation.append("SELECT ").append(fs.getFKParentColumn()).append(" FROM ").append(ORMDataModel.getInfo(Class.forName(fs.getFKParentClass())).getTableName()).append(" WHERE ").append(fs.getFKParentColumn()).append("=? ;");
+foreignKeyValidation.addJDBCSetterMethod(jdbcSetterMethods.get(i));
+foreignKeyValidation.addClassGetterMethod(classGetterMethods.get(i));
+foreignKeyValidation.addStatementParamType(paramsType.get(i));
+foreignKeyValidation.addClassSetterMethod(classSetterMethods.get(i));
+foreignKeyValidation.addJDBCGetterMethod(jdbcGetterMethods.get(i));
+foreignKeyValidation.addResultParamType(paramsType.get(i));
+}catch(Exception exception)
+{
+foreignKeyValidation.clear();
+}
 
-deleteStatementDS.append(wherePartOfPrimaryKeyDS.getStatement().toString());
-deleteStatementDS.addJDBCMethods(wherePartOfPrimaryKeyDS.getJDBCMethods());
-deleteStatementDS.addClassMethods(wherePartOfPrimaryKeyDS.getClassMethods());
-deleteStatementDS.addParamsType(wherePartOfPrimaryKeyDS.getParamsType());
+getByForeignKey.append("SELECT * FROM ").append(columns.get(i)).append(" FROM ").append(tableName).append(" WHERE ").append(columns.get(i)).append("=? ;");
+getByForeignKey.addJDBCSetterMethod(jdbcSetterMethods.get(i));
+getByForeignKey.addClassGetterMethod(classGetterMethods.get(i));
+getByForeignKey.addStatementParamType(paramsType.get(i));
+
+}
+getByPrimaryKey.addClassSetterMethod(classSetterMethods.get(i));
+getByPrimaryKey.addJDBCGetterMethod(jdbcGetterMethods.get(i));
+getByPrimaryKey.addResultParamType(paramsType.get(i));
+getByUniqueKey.addClassSetterMethod(classSetterMethods.get(i));
+getByUniqueKey.addJDBCGetterMethod(jdbcGetterMethods.get(i));
+getByUniqueKey.addResultParamType(paramsType.get(i));
+getByForeignKey.addClassSetterMethod(classSetterMethods.get(i));
+getByForeignKey.addJDBCGetterMethod(jdbcGetterMethods.get(i));
+getByForeignKey.addResultParamType(paramsType.get(i));
+
+}
+if(primaryKeyIndex!=-1)
+{
+//UNIQUE KEY WITHOUT PRIMARY KEY [UPDATE UNIQUE KEY VALIDATION]
+StringBuilder replaceWith=new StringBuilder();
+replaceWith.append(" AND ").append(columns.get(primaryKeyIndex)).append(" <> ").append("? ;");
+String uapkvStatement=uniqueAndPrimaryKeyValidation.getStatement().toString();
+uapkvStatement.replace(";",replaceWith.toString());
+uniqueAndPrimaryKeyValidation.setStatement(new StringBuilder(uapkvStatement));
+uniqueAndPrimaryKeyValidation.addJDBCSetterMethod(jdbcSetterMethods.get(primaryKeyIndex));
+uniqueAndPrimaryKeyValidation.addClassGetterMethod(classGetterMethods.get(primaryKeyIndex));
+uniqueAndPrimaryKeyValidation.addStatementParamType(paramsType.get(primaryKeyIndex));
+
+primaryKeyValidation.append("SELECT ").append(columns.get(primaryKeyIndex)).append(" FROM ").append(tableName).append(" WHERE ").append(columns.get(primaryKeyIndex)).append("=?");
+primaryKeyValidation.addJDBCSetterMethod(jdbcSetterMethods.get(primaryKeyIndex));
+primaryKeyValidation.addClassGetterMethod(classGetterMethods.get(primaryKeyIndex));
+primaryKeyValidation.addStatementParamType(paramsType.get(primaryKeyIndex));
+primaryKeyValidation.addClassSetterMethod(classSetterMethods.get(primaryKeyIndex));
+primaryKeyValidation.addJDBCGetterMethod(jdbcGetterMethods.get(primaryKeyIndex));
+primaryKeyValidation.addResultParamType(paramsType.get(primaryKeyIndex));
+
+getByPrimaryKey.append("SELECT * FROM ").append(tableName).append(" WHERE ").append(columns.get(primaryKeyIndex)).append("=?");
+getByPrimaryKey.addJDBCSetterMethod(jdbcSetterMethods.get(primaryKeyIndex));
+getByPrimaryKey.addClassGetterMethod(classGetterMethods.get(primaryKeyIndex));
+getByPrimaryKey.addStatementParamType(paramsType.get(primaryKeyIndex));
+
+updateStatementDS.append(" WHERE ").append(columns.get(primaryKeyIndex)).append("=").append(values.get(primaryKeyIndex));
+updateStatementDS.addJDBCSetterMethod(jdbcSetterMethods.get(primaryKeyIndex));
+updateStatementDS.addClassGetterMethod(classGetterMethods.get(primaryKeyIndex));
+updateStatementDS.addStatementParamType(paramsType.get(primaryKeyIndex));
+
+deleteStatementDS.append(" WHERE ").append(columns.get(primaryKeyIndex)).append("=").append(values.get(primaryKeyIndex));
+deleteStatementDS.addJDBCSetterMethod(jdbcSetterMethods.get(primaryKeyIndex));
+deleteStatementDS.addClassGetterMethod(classGetterMethods.get(primaryKeyIndex));
+deleteStatementDS.addStatementParamType(paramsType.get(primaryKeyIndex));
+
 }
 else		//Primary Key Required for DELETE and UPDATE
 {
@@ -220,13 +304,21 @@ deleteStatementDS.clear();
 updateStatementDS.clear();
 primaryKeyValidation.clear();
 getByPrimaryKey.clear();
+//uniqueAndPrimaryKeyValidation.clear();	//Already sufficent to proceed.
 }
+System.out.println("-----------------xxxxx------------------");
+System.out.println("Primary key index: "+primaryKeyIndex);
 System.out.println(insertStatementDS.getStatement().toString());
 System.out.println(updateStatementDS.getStatement().toString());
 System.out.println(deleteStatementDS.getStatement().toString());
 System.out.println(primaryKeyValidation.getStatement().toString());
 System.out.println(getByPrimaryKey.getStatement().toString());
-
+System.out.println(uniqueKeyValidation.getStatement().toString());
+System.out.println(uniqueAndPrimaryKeyValidation.getStatement().toString());
+System.out.println(getByUniqueKey.getStatement().toString());
+System.out.println(foreignKeyValidation.getStatement().toString());
+System.out.println(getByForeignKey.getStatement().toString());
+System.out.println("-----------------xxxxx------------------");
 tableMap.put("insert",insertStatementDS);
 tableMap.put("INSERT",insertStatementDS);
 tableMap.put("update",updateStatementDS);
@@ -241,17 +333,39 @@ tableMap.put("get_by_primary_key",getByPrimaryKey);
 tableMap.put("PRIMARY_KEY_VALIDATION",primaryKeyValidation);
 tableMap.put("primary_key_validation",primaryKeyValidation);
 
+tableMap.put("SELECT_BY_UNIQUE_KEY",getByUniqueKey);
+tableMap.put("select_by_primary_key",getByUniqueKey);
+tableMap.put("GET_BY_UNIQUE_KEY",getByUniqueKey);
+tableMap.put("get_by_unique_key",getByUniqueKey);
+tableMap.put("UNIQUE_KEY_VALIDATION",uniqueKeyValidation);
+tableMap.put("unique_key_validation",uniqueKeyValidation);
+tableMap.put("UNIQUE_AND_PRIMARY_KEY_VALIDATION",uniqueAndPrimaryKeyValidation);
+tableMap.put("unique_and_primary_key_validation",uniqueAndPrimaryKeyValidation);
 
-connection.close();
+tableMap.put("SELECT_BY_FOREIGN_KEY",getByForeignKey);
+tableMap.put("select_by_foreign_key",getByForeignKey);
+tableMap.put("GET_BY_FOREIGN_KEY",getByForeignKey);
+tableMap.put("get_by_foreign_key",getByForeignKey);
+tableMap.put("FOREIGN_KEY_VALIDATION",foreignKeyValidation);
+tableMap.put("foreign_key_validation",foreignKeyValidation);
+
+
 }catch(Exception e)
 {
-connection.close();
 System.out.println(e);
+e.printStackTrace();
 }
 statements.put(objClass,tableMap);
 }
+connection.close();
 }catch(DataException de)
 {
+try
+{
+connection.close();
+}catch(SQLException sqlException)
+{
+}
 throw de;
 }catch(Exception e)
 {
@@ -443,11 +557,11 @@ StatementDS statementDS=statements.get(objClass).get("insert");
 sqlStatement=statementDS.getStatement().toString();
 if(sqlStatement.isBlank()) throw new DataException("Some problem occured");		//donedone change the message
 preparedStatement=connection.prepareStatement(sqlStatement,Statement.RETURN_GENERATED_KEYS);
-List<Method> jdbcSetterMethods=statementDS.getJDBCMethods();
-List<Method> classGetterMethods=statementDS.getClassMethods();
-List<Integer> sqlTypes=statementDS.getParamsType();
+List<Method> jdbcSetterMethods=statementDS.getJDBCSetterMethods();
+List<Method> classGetterMethods=statementDS.getClassGetterMethods();
+List<Integer> sqlTypes=statementDS.getStatementParamsType();
 Object convertedData;
-for(int i=0;i<statementDS.getParamsCount();i++)
+for(int i=0;i<statementDS.getStatementParamsCount();i++)
 {
 System.out.println(classGetterMethods.get(i).getName());
 try
