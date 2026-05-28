@@ -29,14 +29,21 @@ public List<FieldSchema> getAllFields()
 {
 return this.fields;
 }
-public List<FieldSchema> getPrimaryKeyFields()
+public FieldSchema getPrimaryKeyField()
 {
-List<FieldSchema> result=new ArrayList<>();
 for(FieldSchema fs:fields)
 {
-if(fs.isPrimaryKey()) result.add(fs);
+if(fs.isPrimaryKey()) return fs;
 }
-return result;
+return null;
+}
+public boolean isPrimaryKeyAutoIncremented()
+{
+for(FieldSchema fs:fields)
+{
+if(fs.isPrimaryKey() && fs.isAutoIncrement()) return true;
+}
+return false;
 }
 public List<FieldSchema> getForeignKeyFields()
 {

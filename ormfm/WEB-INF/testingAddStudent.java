@@ -47,7 +47,7 @@ s.setDateOfBirth(date);
 
 dm.save(s);
 dm.end();
-System.out.println("Student added");
+System.out.println("Student added with roll number: "+s.getRollNumber());
 
 dm.begin();
 List<Student> students=(List<Student>)dm.query(Student.class).fire();
