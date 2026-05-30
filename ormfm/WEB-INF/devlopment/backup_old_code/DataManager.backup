@@ -9,7 +9,7 @@ import java.lang.reflect.*;
 import com.ashvin.orm.fm.utils.*;
 import com.ashvin.orm.fm.exceptions.*;
 
-public class DataManager
+//public class DataManager
 {
 private static Map<Class<?>,Map<String,StatementDS>> statements=new HashMap<>();
 private String jdbcDriver="";
@@ -1107,6 +1107,3 @@ return "'"+sdf.format(value)+"'";
 return String.valueOf(value);
 }
 }
-
-
-
