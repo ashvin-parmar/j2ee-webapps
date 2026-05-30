@@ -649,23 +649,6 @@ preparedStatement.executeUpdate();
 generatedKeys=preparedStatement.getGeneratedKeys();
 if(generatedKeys.next())
 {
-/*
-if(generatedKeys.next())//donedone
-{
-Object result=generatedKeys.getString(1);
-List<FieldSchema> autoIncrementFields=tableSchema.getAutoIncrementFields();
-if(!autoIncrementFields.isEmpty())	//handles only one auto increment key
-{
-Class<?> autoIncrementType=autoIncrementFields.get(0).getType();
-String keyValue=generatedKeys.getString(1);
-generatedKeys.close();
-preparedStatement.close();
-return ORMUtils.parseTo(autoIncrementType,keyValue);
-}
-}
-*/
-
-
 List<Method> jdbcGetterMethods=statementDS.getJDBCGetterMethods();
 List<Method> classSetterMethods=statementDS.getClassSetterMethods();
 List<Integer> resultParamTypes=statementDS.getResultParamsType();
@@ -675,7 +658,6 @@ for(int i=0;i<statementDS.getResultParamsCount();i++)
 {
 try
 {
-//donedone
 Object data=jdbcGetterMethods.get(i).invoke(generatedKeys,i+1);
 convertedData=JDBCMethodExtractor.convertToJava(resultParamTypes.get(i),data);
 classSetterMethods.get(i).invoke(obj,convertedData);
@@ -710,135 +692,194 @@ if(connection==null) throw new DataException("Call begin() before update()");
 try
 {
 Class<?> objClass=obj.getClass();
+Map<String,StatementDS> statementMap=statements.get(objClass);
+if(statementMap==null) throw new DataException("Invalid data provided, Data required.");
 TableSchema tableSchema=ORMDataModel.getInfo(objClass);
-List<FieldSchema> nonAutoIncrementFields=tableSchema.getNonAutoIncrementFields();
-FieldSchema primaryKeyField=tableSchema.getPrimaryKeyField();
-if(primaryKeyField==null) throw new DataException("No @PrimaryKey found in : "+objClass.getName());
+if(tableSchema==null) throw new DataException("Invalid data provided, Data required");
 
-StringBuilder wherePart=new StringBuilder();
-String primaryKeyColumnName="";
-Object primaryKeyValue=null;
-String sqlStatement;
+StatementDS statementDS;
+List<Method> jdbcSetterMethods;
+List<Method> classGetterMethods;
+List<Integer> sqlTypes;
+
+String sqlStatement="";
+String[] sqlStatements;
 PreparedStatement preparedStatement;
 ResultSet resultSet;
-FieldSchema fs=primaryKeyField;
-String fieldName=fs.getMethodName();
-String columnName=fs.getColumnName();
-Object value=null;
+ResultSet generatedKeys;
+Object convertedData=null;
+
+FieldSchema primaryKeyField=tableSchema.getPrimaryKeyField();
+if(primaryKeyField==null) throw new DataException("Invalid data provided, Data required");
+
+statementDS=statementMap.get("primary_key_validation");
+sqlStatement=statementDS.getStatement().toString();
+if(sqlStatement.isBlank()) throw new DataException("Invalid data provided, Data required");
+preparedStatement=connection.prepareStatement(sqlStatement);
+jdbcSetterMethods=statementDS.getJDBCSetterMethods();
+classGetterMethods=statementDS.getClassGetterMethods();
+sqlTypes=statementDS.getStatementParamsType();
+for(int i=0;i<statementDS.getStatementParamsCount();i++)
+{
 try
 {
-if(fs.isGetterAllowed())
+if(classGetterMethods.get(i)==null || (convertedData=JDBCMethodExtractor.convertToJDBC(sqlTypes.get(i),classGetterMethods.get(i).invoke(obj)))==null)
 {
-try
+preparedStatement.setNull(i+1,sqlTypes.get(i));
+}
+else
 {
-String sFieldName=fieldName.substring(0,1).toUpperCase()+fieldName.substring(1);
-Method getterMethod=objClass.getMethod("get"+sFieldName);
-value=getterMethod.invoke(obj);
+jdbcSetterMethods.get(i).invoke(preparedStatement,i+1,convertedData);
+}
 }catch(Exception e)
 {
-//System.out.println("invoke exception: "+e);
+preparedStatement.setNull(i+1,sqlTypes.get(i));	//null set
 }
 }
-else if(fs.isPublicAllowed())
-{
-Field field=objClass.getField(fieldName);
-value=field.get(obj);
-}
-primaryKeyColumnName=columnName;
-primaryKeyValue=formatValue(value);
-wherePart.append(fs.getColumnName()).append("=").append(formatValue(value));
-}catch(Exception exception)
-{
-wherePart.append(fs.getColumnName()).append("=").append("null");
-}
-if(fs.isPrimaryKey())
-{
-sqlStatement="select "+columnName+" from "+tableSchema.getTableName()+" where "+columnName+"="+formatValue(value)+";";
-System.out.println(sqlStatement);
-preparedStatement=connection.prepareStatement(sqlStatement);
 resultSet=preparedStatement.executeQuery();
 if(!resultSet.next())
 {
 resultSet.close();
 preparedStatement.close();
-throw new DataException("Invalid "+columnName+": "+formatValue(value));
+throw new DataException("Invalid "+primaryKeyField.getMethodName()+": "+convertedData);
 }
 resultSet.close();
 preparedStatement.close();
+
+statementDS=statementMap.get("unique_and_primary_key_validation");
+sqlStatements=statementDS.getStatement().toString().split(";");
+jdbcSetterMethods=statementDS.getJDBCSetterMethods();
+classGetterMethods=statementDS.getClassGetterMethods();
+sqlTypes=statementDS.getStatementParamsType();
+
+Method pkClassGetterMethod=null;
+Object pkConvertedData=null;
+Integer pkSQLType=-1;
+Method pkJDBCSetterMethod=null;
+
+try
+{
+if(((pkClassGetterMethod=classGetterMethods.get(classGetterMethods.size()-1))==null) || (pkConvertedData=JDBCMethodExtractor.convertToJDBC((pkSQLType=sqlTypes.get(sqlTypes.size()-1)),pkClassGetterMethod.invoke(obj)))==null)
+{
+pkClassGetterMethod=null;
+pkConvertedData=null;
 }
-
-
-StringBuilder setPart=new StringBuilder();
-for(int i=0;i<nonAutoIncrementFields.size();i++)
+else
 {
-fs=nonAutoIncrementFields.get(i);
-fieldName=fs.getMethodName();
-columnName=fs.getColumnName();
-value=null;
-try
-{
-if(fs.isGetterAllowed())
-{
-try
-{
-String sFieldName=fieldName.substring(0,1).toUpperCase()+fieldName.substring(1);
-Method getterMethod=objClass.getMethod("get"+sFieldName);
-value=getterMethod.invoke(obj);
+pkJDBCSetterMethod=jdbcSetterMethods.get(jdbcSetterMethods.size()-1);
+}
 }catch(Exception e)
 {
-//System.out.println("invoke exception: "+e);
+pkClassGetterMethod=null;
+pkJDBCSetterMethod=null;
 }
-}
-else if(fs.isPublicAllowed())
+
+System.out.println("debug: " + pkClassGetterMethod);
+System.out.println("debug: " + pkJDBCSetterMethod);
+System.out.println("debug: "+pkConvertedData);
+for(int i=0;i<statementDS.getStatementParamsCount()-1;i++)
 {
-Field field=objClass.getField(fieldName);
-value=field.get(obj);
-}
-setPart.append(fs.getColumnName()).append("=").append(formatValue(value));
-}catch(Exception exception)
+preparedStatement=connection.prepareStatement(sqlStatements[i]);
+System.out.println(classGetterMethods.get(i).getName());
+try
 {
-setPart.append(fs.getColumnName()).append("=").append("null");
-}
-if(fs.isUnique())
+if(classGetterMethods.get(i)==null || (convertedData=JDBCMethodExtractor.convertToJDBC(sqlTypes.get(i),classGetterMethods.get(i).invoke(obj)))==null)
 {
-sqlStatement="select "+columnName+" from "+tableSchema.getTableName()+" where "+columnName+"="+formatValue(value)+" and "+primaryKeyColumnName+" <> "+formatValue(primaryKeyValue)+";";
-System.out.println(sqlStatement);
-preparedStatement=connection.prepareStatement(sqlStatement);
+preparedStatement.setNull(1,sqlTypes.get(i));
+}
+else
+{
+jdbcSetterMethods.get(i).invoke(preparedStatement,1,convertedData);
+}
+
+if(pkClassGetterMethod==null || pkConvertedData==null)
+{
+preparedStatement.setNull(2,sqlTypes.get(sqlTypes.size()-1));
+}
+else
+{
+pkJDBCSetterMethod.invoke(preparedStatement,2,pkConvertedData);
+}
+
+}catch(Exception e)
+{
+preparedStatement.setNull(1,sqlTypes.get(i));	//null set
+preparedStatement.setNull(2,sqlTypes.get(sqlTypes.size()-1));
+}
 resultSet=preparedStatement.executeQuery();
 if(resultSet.next())
 {
 resultSet.close();
 preparedStatement.close();
-throw new DataException("Column: "+columnName+" must unique.");
+throw new DataException("This "+"[PENDING]"+" is already in use. Please try another.");
 }
 resultSet.close();
 preparedStatement.close();
 }
-if(fs.isForeignKey())
+//donedone over here to start
+statementDS=statementMap.get("foreign_key_validation");
+sqlStatements=statementDS.getStatement().toString().split(";");
+jdbcSetterMethods=statementDS.getJDBCSetterMethods();
+classGetterMethods=statementDS.getClassGetterMethods();
+sqlTypes=statementDS.getStatementParamsType();
+for(int i=0;i<statementDS.getStatementParamsCount();i++)
 {
-String fkParentClass=fs.getFKParentClass();
-String fkParentColumn=fs.getFKParentColumn();
-sqlStatement="select "+fkParentColumn+" from "+fkParentClass+" where "+fkParentColumn+"="+formatValue(value)+";";
-System.out.println(sqlStatement);
-preparedStatement=connection.prepareStatement(sqlStatement);
+preparedStatement=connection.prepareStatement(sqlStatements[i]);
+//System.out.println(classGetterMethods.get(i).getName());
+try
+{
+if(classGetterMethods.get(i)==null || (convertedData=JDBCMethodExtractor.convertToJDBC(sqlTypes.get(i),classGetterMethods.get(i).invoke(obj)))==null)
+{
+preparedStatement.setNull(1,sqlTypes.get(i));
+}
+else
+{
+jdbcSetterMethods.get(i).invoke(preparedStatement,1,convertedData);
+}
+}catch(Exception e)
+{
+preparedStatement.setNull(1,sqlTypes.get(i));	//null set
+//System.out.println("Error: "+e);
+}
 resultSet=preparedStatement.executeQuery();
 if(!resultSet.next())
 {
 resultSet.close();
 preparedStatement.close();
-throw new DataException("Column "+columnName+" value must need to matched with "+fkParentClass+"'s "+fkParentColumn);
+//throw new DataException("Column "+columnName+" value must need to matched with "+fkParentClass+"'s "+fkParentColumn);
+throw new DataException("The selected [PENDING{parentTableName}] does not exist. Please select a valid entry.");
 }
 resultSet.close();
 preparedStatement.close();
 }
 
-if(i+1<nonAutoIncrementFields.size()) setPart.append(",");
-}
-sqlStatement="update "+tableSchema.getTableName()
-+" set "+setPart
-+" where "+wherePart;
-System.out.println("SQL: "+sqlStatement);
+
+statementDS=statementMap.get("update");
+sqlStatement=statementDS.getStatement().toString();
+if(sqlStatement.isBlank()) throw new DataException("Invalid data provided, Data required");		//donedone change the message
+jdbcSetterMethods=statementDS.getJDBCSetterMethods();
+classGetterMethods=statementDS.getClassGetterMethods();
+sqlTypes=statementDS.getStatementParamsType();
 preparedStatement=connection.prepareStatement(sqlStatement);
+for(int i=0;i<statementDS.getStatementParamsCount();i++)
+{
+//System.out.println(classGetterMethods.get(i).getName());
+try
+{
+if(classGetterMethods.get(i)==null || (convertedData=JDBCMethodExtractor.convertToJDBC(sqlTypes.get(i),classGetterMethods.get(i).invoke(obj)))==null)
+{
+preparedStatement.setNull(i+1,sqlTypes.get(i));
+}
+else
+{
+jdbcSetterMethods.get(i).invoke(preparedStatement,i+1,convertedData);
+}
+}catch(Exception e)
+{
+preparedStatement.setNull(i+1,sqlTypes.get(i));	//null set
+System.out.println("Error: "+e);
+}
+}
 preparedStatement.executeUpdate();
 preparedStatement.close();
 }catch(DataException de)
@@ -848,7 +889,6 @@ throw de;
 {
 throw new DataException(exception);
 }
-
 }
 public void delete(Class<?> objClass,Object primaryKey) throws DataException
 {
