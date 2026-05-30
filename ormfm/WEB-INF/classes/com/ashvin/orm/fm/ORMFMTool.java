@@ -30,7 +30,7 @@ public ORMFMTool()
 public void init() throws DataException
 {
 this.parentWorkingDirectory=new File(System.getProperty("user.dir"));
-System.out.println(this.parentWorkingDirectory.getAbsolutePath());
+// System.out.println(this.parentWorkingDirectory.getAbsolutePath());
 
 File file=new File(this.parentWorkingDirectory,this.configFileName);
 //System.out.println("File: "+file.getAbsolutePath());
@@ -96,13 +96,13 @@ packageFolder.mkdirs();
 JavaCompiler compiler=ToolProvider.getSystemJavaCompiler();
 if(compiler==null)
 {
-System.out.println("Error: JDK required");
+// System.out.println("Error: JDK required");
 return;
 }
 File jarFile=new File(this.parentWorkingDirectory.getPath()+File.separator+"lib"+File.separator+"ormfm.jar");
 if(!jarFile.exists()) 
 {
-System.out.println("ormfm.jar required: (" + jarFile.getAbsolutePath() + ")");
+// System.out.println("ormfm.jar required: (" + jarFile.getAbsolutePath() + ")");
 return;
 }
 
@@ -208,17 +208,17 @@ javaFile.getPath()
 int compilationResult=compiler.run(null,null,null,javacArguments);
 if(compilationResult!=0)
 {
-System.out.println("File: '"+javaFile.getAbsolutePath()+"' compilation failed!");
+// System.out.println("File: '"+javaFile.getAbsolutePath()+"' compilation failed!");
 }
 else
 {
-System.out.println("File: '"+javaFile.getAbsolutePath()+"' compiled successfully.");
+// System.out.println("File: '"+javaFile.getAbsolutePath()+"' compiled successfully.");
 }
 }
 connection.close();
 }catch(Exception e)
 {
-System.out.println("Exception: "+e.getMessage());
+// System.out.println("Exception: "+e.getMessage());
 }
 }
 public final void createJar(String targetJarFileName) throws DataException		//Compile and Create Jar
@@ -268,11 +268,11 @@ javaFile.getPath()
 int compilationResult=compiler.run(null,null,null,javacArguments);
 if(compilationResult!=0)
 {
-System.out.println("File: '"+javaFile.getAbsolutePath()+"' compilation failed!");
+// System.out.println("File: '"+javaFile.getAbsolutePath()+"' compilation failed!");
 }
 else
 {
-System.out.println("File: '"+javaFile.getAbsolutePath()+"' compiled successfully.");
+// System.out.println("File: '"+javaFile.getAbsolutePath()+"' compiled successfully.");
 }
 }
 }
@@ -288,17 +288,17 @@ try(FileOutputStream fos=new FileOutputStream(targetJarFile);JarOutputStream jos
 addFilesToJar(srcFolder,srcFolder,jos);
 jos.flush();
 }
-System.out.println("JAR File '"+targetJarFile.getPath()+"' created.");
+// System.out.println("JAR File '"+targetJarFile.getPath()+"' created.");
 }catch(IOException ie)
 {
-System.out.println("IOException: "+ie);
+// System.out.println("IOException: "+ie);
 }
 }catch(DataException de)
 {
 throw de;
 }catch(Exception e)
 {
-System.out.println("Exception: "+e);
+// System.out.println("Exception: "+e);
 throw new DataException("Unable to create JAR file.");
 }
 
@@ -364,7 +364,7 @@ try
 {
 if(file.exists() && !file.isDirectory() && file.getName().endsWith(".class"))
 {
-System.out.println(file.getName());
+// System.out.println(file.getName());
 Class objClass=Class.forName(packageName+"."+file.getName().replace(".class",""));
 if(objClass==null) continue;
 if(!objClass.isAnnotationPresent(Table.class))
@@ -430,13 +430,13 @@ ORMDataModel.addInfo(objClass,tableSchema);
 }
 }catch(ClassNotFoundException cnfe)
 {
-System.out.println("Exception: "+cnfe);
+// System.out.println("Exception: "+cnfe);
 }catch(DataException de)
 {
-System.out.println(de);
+// System.out.println(de);
 }catch(Exception e)
 {
-System.out.println("Exception: "+e);
+// System.out.println("Exception: "+e);
 }
 }
 }
