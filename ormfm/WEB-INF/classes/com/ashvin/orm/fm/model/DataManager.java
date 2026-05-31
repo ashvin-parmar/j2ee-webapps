@@ -12,41 +12,41 @@ import com.ashvin.orm.fm.exceptions.*;
 public class DataManager
 {
 private static Map<Class<?>,Map<String,StatementDS>> statements=new HashMap<>();
+private static DataManager dataManager=null;
+private static File parentWorkingDirectory;
 private String jdbcDriver="";
 private String connectionURL="";
 private String username="";
 private String password="";
 private String packageName="";
-private Connection connection=null;
 
-private String qStatement="";
-private Class<?> qClass=null;
-private boolean whereUsed=false;
-private StatementDS qStatementDS=null;
+private static final class Session
+{
+Connection connection=null;
+String qStatement="";
+Class<?> qClass=null;
+boolean whereUsed=false;
+boolean orderByUsed=false;
+StatementDS qStatementDS=null;
+}
+private static final ThreadLocal<Session> threadSession=ThreadLocal.withInitial(()->new Session());
 
-private static DataManager dataManager=null;
-private static File parentWorkingDirectory;
 private DataManager() throws DataException
 {
 try
 {
 File file=new File(parentWorkingDirectory,"conf.json");
-if(!file.exists())
-{
-throw new DataException("Configuration file required");
-}
+if(!file.exists()) throw new DataException("Configuration file required");
+
 FileReader fileReader=new FileReader(file);
 JsonObject jsonObj=JsonParser.parseReader(fileReader).getAsJsonObject();
-if(jsonObj==null)
-{
-throw new DataException("Invalid json configuration file");
-}
+if(jsonObj==null) throw new DataException("Invalid json configuration file");
+
 jdbcDriver=(jsonObj.get("jdbc-driver")!=null?jsonObj.get("jdbc-driver").getAsString():"");
 connectionURL=(jsonObj.get("connection-url")!=null?jsonObj.get("connection-url").getAsString():"");
 username=(jsonObj.get("username")!=null?jsonObj.get("username").getAsString():"");
 password=(jsonObj.get("password")!=null?jsonObj.get("password").getAsString():"");
 packageName=(jsonObj.get("package-name")!=null?jsonObj.get("package-name").getAsString():"testing.pojo");
-
 //System.out.println("JDBC Driver: "+jdbcDriver);
 //System.out.println("Connection URL: "+connectionURL);
 //System.out.println("Username: "+username);
@@ -57,17 +57,11 @@ try
 Class c=Class.forName(jdbcDriver);
 }catch(Exception exception)
 {
-throw new DataException("Invalid json configuration file");
+throw new DataException("Invalid JDBC driver: "+jdbcDriver);
 }
-this.jdbcDriver=jdbcDriver;
-this.connectionURL=connectionURL;
-this.username=username;
-this.password=password;
-this.packageName=packageName;
 
-//load all class files to Model
-List<TableSchema> tables;
-tables=new ArrayList<>();
+//load all POJO classes
+List<TableSchema> tables=new ArrayList<>();
 loadAllPojoClassesToDS(tables);		//Also loaded all table in tables.
 
 String tableName;
@@ -92,17 +86,15 @@ ResultSet colRS;
 int sqlType;
 
 //Creating DataManager DS
-connection=DriverManager.getConnection(connectionURL,username,password);
+Connection connection=DriverManager.getConnection(connectionURL,username,password);
 dbMetaData=connection.getMetaData();
 for(TableSchema tableSchema:tables)
 {
 Class<?> objClass=tableSchema.getObjectClass();
 tableName=tableSchema.getTableName();
 tableMap=new HashMap<>();
-//insert statement start here.
 try
 {
-
 fields=tableSchema.getAllFields();
 
 jdbcSetterMethods=new ArrayList<>();
@@ -367,16 +359,11 @@ statements.put(objClass,tableMap);
 connection.close();
 }catch(DataException de)
 {
-try
-{
-connection.close();
-}catch(SQLException sqlException)
-{
-}
 throw de;
 }catch(Exception e)
 {
 //System.out.println(e);
+throw new DataException(e);
 }
 }
 private  void loadFiles(File rootFolder,File currentFile,List<TableSchema> tables) throws DataException
@@ -457,13 +444,24 @@ public static DataManager getDataManager() throws DataException
 if(dataManager==null) throw new DataException("Must call initialize along with parent working directory");
 return DataManager.dataManager;
 }
+
+private static Session session()
+{
+return threadSession.get();
+}
+private static Connection conn()
+{
+return session().connection;
+}
+
 public void begin() throws DataException
 {
+Session s=session();
 try
 {
-if(connection!=null && !connection.isClosed()) connection.close();
+if(s.connection!=null && !s.connection.isClosed()) s.connection.close();
 reset();
-connection=DriverManager.getConnection(connectionURL,username,password);
+s.connection=DriverManager.getConnection(connectionURL,username,password);
 }catch(SQLException sqlException)
 {
 throw new DataException(sqlException);
@@ -471,26 +469,31 @@ throw new DataException(sqlException);
 }
 public void end()
 {
+Session s=session();
 try
 {
-if(connection!=null) connection.close();
+if(s.connection!=null) s.connection.close();
 }catch(SQLException sqlException)
 {
 // System.out.println("Error closing connection: "+sqlException);
 }
 reset();
-connection=null;
+threadSession.remove();
 }
 public void reset()
 {
-this.qStatement="";
-this.qClass=null;
-this.whereUsed=false;
-this.qStatementDS=null;
+Session s=session();
+s.qStatement="";
+s.qClass=null;
+s.whereUsed=false;
+s.orderByUsed=false;
+s.qStatementDS=null;    //reset may called mid-session too, must not intrupt an ongoing transaction.
 }
 public void save(Object obj) throws DataException
 {
-if(connection==null) throw new DataException("Call begin() before save()");
+Connection connection=conn();
+if(connection==null) throw new DataException("Call begin() before save()"); 
+boolean exists=false;
 try
 {
 Class<?> objClass=obj.getClass();
@@ -539,24 +542,29 @@ preparedStatement.setNull(i+1,sqlTypes.get(i));	//null set
 }
 }
 resultSet=preparedStatement.executeQuery();
-if(resultSet.next())
-{
+exists=resultSet.next();
 resultSet.close();
 preparedStatement.close();
+if(exists)
+{
 throw new DataException("This record already exists. Please use a unique identifier.");
 }
-resultSet.close();
-preparedStatement.close();
 }
 
+String[] sqlStatements;
 statementDS=statementMap.get("unique_key_validation");
-String[] sqlStatements=statementDS.getStatement().toString().split(";");
+sqlStatement=statementDS.getStatement().toString();
+if(!sqlStatement.isBlank())
+{ 
+sqlStatements=sqlStatement.split(";");
 jdbcSetterMethods=statementDS.getJDBCSetterMethods();
 classGetterMethods=statementDS.getClassGetterMethods();
 sqlTypes=statementDS.getStatementParamsType();
 for(int i=0;i<statementDS.getStatementParamsCount();i++)
 {
-preparedStatement=connection.prepareStatement(sqlStatements[i]);
+String subSQL=(i<sqlStatements.length)?sqlStatements[i].trim():"";
+if(subSQL.isBlank()) continue;
+preparedStatement=connection.prepareStatement(subSQL);
 try
 {
 if(classGetterMethods.get(i)==null || (convertedData=JDBCMethodExtractor.convertToJDBC(sqlTypes.get(i),classGetterMethods.get(i).invoke(obj)))==null)
@@ -573,24 +581,28 @@ preparedStatement.setNull(1,sqlTypes.get(i));	//null set
 //System.out.println("Error: "+e);
 }
 resultSet=preparedStatement.executeQuery();
-if(resultSet.next())
-{
+exists=resultSet.next();
 resultSet.close();
 preparedStatement.close();
+if(exists)
+{
 throw new DataException("This "+"[PENDING]"+" is already in use. Please try another.");
 }
-resultSet.close();
-preparedStatement.close();
 }
-
+}
 statementDS=statementMap.get("foreign_key_validation");
-sqlStatements=statementDS.getStatement().toString().split(";");
+sqlStatement=statementDS.getStatement().toString();
+if(!sqlStatement.isBlank())
+{ 
+sqlStatements=sqlStatement.split(";");
 jdbcSetterMethods=statementDS.getJDBCSetterMethods();
 classGetterMethods=statementDS.getClassGetterMethods();
 sqlTypes=statementDS.getStatementParamsType();
 for(int i=0;i<statementDS.getStatementParamsCount();i++)
 {
-preparedStatement=connection.prepareStatement(sqlStatements[i]);
+String subSQL=(i<sqlStatements.length)?sqlStatements[i].trim():"";
+if(subSQL.isBlank()) continue;
+preparedStatement=connection.prepareStatement(subSQL);
 //System.out.println(classGetterMethods.get(i).getName());
 try
 {
@@ -608,21 +620,19 @@ preparedStatement.setNull(1,sqlTypes.get(i));	//null set
 //System.out.println("Error: "+e);
 }
 resultSet=preparedStatement.executeQuery();
-if(!resultSet.next())
+exists=resultSet.next();
+resultSet.close();
+preparedStatement.close();
+if(!exists)
 {
-resultSet.close();
-preparedStatement.close();
-//throw new DataException("Column "+columnName+" value must need to matched with "+fkParentClass+"'s "+fkParentColumn);
-throw new DataException("The selected [PENDING{parentTableName}] does not exist. Please select a valid entry.");
+throw new DataException("Referenced parent record does not exist. Please select a valid entry.");
 }
-resultSet.close();
-preparedStatement.close();
 }
-
+}
 
 statementDS=statements.get(objClass).get("insert");
 sqlStatement=statementDS.getStatement().toString();
-if(sqlStatement.isBlank()) throw new DataException("Invalid data provided, Data required");		//donedone change the message
+if(sqlStatement.isBlank()) throw new DataException("Invalid data provided, Data required");
 preparedStatement=connection.prepareStatement(sqlStatement,Statement.RETURN_GENERATED_KEYS);
 jdbcSetterMethods=statementDS.getJDBCSetterMethods();
 classGetterMethods=statementDS.getClassGetterMethods();
@@ -664,15 +674,6 @@ convertedData=JDBCMethodExtractor.convertToJava(resultParamTypes.get(i),data);
 classSetterMethods.get(i).invoke(obj,convertedData);
 }catch(Exception e)
 {
-//e.printStackTrace();
-try
-{
-classSetterMethods.get(i).invoke(obj,JDBCMethodExtractor.convertToJava(resultParamTypes.get(i),null));
-}catch(Exception ee)
-{
-//ee.printStackTrace();
-// System.out.println("setter failed: "+ee);
-}
 }
 }
 }
@@ -689,7 +690,9 @@ throw new DataException(exception);
 }
 public void update(Object obj) throws DataException
 {
+Connection connection=conn();
 if(connection==null) throw new DataException("Call begin() before update()");
+boolean exists=false;
 try
 {
 Class<?> objClass=obj.getClass();
@@ -738,17 +741,20 @@ preparedStatement.setNull(i+1,sqlTypes.get(i));	//null set
 }
 }
 resultSet=preparedStatement.executeQuery();
-if(!resultSet.next())
-{
+exists=resultSet.next();
 resultSet.close();
 preparedStatement.close();
+if(!exists)
+{
 throw new DataException("Invalid "+primaryKeyField.getMethodName()+": "+convertedData);
 }
-resultSet.close();
-preparedStatement.close();
 
 statementDS=statementMap.get("unique_and_primary_key_validation");
-sqlStatements=statementDS.getStatement().toString().split(";");
+sqlStatement=statementDS.getStatement().toString();
+if(!sqlStatement.isBlank())
+{
+sqlStatements=sqlStatement.split(";");
+
 jdbcSetterMethods=statementDS.getJDBCSetterMethods();
 classGetterMethods=statementDS.getClassGetterMethods();
 sqlTypes=statementDS.getStatementParamsType();
@@ -776,7 +782,10 @@ pkJDBCSetterMethod=null;
 }
 for(int i=0;i<statementDS.getStatementParamsCount()-1;i++)
 {
-preparedStatement=connection.prepareStatement(sqlStatements[i]);
+String subSQL=(i<sqlStatements.length)?sqlStatements[i].trim():"";
+
+if(subSQL.isBlank()) continue;
+preparedStatement=connection.prepareStatement(subSQL);
 // System.out.println(classGetterMethods.get(i).getName());
 try
 {
@@ -804,24 +813,29 @@ preparedStatement.setNull(1,sqlTypes.get(i));	//null set
 preparedStatement.setNull(2,sqlTypes.get(sqlTypes.size()-1));
 }
 resultSet=preparedStatement.executeQuery();
-if(resultSet.next())
-{
+exists=resultSet.next();
 resultSet.close();
 preparedStatement.close();
+if(exists)
+{
 throw new DataException("This "+"[PENDING]"+" is already in use. Please try another.");
 }
-resultSet.close();
-preparedStatement.close();
+}
 }
 //donedone over here to start
 statementDS=statementMap.get("foreign_key_validation");
-sqlStatements=statementDS.getStatement().toString().split(";");
+sqlStatement=statementDS.getStatement().toString();
+if(!sqlStatement.isBlank())
+{
+sqlStatements=sqlStatement.split(";");
 jdbcSetterMethods=statementDS.getJDBCSetterMethods();
 classGetterMethods=statementDS.getClassGetterMethods();
 sqlTypes=statementDS.getStatementParamsType();
 for(int i=0;i<statementDS.getStatementParamsCount();i++)
 {
-preparedStatement=connection.prepareStatement(sqlStatements[i]);
+String subSQL=(i<sqlStatements.length)?sqlStatements[i].trim():"";
+if(subSQL.isBlank()) continue;
+preparedStatement=connection.prepareStatement(subSQL);
 //System.out.println(classGetterMethods.get(i).getName());
 try
 {
@@ -839,18 +853,16 @@ preparedStatement.setNull(1,sqlTypes.get(i));	//null set
 //System.out.println("Error: "+e);
 }
 resultSet=preparedStatement.executeQuery();
-if(!resultSet.next())
-{
+exists=resultSet.next();
 resultSet.close();
 preparedStatement.close();
-//throw new DataException("Column "+columnName+" value must need to matched with "+fkParentClass+"'s "+fkParentColumn);
+if(!exists)
+{
 throw new DataException("The selected [PENDING{parentTableName}] does not exist. Please select a valid entry.");
 }
-resultSet.close();
-preparedStatement.close();
+}
 }
 
-//Check for updated data foreign key constraint, that No data modified are attached to any table foreign key. [PENDING]
 updateAndDeleteForeignKeyConstrainOnCompleteDB(obj,tableSchema);
 
 statementDS=statementMap.get("update");
@@ -891,6 +903,7 @@ throw new DataException(exception);
 }
 public void delete(Class<?> objClass,Object primaryKey) throws DataException
 {
+Connection connection=conn();
 if(connection==null) throw new DataException("Call begin() before delete()");
 try
 {
@@ -955,15 +968,6 @@ convertedData=JDBCMethodExtractor.convertToJava(resultParamTypes.get(i),data);
 classSetterMethods.get(i).invoke(obj,convertedData);
 }catch(Exception e)
 {
-//e.printStackTrace();
-try
-{
-classSetterMethods.get(i).invoke(obj,JDBCMethodExtractor.convertToJava(resultParamTypes.get(i),null));
-}catch(Exception ee)
-{
-//ee.printStackTrace();
-// System.out.println("setter failed: "+ee);
-}
 }
 }
 }
@@ -1011,72 +1015,73 @@ throw new DataException(exception);
 public DataManager query(Class objClass) throws DataException
 {
 TableSchema tableSchema=ORMDataModel.getInfo(objClass);
-this.qClass=objClass;
-this.qStatement="select * from "+tableSchema.getTableName();
+session().qClass=objClass;
+session().qStatement="select * from "+tableSchema.getTableName();
 return this;
 }
 public DataManager where(String columnName)
 {
-if(!whereUsed) this.qStatement+=" where "+columnName;
-else this.qStatement+=columnName;
-whereUsed=true;
+session().qStatement+=(session().whereUsed ?" where ":" ")+columnName;
+session().whereUsed=true;
 return this;
 }
 public DataManager eq(Object value)
 {
-this.qStatement+=("="+formatValue(value));
+session().qStatement+=("="+formatValue(value));
 return this;
 }
 public DataManager gt(Object value)
 {
-this.qStatement+=(">"+formatValue(value));
+session().qStatement+=(">"+formatValue(value));
 return this;
 }
 public DataManager lt(Object value)
 {
-this.qStatement+=("<"+formatValue(value));
+session().qStatement+=("<"+formatValue(value));
 return this;
 }
 public DataManager ge(Object value)
 {
-this.qStatement+=(">="+formatValue(value));
+session().qStatement+=(">="+formatValue(value));
 return this;
 }
 public DataManager le(Object value)
 {
-this.qStatement+=("<="+formatValue(value));
+session().qStatement+=("<="+formatValue(value));
 return this;
 }
 public DataManager ne(Object value)
 {
-this.qStatement+=("!="+formatValue(value));
+session().qStatement+=("!="+formatValue(value));     //<>
 return this;
 
 }
 public DataManager and()
 {
-this.qStatement+=" and ";
+session().qStatement+=" AND ";
 return this;
 }
 public DataManager or()
 {
-this.qStatement+=" or ";
+session().qStatement+=" OR ";
 return this;
 }
 public Object fire() throws DataException
 {
+Session s=session();
+Connection connection=s.connection;
 if(connection==null) throw new DataException("Call begin() before fire()");
-if(qClass==null) throw new DataException("Call query() before fire()");
+if(s.qClass==null) throw new DataException("Call query() before fire()");
 try
 {
 //System.out.println("SQLStatement: "+qStatement);
-TableSchema tableSchema=ORMDataModel.getInfo(qClass);
-PreparedStatement preparedStatement=connection.prepareStatement(qStatement);
+TableSchema tableSchema=ORMDataModel.getInfo(s.qClass);
+PreparedStatement preparedStatement=connection.prepareStatement(s.qStatement);
 ResultSet resultSet=preparedStatement.executeQuery();
 List<Object> resultList=new ArrayList<>();
 while(resultSet.next())
 {
-Object instance=qClass.getDeclaredConstructor().newInstance();
+Object instance=s.qClass.getDeclaredConstructor().newInstance();
 for(FieldSchema fs:tableSchema.getAllFields())
 {
 try
@@ -1086,12 +1091,12 @@ Object value=resultSet.getObject(fs.getColumnName());
 if(fs.isSetterAllowed())
 {
 String sFieldName=fieldName.substring(0,1).toUpperCase()+fieldName.substring(1);
-Method setterMethod=qClass.getMethod("set"+sFieldName,fs.getType());
+Method setterMethod=s.qClass.getMethod("set"+sFieldName,fs.getType());
 setterMethod.invoke(instance,value);
 }
 else if(fs.isPublicAllowed())
 {
-Field field=qClass.getField(fieldName);
+Field field=s.qClass.getField(fieldName);
 field.set(instance,value);
 }
 else
@@ -1143,6 +1148,7 @@ return String.valueOf(value);
 private void updateAndDeleteForeignKeyConstrainOnCompleteDB(Object obj,TableSchema tableSchema) throws DataException
 {
 //This IS THE CODE -> FOR ALL DB TRAVERSAL AND CHECK FOREIGN KEY CONSTRAINT -> NEED TO ALSO CHECKED IN UPDATE TOO [LATER ON]
+Connection connection=conn();
 String sqlStatement;
 Class objClass=obj.getClass();
 PreparedStatement preparedStatement;
@@ -1211,10 +1217,16 @@ preparedStatement.close();
 }
 }
 
-void _updateAndDeleteForeignKeyConstrainOnCompleteDB()      //other way
+void _updateAndDeleteForeignKeyConstrainOnCompleteDB(Object obj,TableSchema tableSchema) throws DataException     //other way
 {
 /*
+try
+{
+boolean exists=false;
+Class<?> objClass=obj.geClass();
 List<TableSchema> tables=ORMDataModel.getAllInfo();
+PreparedStatement preparedStatement;
+ResultSet resultSet;
 Map<String,StatementDS> fkStatementMap;
 // System.out.println("table size: "+tables.size());
 for(TableSchema table:tables)
@@ -1223,49 +1235,87 @@ if(tableSchema.equals(table)) continue;
 fkStatementMap=statements.get(table.getObjectClass());
 if(statementMap==null) continue;
 statementDS=fkStatementMap.get("foreign_key_validation");
-sqlStatements=statementDS.getStatement().toString().split(";");
+sqlStatement=statementDS.getStatement().toString();
+if(sqlStatement.isBlanl()) continue;
+sqlStatements=sqlStatement.split(";");
+
 jdbcSetterMethods=statementDS.getJDBCSetterMethods();
 classGetterMethods=statementDS.getClassGetterMethods();
 sqlTypes=statementDS.getStatementParamsType();
-for(int i=0;i<sqlStatements.length;i++)
+for(int i=0;i<statementDS.getStatementParamCount();i++)
 {
-if(!sqlStatements[i].contains(tableSchema.getTableName())) continue;
-preparedStatement=connection.prepareStatement(sqlStatements[i]);
-// System.out.println("debug: " + sqlStatements[i]);
-// System.out.println(classGetterMethods.get(i));
+String subSQL=(i<sqlStatements.length)?sqlStatements[i].trim():"";
+if(subSQL.isBlank()) continue;
+if(!subSQL.toUpperCase().contains(tableSchema.getTableName().toUpperCase())) continue;
+List<FieldSchema> fkFields=table.getForeignKeyFields();
+if(i>=fkFields.size()) continue;
+FieldSchema fkField=fkFields.get(i);
+
+String parentColName=fkField.getFKParentColumn();
+TableSchema parentSchema=tableSchema;
+FieldSchema parentField=parentSchema.getFieldByColumnName(parentColName);
+
+if(parentField==null) continue;
+Object value=getFieldValue(obj,objClass,parentField);
+String checkSQL="SELECT 1 FROM "+table.getTableName()+" WHERE "+fkFields.getColumnName()+"=?";
+ 
+preparedStatement=connection.prepareStatement(checkSQL);
 try
 {
-if(classGetterMethods.get(i)==null || (convertedData=JDBCMethodExtractor.convertToJDBC(sqlTypes.get(i),classGetterMethods.get(i).invoke(obj)))==null)
+if (value == null || classGetterMethods.get(i) == null)
 {
-preparedStatement.setNull(1,sqlTypes.get(i));
-// System.out.println("null value set to prepared");
+preparedStatement.setNull(1, sqlTypes.get(i));
 }
 else
 {
-// System.out.println(convertedData);
-jdbcSetterMethods.get(i).invoke(preparedStatement,1,convertedData);
+Object converted=JDBCMethodExtractor.convertToJDBC(sqlTypes.get(i),value);
+if(converted==null) preparedStatement.setNull(1,sqlTypes.get(i));
+else jdbcSetters.get(i).invoke(ps,1,converted);
 }
-}catch(Exception e)
+}
+catch(Exception e)
 {
-preparedStatement.setNull(1,sqlTypes.get(i));	//null set
-// System.out.println("Error: "+e);
+ps.setNull(1,sqlTypes.get(i));
 }
 resultSet=preparedStatement.executeQuery();
-if(resultSet.next())
-{
+exists=resultSet.next();
 resultSet.close();
 preparedStatement.close();
-//throw new DataException("Column "+columnName+" value must need to matched with "+fkParentClass+"'s "+fkParentColumn);
-throw new DataException("The selected [PENDING{parentTableName}] data does exist against some record. We can't delete this record.");
+if (exists) throw new DataException("Cannot update or delete: record is referenced by '"+ table.getTableName() + "'.");
 }
-else
+}
+}catch(DataException de)
 {
-// System.out.println("result set null over here.");
-}
-resultSet.close();
-preparedStatement.close();
-}
+throw de;
+}catch(SQLException e)
+{
+}catch(Exception exception)
+{
+System.out.println(exception);
 }
 */
+}
+private Object getFieldValue(Object obj, Class<?> objClass, FieldSchema fs)
+{
+String fieldName = fs.getMethodName();
+try
+{
+if (fs.isGetterAllowed())
+{
+Method m = objClass.getMethod("get" + capitalize(fieldName));
+return m.invoke(obj);
+}
+else if (fs.isPublicAllowed())
+{
+return objClass.getField(fieldName).get(obj);
+}
+}
+catch (Exception ignored) {}
+return null;
+}
+private static String capitalize(String s)
+{
+if (s == null || s.isEmpty()) return s;
+return s.substring(0, 1).toUpperCase() + s.substring(1);
 }
 }

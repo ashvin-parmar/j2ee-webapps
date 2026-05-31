@@ -221,6 +221,9 @@ connection.close();
 // System.out.println("Exception: "+e.getMessage());
 }
 }
+public final void createViewPojo()
+{
+}
 public final void createJar(String targetJarFileName) throws DataException		//Compile and Create Jar
 {
 targetJarFileName=targetJarFileName.replace(" ","");
@@ -447,7 +450,7 @@ public static void main(String args[])
 ORMFMTool ormTool=new ORMFMTool();
 if(args.length<1)
 {
-System.out.println("Choice required: ['generate_pojo','generate_jar','load_to_orm_model','generate_doc_pdf']");
+System.out.println("Choice required: ['generate_pojo','generate_view_pojo','generate_jar','generate_doc_pdf']");
 return;
 }
 try
@@ -461,14 +464,15 @@ switch(choice)
 case "generate_pojo": 
 	ormTool.createPojo();
 	break;
+case "generate_view_pojo":
+    ormTool.createViewPojo();
+    break;
 case "generate_jar":
 	Scanner scanner=new Scanner(System.in);
 	System.out.print("Enter Jar File name: ");
 	String jarFileName=scanner.nextLine();
 	scanner.close();
 	ormTool.createJar(jarFileName);
-	break;
-case "load_to_orm_model":
 	break;
 case "generate_doc_pdf":
 	break;
