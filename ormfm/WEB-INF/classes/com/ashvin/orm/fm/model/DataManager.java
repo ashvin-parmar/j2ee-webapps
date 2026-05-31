@@ -229,7 +229,7 @@ uniqueAndPrimaryKeyValidation.addClassSetterMethod(classSetterMethods.get(i));
 uniqueAndPrimaryKeyValidation.addJDBCGetterMethod(jdbcGetterMethods.get(i));
 uniqueAndPrimaryKeyValidation.addResultParamType(paramsType.get(i));
 
-getByUniqueKey.append("SELECT * FROM ").append(columns.get(i)).append(" FROM ").append(tableName).append(" WHERE ").append(columns.get(i)).append("=? ;");
+getByUniqueKey.append("SELECT * FROM").append(tableName).append(" WHERE ").append(columns.get(i)).append("=? ;");
 getByUniqueKey.addJDBCSetterMethod(jdbcSetterMethods.get(i));
 getByUniqueKey.addClassGetterMethod(classGetterMethods.get(i));
 getByUniqueKey.addStatementParamType(paramsType.get(i));
@@ -341,7 +341,7 @@ tableMap.put("PRIMARY_KEY_VALIDATION",primaryKeyValidation);
 tableMap.put("primary_key_validation",primaryKeyValidation);
 
 tableMap.put("SELECT_BY_UNIQUE_KEY",getByUniqueKey);
-tableMap.put("select_by_primary_key",getByUniqueKey);
+tableMap.put("select_by_unique_key",getByUniqueKey);
 tableMap.put("GET_BY_UNIQUE_KEY",getByUniqueKey);
 tableMap.put("get_by_unique_key",getByUniqueKey);
 tableMap.put("UNIQUE_KEY_VALIDATION",uniqueKeyValidation);
@@ -461,7 +461,7 @@ public void begin() throws DataException
 {
 try
 {
-if(connection!=null) connection.close();
+if(connection!=null && !connection.isClosed()) connection.close();
 reset();
 connection=DriverManager.getConnection(connectionURL,username,password);
 }catch(SQLException sqlException)
