@@ -1,0 +1,13 @@
+Problem: There are singletone pattern used, so statements are fired using single connection, so, we cannot manage statement fire at the same time. There are NO thread safety, in that case -> This framework has No use. 
+
+Solution: Thread-local session state
+Each threa that calls begin() gets its OWN connection and query scratch-pad. No locking and synchronization needed because every thread only ever reads/writes its own slot only. 
+
+Thread A -> session {conn=connA, qStatement="SELECT * FROM A___"}
+Thread B --> session {conn=ConnB, qStatement="SELECT * FROM B___"}
+
+Everything completely isolated.
+
+
+Session are managed using Thread-local, while creating connection, only once for per begin() request and thier DS maintain to provide thier functionality to each seperated asking based on begin() called from reference. 
+
