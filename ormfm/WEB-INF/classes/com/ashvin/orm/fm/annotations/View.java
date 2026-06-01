@@ -6,6 +6,5 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 public @interface View
 {
-public String name();
-public boolean readOnly() default true;
+public String name() default "";
 }

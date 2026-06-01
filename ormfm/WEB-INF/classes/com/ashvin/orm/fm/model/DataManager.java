@@ -66,7 +66,7 @@ List<TableSchema> tables=new ArrayList<>();
 loadAllPojoClassesToDS(tables,views);		//Also loaded all table in tables, and view in views.
 
 String tableName;
-Map<String,StatementDS> tableMap;
+Map<String,StatementDS> map;
 DatabaseMetaData dbMetaData;
 List<FieldSchema> fields;
 List<Method> jdbcSetterMethods;
@@ -93,7 +93,7 @@ for(TableSchema tableSchema:tables)
 {
 Class<?> objClass=tableSchema.getObjectClass();
 tableName=tableSchema.getTableName();
-tableMap=new HashMap<>();
+map=new HashMap<>();
 try
 {
 fields=tableSchema.getAllFields();
@@ -319,35 +319,35 @@ getByPrimaryKey.clear();
 // System.out.println(foreignKeyValidation.getStatement().toString());
 // System.out.println(getByForeignKey.getStatement().toString());
 // System.out.println("-----------------xxxxx------------------");
-tableMap.put("insert",insertStatementDS);
-tableMap.put("INSERT",insertStatementDS);
-tableMap.put("update",updateStatementDS);
-tableMap.put("UPDATE",updateStatementDS);
-tableMap.put("delete",deleteStatementDS);
-tableMap.put("DELETE",deleteStatementDS);
+map.put("insert",insertStatementDS);
+map.put("INSERT",insertStatementDS);
+map.put("update",updateStatementDS);
+map.put("UPDATE",updateStatementDS);
+map.put("delete",deleteStatementDS);
+map.put("DELETE",deleteStatementDS);
 
-tableMap.put("SELECT_BY_PRIMARY_KEY",getByPrimaryKey);
-tableMap.put("select_by_primary_key",getByPrimaryKey);
-tableMap.put("GET_BY_PRIMARY_KEY",getByPrimaryKey);
-tableMap.put("get_by_primary_key",getByPrimaryKey);
-tableMap.put("PRIMARY_KEY_VALIDATION",primaryKeyValidation);
-tableMap.put("primary_key_validation",primaryKeyValidation);
+map.put("SELECT_BY_PRIMARY_KEY",getByPrimaryKey);
+map.put("select_by_primary_key",getByPrimaryKey);
+map.put("GET_BY_PRIMARY_KEY",getByPrimaryKey);
+map.put("get_by_primary_key",getByPrimaryKey);
+map.put("PRIMARY_KEY_VALIDATION",primaryKeyValidation);
+map.put("primary_key_validation",primaryKeyValidation);
 
-tableMap.put("SELECT_BY_UNIQUE_KEY",getByUniqueKey);
-tableMap.put("select_by_unique_key",getByUniqueKey);
-tableMap.put("GET_BY_UNIQUE_KEY",getByUniqueKey);
-tableMap.put("get_by_unique_key",getByUniqueKey);
-tableMap.put("UNIQUE_KEY_VALIDATION",uniqueKeyValidation);
-tableMap.put("unique_key_validation",uniqueKeyValidation);
-tableMap.put("UNIQUE_AND_PRIMARY_KEY_VALIDATION",uniqueAndPrimaryKeyValidation);
-tableMap.put("unique_and_primary_key_validation",uniqueAndPrimaryKeyValidation);
+map.put("SELECT_BY_UNIQUE_KEY",getByUniqueKey);
+map.put("select_by_unique_key",getByUniqueKey);
+map.put("GET_BY_UNIQUE_KEY",getByUniqueKey);
+map.put("get_by_unique_key",getByUniqueKey);
+map.put("UNIQUE_KEY_VALIDATION",uniqueKeyValidation);
+map.put("unique_key_validation",uniqueKeyValidation);
+map.put("UNIQUE_AND_PRIMARY_KEY_VALIDATION",uniqueAndPrimaryKeyValidation);
+map.put("unique_and_primary_key_validation",uniqueAndPrimaryKeyValidation);
 
-tableMap.put("SELECT_BY_FOREIGN_KEY",getByForeignKey);
-tableMap.put("select_by_foreign_key",getByForeignKey);
-tableMap.put("GET_BY_FOREIGN_KEY",getByForeignKey);
-tableMap.put("get_by_foreign_key",getByForeignKey);
-tableMap.put("FOREIGN_KEY_VALIDATION",foreignKeyValidation);
-tableMap.put("foreign_key_validation",foreignKeyValidation);
+map.put("SELECT_BY_FOREIGN_KEY",getByForeignKey);
+map.put("select_by_foreign_key",getByForeignKey);
+map.put("GET_BY_FOREIGN_KEY",getByForeignKey);
+map.put("get_by_foreign_key",getByForeignKey);
+map.put("FOREIGN_KEY_VALIDATION",foreignKeyValidation);
+map.put("foreign_key_validation",foreignKeyValidation);
 
 
 }catch(Exception e)
@@ -355,11 +355,61 @@ tableMap.put("foreign_key_validation",foreignKeyValidation);
 //System.out.println(e);
 e.printStackTrace();
 }
-statements.put(objClass,tableMap);
+statements.put(objClass,map);
 }
 
 
-//View analysis
+for(ViewSchema viewSchema:views)
+{
+Class<?> objClass=viewSchema.getObjectClass();
+String viewName=viewSchema.getViewName();
+map=new HashMap<>();
+try
+{
+fields=viewSchema.getAllFields();
+jdbcGetterMethods=new ArrayList<>();
+classSetterMethods=new ArrayList<>();
+paramsType=new ArrayList<>();
+for(FieldSchema fs:fields)
+{
+fieldName=fs.getMethodName();
+columnName=fs.getColumnName();
+standardFieldName=fieldName.substring(0,1).toUpperCase()+fieldName.substring(1);
+try
+{
+classSetterMethod=objClass.getMethod("set"+standardFieldName,fs.getType());
+}catch(Exception exception)
+{
+classSetterMethod=null;
+}
+
+colRS=dbMetaData.getColumns(null,null,viewName,columnName);
+sqlType=Types.OTHER;
+if(colRS.next()) sqlType=colRS.getInt("DATA_TYPE");
+colRS.close();
+jdbcGetterMethod=JDBCMethodExtractor.getJDBCGetter(sqlType);
+
+paramsType.add(sqlType);
+jdbcGetterMethods.add(jdbcGetterMethod);
+classSetterMethods.add(classSetterMethod);
+}
+
+StatementDS selectStatement=new StatementDS();
+selectStatement.setQuery(true);
+selectStatement.append("SELECT * FROM ").append(viewName);
+selectStatement.setClassSetterMethods(classSetterMethods);
+selectStatement.setJDBCGetterMethods(jdbcGetterMethods);
+selectStatement.setResultParamsType(paramsType);
+
+map.put("SELECT",selectStatement);
+map.put("select",selectStatement);
+}catch(Exception e)
+{
+//System.out.println(e);
+e.printStackTrace();
+}
+statements.put(objClass,map);
+}
 
 connection.close();
 }catch(DataException de)
@@ -1029,22 +1079,132 @@ throw de;
 throw new DataException(exception);
 }
 }
+public DataManager select(Class objClass,String columns[]) throws DataException
+{
+Schema s=ORMDataModel.getInfo(objClass);
+if(s==null) throw new DataException("Invalid data provided, Data required");
+TableSchema tableSchema;
+if(s instanceof TableSchema) tableSchema=(TableSchema)s;
+else throw new DataException("Invalid data provided, Table required");
+
+StringBuilder sb=new StringBuilder();
+int i=0;
+for(String col:columns)
+{
+if(i!=0) sb.append(", ");
+sb.append(col);
+i++;
+}
+session().qClass=objClass;
+session().qStatement=("SELECT "+sb.toString()+" FROM "+tableSchema.getTableName());
+return this;
+}
 public DataManager query(Class objClass) throws DataException
 {
 Schema s=ORMDataModel.getInfo(objClass);
 if(s==null) throw new DataException("Invalid data provided, Data required");
 TableSchema tableSchema;
 if(s instanceof TableSchema) tableSchema=(TableSchema)s;
-else throw new DataException("Invalid data provided, Data required");
+else throw new DataException("Invalid data provided, Table required");
 
 session().qClass=objClass;
-session().qStatement="select * from "+tableSchema.getTableName();
+session().qStatement="SELECT * FROM "+tableSchema.getTableName();
 return this;
+}
+public DataManager select(Class objClass) throws DataException
+{
+Schema schema=ORMDataModel.getInfo(objClass);
+if(schema==null) throw new DataException("Invalid data provided, Data required");
+ViewSchema viewSchema;
+if(schema instanceof ViewSchema) viewSchema=(ViewSchema)schema;
+else throw new DataException("Invalid data provided, View required");
+Session s=session();
+Connection connection=s.connection;
+if(connection==null) throw new DataException("Call begin() before select()");
+try
+{
+StatementDS selectStatement=statements.get(objClass).get("select");
+String sqlStatement=selectStatement.getStatement().toString();
+if(sqlStatement.isBlank()) throw new DataException("Invalid data provided, Data required");
+s.qClass=objClass;
+s.qStatement=sqlStatement;
+return this;
+}catch(DataException de)
+{
+throw de;
+}
+}
+public Object view(Class objClass) throws DataException
+{
+Schema schema=ORMDataModel.getInfo(objClass);
+if(schema==null) throw new DataException("Invalid data provided, Data required");
+ViewSchema viewSchema;
+if(schema instanceof ViewSchema) viewSchema=(ViewSchema)schema;
+else throw new DataException("Invalid data provided, View required");
+Session s=session();
+Connection connection=s.connection;
+if(connection==null) throw new DataException("Call begin() before view()");
+try
+{
+StatementDS selectStatement=statements.get(objClass).get("select");
+String sqlStatement=selectStatement.getStatement().toString();
+if(sqlStatement.isBlank()) throw new DataException("Invalid data provided, Data required");
+PreparedStatement preparedStatement=connection.prepareStatement(sqlStatement);
+
+ResultSet resultSet=preparedStatement.executeQuery();
+List<Object> resultList=new ArrayList<>();
+
+List<Method> jdbcGetterMethods=selectStatement.getJDBCGetterMethods();
+List<Method> classSetterMethods=selectStatement.getClassSetterMethods();
+List<Integer> resultParamTypes=selectStatement.getResultParamsType();
+Object instance;
+Object convertedData;
+Object data;
+while(resultSet.next())
+{
+instance=objClass.getDeclaredConstructor().newInstance();
+for(int i=0;i<selectStatement.getResultParamsCount();i++)
+{
+try
+{
+data=jdbcGetterMethods.get(i).invoke(resultSet,i+1);
+convertedData=JDBCMethodExtractor.convertToJava(resultParamTypes.get(i),data);
+classSetterMethods.get(i).invoke(instance,convertedData);
+}catch(Exception e)
+{
+}
+}
+resultList.add(instance);
+}
+resultSet.close();
+preparedStatement.close();
+reset();
+return resultList;
+}catch(DataException de)
+{
+throw de;
+}catch(SQLException sqlException)
+{
+throw new DataException("Invalid data provided, view required");
+}
+catch(Exception exception)
+{
+throw new DataException(exception);
+}
 }
 public DataManager where(String columnName)
 {
-session().qStatement+=(session().whereUsed ?" where ":" ")+columnName;
-session().whereUsed=true;
+Session s=session();
+s.qStatement+=(s.whereUsed ?" ":" WHERE ")+columnName;
+s.whereUsed=true;
+return this;
+}
+public DataManager orderBy(String columnName) throws DataException
+{
+Session s=session();
+if(s.orderByUsed) throw new DataException("Invalid statement, can't use multiple 'ORDER BY' in one statement");
+s.qStatement+=(" ORDER BY "+columnName);
+s.orderByUsed=true;
 return this;
 }
 public DataManager eq(Object value)
@@ -1076,7 +1236,6 @@ public DataManager ne(Object value)
 {
 session().qStatement+=("!="+formatValue(value));     //<>
 return this;
-
 }
 public DataManager and()
 {
@@ -1096,13 +1255,10 @@ if(connection==null) throw new DataException("Call begin() before fire()");
 if(s.qClass==null) throw new DataException("Call query() before fire()");
 try
 {
-//System.out.println("SQLStatement: "+qStatement);
 Schema schema=ORMDataModel.getInfo(s.qClass);
 if(schema==null) throw new DataException("Invalid data provided, Data required");
-TableSchema tableSchema;
-if(schema instanceof TableSchema) tableSchema=(TableSchema)schema;
-else throw new DataException("Invalid data provided, Data required");
 
+//System.out.println(s.qStatement);
 
 PreparedStatement preparedStatement=connection.prepareStatement(s.qStatement);
 ResultSet resultSet=preparedStatement.executeQuery();
@@ -1110,7 +1266,7 @@ List<Object> resultList=new ArrayList<>();
 while(resultSet.next())
 {
 Object instance=s.qClass.getDeclaredConstructor().newInstance();
-for(FieldSchema fs:tableSchema.getAllFields())
+for(FieldSchema fs:schema.getAllFields())
 {
 try
 {
@@ -1145,21 +1301,13 @@ return resultList;
 }catch(DataException de)
 {
 throw de;
-}catch(Exception exception)
+}catch(SQLException sqlException)
+{
+throw new DataException("Invalid statement provided to fire()");
+}
+catch(Exception exception)
 {
 throw new DataException(exception);
-}
-}
-private String getValueFor(FieldSchema fs,Object obj)
-{
-try
-{
-Field field=obj.getClass().getField(fs.getMethodName());
-Object value=field.get(obj);
-return formatValue(value);
-}catch(Exception exception)
-{
-return "null";
 }
 }
 private String formatValue(Object value)
