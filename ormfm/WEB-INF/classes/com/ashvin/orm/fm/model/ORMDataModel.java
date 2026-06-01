@@ -8,7 +8,7 @@ import com.ashvin.orm.fm.exceptions.*;
 
 public class ORMDataModel
 {
-private static Map<Class<?>,TableSchema> cache=new HashMap<>();
+private static Map<Class<?>,Schema> cache=new HashMap<>();
 private static final ORMDataModel ormDataModel=new ORMDataModel();
 private ORMDataModel()
 {
@@ -17,20 +17,31 @@ public static final ORMDataModel getORMDataModel()
 {
 return ormDataModel;
 }
-public static TableSchema getInfo(Class<?> objClass) throws DataException
+public static Schema getInfo(Class<?> objClass) throws DataException
 {
 if(objClass==null) throw new DataException("No information available, null passed");
 if(cache.containsKey(objClass))
 {
 return cache.get(objClass);
 }
-if(!objClass.isAnnotationPresent(Table.class))
+Schema schema;
+if(objClass.isAnnotationPresent(Table.class))
 {
-throw new DataException("Class "+objClass.getName()+" has no @Table annotation"); 
-}
 Table tableAnnotation=objClass.getAnnotation(Table.class);
 String tableName=tableAnnotation.name();
-TableSchema tableSchema=new TableSchema(objClass,tableName);
+schema=new TableSchema(objClass,tableName);
+}
+else if(objClass.isAnnotationPresent(View.class))
+{
+View viewAnnotation=objClass.getAnnotation(View.class);
+String viewName=viewAnnotation.name();
+schema=new ViewSchema(objClass,viewName);
+}
+else
+{
+throw new DataException("Class "+objClass.getName()+" has no @Table or @View annotation"); 
+}
+if(schema==null) throw new DataException("Class "+objClass.getName()+" has no annotation matched with requirements.");
 Field[] javaFields=objClass.getDeclaredFields();
 for(Field javaField:javaFields)
 {
@@ -77,19 +88,39 @@ else
 {
 continue;   //Private properties with no setter getter are not included in this scenario
 }
-tableSchema.addField(fieldSchema);
+if(schema!=null) schema.addField(fieldSchema);
 }
-cache.put(objClass,tableSchema);
-return tableSchema;
+cache.put(objClass,schema);
+return schema;
 }
+/*
 public static void addInfo(Class<?> objClass,TableSchema tableSchema) throws DataException
 {
 if(objClass==null || tableSchema==null) throw new DataException("No information available, null passed");
 cache.put(objClass,tableSchema);
 }
-public static List<TableSchema> getAllInfo() throws DataException
+*/
+public static List<Schema> getAllInfo() throws DataException
 {
-List<TableSchema> tables=new ArrayList<>(cache.values());
+List<Schema> tables=new ArrayList<>(cache.values());
 return tables;
+}
+public static List<TableSchema> getAllTableInfo() throws DataException
+{
+List<TableSchema> tables=new ArrayList<>();
+for(Schema s:cache.values())
+{
+if(s instanceof TableSchema ts) tables.add(ts);
+}
+return tables;
+}
+public static List<ViewSchema> getAllViewInfo() throws DataException
+{
+List<ViewSchema> views=new ArrayList<>();
+for(Schema s:cache.values())
+{
+if(s instanceof ViewSchema vs) views.add(vs);
+}
+return views;
 }
 }

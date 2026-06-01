@@ -1,7 +1,7 @@
 package com.ashvin.orm.fm.model;
 import java.util.*;
 
-public class TableSchema
+public class TableSchema implements Schema
 {
 private String tableName;
 private List<FieldSchema> fields;
@@ -11,6 +11,10 @@ public TableSchema(Class<?> objectClass,String tableName)
 this.objectClass=objectClass;
 this.tableName=tableName;
 this.fields=new ArrayList<>();
+}
+public String getName()
+{
+return this.tableName;
 }
 public void addField(FieldSchema fieldSchema)
 {

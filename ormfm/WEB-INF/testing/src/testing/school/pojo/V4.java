@@ -2,10 +2,9 @@ package testing.school.pojo;
 
 import com.ashvin.orm.fm.annotations.*;
 
-@Table(name="student")
-public class Student
+@View(name="v4")
+public class V4
 {
-@PrimaryKey
 @Column(name="roll_number")
 @SetterGetter
 private java.lang.Integer rollNumber;
@@ -39,7 +38,6 @@ public java.lang.String getLastName()
 {
 return this.lastName;
 }
-@Unique
 @Column(name="aadhar_card_number")
 @SetterGetter
 private java.lang.String aadharCardNumber;
@@ -51,7 +49,6 @@ public java.lang.String getAadharCardNumber()
 {
 return this.aadharCardNumber;
 }
-@ForeignKey(parent="course",column="code")
 @Column(name="course_code")
 @SetterGetter
 private java.lang.Integer courseCode;

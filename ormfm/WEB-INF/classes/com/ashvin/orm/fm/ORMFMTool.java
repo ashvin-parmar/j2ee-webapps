@@ -64,7 +64,7 @@ Class c=Class.forName(jdbcDriver);
 }catch(Exception e)
 {
 //System.out.println("Exception: "+e);
-throw new DataException(e);
+throw new DataException(e.getMessage());
 }
 }
 public final void createPojo() throws DataException
@@ -96,14 +96,13 @@ packageFolder.mkdirs();
 JavaCompiler compiler=ToolProvider.getSystemJavaCompiler();
 if(compiler==null)
 {
-// System.out.println("Error: JDK required");
+System.out.println("Error: JDK required");
 return;
 }
 File jarFile=new File(this.parentWorkingDirectory.getPath()+File.separator+"lib"+File.separator+"ormfm.jar");
 if(!jarFile.exists()) 
 {
-// System.out.println("ormfm.jar required: (" + jarFile.getAbsolutePath() + ")");
-return;
+throw new DataException("ormfm.jar required: (" + jarFile.getAbsolutePath() + ")");
 }
 
 String classpath=jarFile.getPath()+System.getProperty("path.separator")+srcFolder.getPath()+File.separator+System.getProperty("path.separator")+".";
@@ -197,6 +196,7 @@ randomAccessFile.writeBytes(sb.toString());
 //System.out.printf("Field: %s | Type: %s(%d) | Nullable: %s | Auto Increment: %s\n",columnName,columnType,size,nullable,isAutoIncrement);
 }
 randomAccessFile.writeBytes("}\r\n");
+randomAccessFile.close();
 
 //System.out.println("srcFile: "+javaFile.getAbsolutePath());
 
@@ -208,21 +208,122 @@ javaFile.getPath()
 int compilationResult=compiler.run(null,null,null,javacArguments);
 if(compilationResult!=0)
 {
-// System.out.println("File: '"+javaFile.getAbsolutePath()+"' compilation failed!");
+ System.out.println("File: '"+javaFile.getAbsolutePath()+"' compilation failed!");
 }
 else
 {
-// System.out.println("File: '"+javaFile.getAbsolutePath()+"' compiled successfully.");
+ System.out.println("File: '"+javaFile.getAbsolutePath()+"' compiled successfully.");
 }
 }
 connection.close();
 }catch(Exception e)
 {
 // System.out.println("Exception: "+e.getMessage());
+throw new DataException(e.getMessage());
 }
 }
-public final void createViewPojo()
+public final void createViewPojo() throws DataException
 {
+StringBuilder sb;
+try
+{
+Connection connection=DriverManager.getConnection(connectionURL,username,password);
+
+DatabaseMetaData dbMetaData=connection.getMetaData();
+//System.out.println(dbMetaData);
+ResultSet viewRS=dbMetaData.getTables(null,null,"%",new String[]{"VIEW"});
+
+File srcFolder=new File(this.parentWorkingDirectory,"src");
+//System.out.println("Source file: "+srcFolder.getAbsolutePath());
+if(!srcFolder.exists())
+{
+srcFolder.mkdir();
+}
+String packageNameWithSeperator=packageName.replace(".",File.separator);
+
+File packageFolder=new File(srcFolder,packageNameWithSeperator);
+if(!packageFolder.exists())
+{
+packageFolder.mkdirs();
+}
+//System.out.println(packageFolder.getAbsolutePath());
+
+JavaCompiler compiler=ToolProvider.getSystemJavaCompiler();
+if(compiler==null)
+{
+System.out.println("Error: JDK required");
+return;
+}
+File jarFile=new File(this.parentWorkingDirectory.getPath()+File.separator+"lib"+File.separator+"ormfm.jar");
+if(!jarFile.exists()) 
+{
+throw new DataException("ormfm.jar required: (" + jarFile.getAbsolutePath() + ")");
+}
+
+String classpath=jarFile.getPath()+System.getProperty("path.separator")+srcFolder.getPath()+File.separator+System.getProperty("path.separator")+".";
+//System.out.println("Classpath: "+classpath);
+
+File javaFile=null;
+while(viewRS.next())
+{
+String viewName=viewRS.getString("TABLE_NAME");
+//System.out.println("Table name: "+tableName);
+String standardViewName=ORMUtils.camelCaseRepresent(viewName);
+standardViewName=standardViewName.substring(0,1).toUpperCase()+standardViewName.substring(1);
+//System.out.println("standardTableName: "+standardTableName);
+
+javaFile=new File(packageFolder,standardViewName+".java");
+if(javaFile.exists()) javaFile.delete();
+RandomAccessFile randomAccessFile=new RandomAccessFile(javaFile,"rw");
+randomAccessFile.writeBytes("package "+packageName+";\r\n\r\n");
+randomAccessFile.writeBytes("import com.ashvin.orm.fm.annotations.*;\r\n\r\n");
+
+randomAccessFile.writeBytes("@View(name=\""+viewName+"\")\r\n");
+randomAccessFile.writeBytes("public class "+standardViewName+"\r\n");
+randomAccessFile.writeBytes("{\r\n");
+
+ResultSet viewColumns=dbMetaData.getColumns(null,null,viewName,null);
+while(viewColumns.next())
+{
+String columnName=viewColumns.getString("COLUMN_NAME");
+String camelCaseColumnName=ORMUtils.camelCaseRepresent(columnName);
+String javaTypeName=ORMUtils.jdbcToJavaMappedType(JDBCType.valueOf(viewColumns.getInt("DATA_TYPE"))).getName();
+
+randomAccessFile.writeBytes("@Column(name=\""+columnName+"\")\r\n");
+randomAccessFile.writeBytes("@SetterGetter\r\n");
+randomAccessFile.writeBytes("private "+javaTypeName+" "+camelCaseColumnName+";\r\n");
+String sCamelCaseColumnName=camelCaseColumnName.substring(0,1).toUpperCase()+camelCaseColumnName.substring(1);
+sb=new StringBuilder();
+sb.append("public void set").append(sCamelCaseColumnName).append("(").append(javaTypeName).append(" ").append(camelCaseColumnName).append(")\r\n");
+sb.append("{\r\n").append("this.").append(camelCaseColumnName).append("=").append(camelCaseColumnName).append(";\r\n").append("}\r\n");
+sb.append("public ").append(javaTypeName).append(" get").append(sCamelCaseColumnName).append("(").append(")\r\n");
+sb.append("{\r\n").append("return this.").append(camelCaseColumnName).append(";\r\n").append("}\r\n");
+randomAccessFile.writeBytes(sb.toString());
+}
+randomAccessFile.writeBytes("}\r\n");
+randomAccessFile.close();
+//donedone
+//javac -classpath 
+String[] javacArguments=new String[]{
+"-cp",classpath,
+javaFile.getPath()
+};
+int compilationResult=compiler.run(null,null,null,javacArguments);
+if(compilationResult!=0)
+{
+ System.out.println("File: '"+javaFile.getAbsolutePath()+"' compilation failed!");
+}
+else
+{
+ System.out.println("File: '"+javaFile.getAbsolutePath()+"' compiled successfully.");
+}
+}
+connection.close();
+}catch(Exception e)
+{
+// System.out.println("Exception: "+e.getMessage());
+throw new DataException(e.getMessage());
+}
 }
 public final void createJar(String targetJarFileName) throws DataException		//Compile and Create Jar
 {
@@ -271,11 +372,11 @@ javaFile.getPath()
 int compilationResult=compiler.run(null,null,null,javacArguments);
 if(compilationResult!=0)
 {
-// System.out.println("File: '"+javaFile.getAbsolutePath()+"' compilation failed!");
+System.out.println("File: '"+javaFile.getAbsolutePath()+"' compilation failed!");
 }
 else
 {
-// System.out.println("File: '"+javaFile.getAbsolutePath()+"' compiled successfully.");
+System.out.println("File: '"+javaFile.getAbsolutePath()+"' compiled successfully.");
 }
 }
 }
@@ -291,17 +392,17 @@ try(FileOutputStream fos=new FileOutputStream(targetJarFile);JarOutputStream jos
 addFilesToJar(srcFolder,srcFolder,jos);
 jos.flush();
 }
-// System.out.println("JAR File '"+targetJarFile.getPath()+"' created.");
+System.out.println("JAR File '"+targetJarFile.getPath()+"' created.");
 }catch(IOException ie)
 {
-// System.out.println("IOException: "+ie);
+System.out.println("IOException: "+ie);
 }
 }catch(DataException de)
 {
 throw de;
 }catch(Exception e)
 {
-// System.out.println("Exception: "+e);
+//System.out.println("Exception: "+e);
 throw new DataException("Unable to create JAR file.");
 }
 
@@ -335,7 +436,7 @@ jos.write(buffer,0,bytesRead);
 }catch(IOException e)
 {
 //System.out.println("Failed to add entry: "+relativePath+" - "+e.getMessage());
-//throw e;
+throw e;
 }finally
 {
 jos.closeEntry(); 
@@ -343,7 +444,7 @@ jos.closeEntry();
 }
 }
 }
-
+/*
 public void loadAllPojoClassesToDS() throws DataException
 {
 File srcFolder=new File(this.parentWorkingDirectory,"src");
@@ -443,7 +544,7 @@ ORMDataModel.addInfo(objClass,tableSchema);
 }
 }
 }
-
+*/
 
 public static void main(String args[])
 {

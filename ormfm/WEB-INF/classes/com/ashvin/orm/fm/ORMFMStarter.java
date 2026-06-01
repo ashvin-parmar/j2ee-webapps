@@ -373,7 +373,7 @@ continue;   //Private properties with no setter getter are not included in this 
 }
 tableSchema.addField(fieldSchema);
 }
-this.ormDataModel.addInfo(objClass,tableSchema);
+//this.ormDataModel.addInfo(objClass,tableSchema);      //Call getInfo() instead.
 //cache.put(objClass,tableSchema);
 }
 }catch(ClassNotFoundException cnfe)

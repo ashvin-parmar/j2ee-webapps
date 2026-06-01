@@ -61,8 +61,9 @@ throw new DataException("Invalid JDBC driver: "+jdbcDriver);
 }
 
 //load all POJO classes
+List<ViewSchema> views=new ArrayList<>();
 List<TableSchema> tables=new ArrayList<>();
-loadAllPojoClassesToDS(tables);		//Also loaded all table in tables.
+loadAllPojoClassesToDS(tables,views);		//Also loaded all table in tables, and view in views.
 
 String tableName;
 Map<String,StatementDS> tableMap;
@@ -356,6 +357,10 @@ e.printStackTrace();
 }
 statements.put(objClass,tableMap);
 }
+
+
+//View analysis
+
 connection.close();
 }catch(DataException de)
 {
@@ -366,7 +371,7 @@ throw de;
 throw new DataException(e);
 }
 }
-private  void loadFiles(File rootFolder,File currentFile,List<TableSchema> tables) throws DataException
+private  void loadFiles(File rootFolder,File currentFile,List<TableSchema> tables,List<ViewSchema> views) throws DataException
 {
 File[] files=currentFile.listFiles();
 if(files==null) return;
@@ -374,7 +379,7 @@ for(File file:files)
 {
 if(file.isDirectory())
 {
-loadFiles(rootFolder,file,tables);
+loadFiles(rootFolder,file,tables,views);
 }
 else if(file.getName().endsWith(".class"))
 {
@@ -386,8 +391,10 @@ try
 String classNameWithPackage=relativePath.replace(".class","").replace("/",".");
 Class objClass=Class.forName(classNameWithPackage);
 if(objClass==null) continue;
-TableSchema table=ORMDataModel.getInfo(objClass);
-if(table!=null) tables.add(table);
+Schema schema=ORMDataModel.getInfo(objClass);
+if(schema==null) continue;
+if(schema instanceof TableSchema table) tables.add(table);
+if(schema instanceof ViewSchema view) views.add(view);
 
 }catch(ClassNotFoundException cnfe)
 {
@@ -402,7 +409,7 @@ if(table!=null) tables.add(table);
 }
 }
 }
-private void loadAllPojoClassesToDS(List<TableSchema> tables) throws DataException
+private void loadAllPojoClassesToDS(List<TableSchema> tables,List<ViewSchema> views) throws DataException
 {
 File srcFolder=new File(parentWorkingDirectory,"src");
 if(!srcFolder.exists())
@@ -411,7 +418,7 @@ throw new DataException("No source file available to create JAR file.");
 }
 try
 {
-loadFiles(srcFolder,srcFolder,tables);
+loadFiles(srcFolder,srcFolder,tables,views);
 }catch(DataException de)
 {
 //     System.out.println(de);
@@ -499,8 +506,12 @@ try
 Class<?> objClass=obj.getClass();
 Map<String,StatementDS> statementMap=statements.get(objClass);
 if(statementMap==null) throw new DataException("Invalid data provided, Data required.");
-TableSchema tableSchema=ORMDataModel.getInfo(objClass);
-if(tableSchema==null) throw new DataException("Invalid data provided, Data required");
+
+Schema s=ORMDataModel.getInfo(objClass);
+if(s==null) throw new DataException("Invalid data provided, Data required");
+TableSchema tableSchema;
+if(s instanceof TableSchema) tableSchema=(TableSchema)s;
+else throw new DataException("Invalid data provided, Data required");
 
 StatementDS statementDS;
 List<Method> jdbcSetterMethods;
@@ -698,8 +709,11 @@ try
 Class<?> objClass=obj.getClass();
 Map<String,StatementDS> statementMap=statements.get(objClass);
 if(statementMap==null) throw new DataException("Invalid data provided, Data required.");
-TableSchema tableSchema=ORMDataModel.getInfo(objClass);
-if(tableSchema==null) throw new DataException("Invalid data provided, Data required");
+Schema s=ORMDataModel.getInfo(objClass);
+if(s==null) throw new DataException("Invalid data provided, Data required");
+TableSchema tableSchema;
+if(s instanceof TableSchema) tableSchema=(TableSchema)s;
+else throw new DataException("Invalid data provided, Data required");
 
 StatementDS statementDS;
 List<Method> jdbcSetterMethods;
@@ -909,8 +923,11 @@ try
 {
 Map<String,StatementDS> statementMap=statements.get(objClass);
 if(statementMap==null) throw new DataException("Invalid data provided, Data required.");
-TableSchema tableSchema=ORMDataModel.getInfo(objClass);
-if(tableSchema==null) throw new DataException("Invalid data provided, Data required");
+Schema s=ORMDataModel.getInfo(objClass);
+if(s==null) throw new DataException("Invalid data provided, Data required");
+TableSchema tableSchema;
+if(s instanceof TableSchema) tableSchema=(TableSchema)s;
+else throw new DataException("Invalid data provided, Data required");
 
 Object obj=objClass.getDeclaredConstructor().newInstance();
 StatementDS statementDS;
@@ -1014,7 +1031,12 @@ throw new DataException(exception);
 }
 public DataManager query(Class objClass) throws DataException
 {
-TableSchema tableSchema=ORMDataModel.getInfo(objClass);
+Schema s=ORMDataModel.getInfo(objClass);
+if(s==null) throw new DataException("Invalid data provided, Data required");
+TableSchema tableSchema;
+if(s instanceof TableSchema) tableSchema=(TableSchema)s;
+else throw new DataException("Invalid data provided, Data required");
+
 session().qClass=objClass;
 session().qStatement="select * from "+tableSchema.getTableName();
 return this;
@@ -1075,7 +1097,13 @@ if(s.qClass==null) throw new DataException("Call query() before fire()");
 try
 {
 //System.out.println("SQLStatement: "+qStatement);
-TableSchema tableSchema=ORMDataModel.getInfo(s.qClass);
+Schema schema=ORMDataModel.getInfo(s.qClass);
+if(schema==null) throw new DataException("Invalid data provided, Data required");
+TableSchema tableSchema;
+if(schema instanceof TableSchema) tableSchema=(TableSchema)schema;
+else throw new DataException("Invalid data provided, Data required");
+
+
 PreparedStatement preparedStatement=connection.prepareStatement(s.qStatement);
 ResultSet resultSet=preparedStatement.executeQuery();
 List<Object> resultList=new ArrayList<>();
@@ -1155,7 +1183,7 @@ PreparedStatement preparedStatement;
 ResultSet resultSet;
 try
 {
-List<TableSchema> tables=ORMDataModel.getAllInfo();
+List<TableSchema> tables=ORMDataModel.getAllTableInfo();
 // System.out.println("table size: "+tables.size());
 for(TableSchema table:tables)
 {
@@ -1224,7 +1252,7 @@ try
 {
 boolean exists=false;
 Class<?> objClass=obj.geClass();
-List<TableSchema> tables=ORMDataModel.getAllInfo();
+List<TableSchema> tables=ORMDataModel.getAllTableInfo();
 PreparedStatement preparedStatement;
 ResultSet resultSet;
 Map<String,StatementDS> fkStatementMap;
