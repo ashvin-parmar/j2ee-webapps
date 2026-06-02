@@ -6,11 +6,20 @@ public class ViewSchema implements Schema
 private String viewName;
 private List<FieldSchema> fields;
 private Class<?> objectClass;
+private boolean isCacheable=false;
 public ViewSchema(Class<?> objectClass,String viewName)
 {
 this.objectClass=objectClass;
 this.viewName=viewName;
 this.fields=new ArrayList<>();
+}
+public void setCacheable()
+{
+this.isCacheable=true;
+}
+public boolean isCacheable()
+{
+return this.isCacheable;
 }
 public String getName()
 {

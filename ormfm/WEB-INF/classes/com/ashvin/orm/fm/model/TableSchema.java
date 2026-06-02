@@ -6,11 +6,20 @@ public class TableSchema implements Schema
 private String tableName;
 private List<FieldSchema> fields;
 private Class<?> objectClass;
+private boolean isCacheable=false;
 public TableSchema(Class<?> objectClass,String tableName)
 {
 this.objectClass=objectClass;
 this.tableName=tableName;
 this.fields=new ArrayList<>();
+}
+public void setCacheable()
+{
+this.isCacheable=true;
+}
+public boolean isCacheable()
+{
+return this.isCacheable;
 }
 public String getName()
 {

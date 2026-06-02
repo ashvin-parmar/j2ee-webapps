@@ -42,6 +42,10 @@ else
 throw new DataException("Class "+objClass.getName()+" has no @Table or @View annotation"); 
 }
 if(schema==null) throw new DataException("Class "+objClass.getName()+" has no annotation matched with requirements.");
+if(objClass.isAnnotationPresent(Cacheable.class))
+{
+schema.setCacheable();
+}
 Field[] javaFields=objClass.getDeclaredFields();
 for(Field javaField:javaFields)
 {
