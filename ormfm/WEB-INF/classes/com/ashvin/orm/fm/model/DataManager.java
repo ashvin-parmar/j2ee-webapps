@@ -12,6 +12,7 @@ import com.ashvin.orm.fm.exceptions.*;
 public class DataManager
 {
 private static Map<Class<?>,Map<String,StatementDS>> statements=new HashMap<>();
+private static Map<Class<?>,Map<Object,Object>> cache=new HashMap<>();
 private static DataManager dataManager=null;
 private static File parentWorkingDirectory;
 private String jdbcDriver="";
@@ -85,6 +86,10 @@ Method jdbcSetterMethod;
 Method jdbcGetterMethod;
 ResultSet colRS;
 int sqlType;
+int nonAutoIncrementCount=0;
+int primaryKeyIndex=-1;
+
+Map<Object,Object> tableCache;
 
 //Creating DataManager DS
 Connection connection=DriverManager.getConnection(connectionURL,username,password);
@@ -168,8 +173,11 @@ foreignKeyValidation.setQuery(true);
 StatementDS getByForeignKey=new StatementDS();
 getByForeignKey.setQuery(true);
 
-int nonAutoIncrementCount=0;
-int primaryKeyIndex=-1;
+StatementDS selectStatement=new StatementDS();
+selectStatement.setQuery(true);
+
+nonAutoIncrementCount=0;
+primaryKeyIndex=-1;
 for(int i=0;i<fields.size();i++)
 {
 FieldSchema fs=fields.get(i);
@@ -306,6 +314,15 @@ primaryKeyValidation.clear();
 getByPrimaryKey.clear();
 //uniqueAndPrimaryKeyValidation.clear();	//Already sufficent to proceed.
 }
+
+selectStatement.append("SELECT * FROM ").append(tableName);
+selectStatement.setJDBCSetterMethods(jdbcSetterMethods);
+selectStatement.setJDBCGetterMethods(jdbcGetterMethods);
+selectStatement.setClassGetterMethods(classGetterMethods);
+selectStatement.setClassSetterMethods(classSetterMethods);
+selectStatement.setStatementParamsType(paramsType);
+selectStatement.setResultParamsType(paramsType);
+
 // System.out.println("-----------------xxxxx------------------");
 // System.out.println("Primary key index: "+primaryKeyIndex);
 // System.out.println(insertStatementDS.getStatement().toString());
@@ -325,6 +342,8 @@ map.put("update",updateStatementDS);
 map.put("UPDATE",updateStatementDS);
 map.put("delete",deleteStatementDS);
 map.put("DELETE",deleteStatementDS);
+map.put("SELECT",selectStatement);
+map.put("select",selectStatement);
 
 map.put("SELECT_BY_PRIMARY_KEY",getByPrimaryKey);
 map.put("select_by_primary_key",getByPrimaryKey);
@@ -354,8 +373,46 @@ map.put("foreign_key_validation",foreignKeyValidation);
 {
 //System.out.println(e);
 e.printStackTrace();
+continue;
 }
 statements.put(objClass,map);
+
+if(tableSchema.isCacheable())
+{
+if(primaryKeyIndex!=-1)
+{
+tableCache=new LinkedHashMap<>();
+StatementDS selectStatement=map.get("select");
+PreparedStatement preparedStatement=connection.prepareStatement(selectStatement.getStatement().toString());
+ResultSet resultSet=preparedStatement.executeQuery();
+
+Object instance;
+Object convertedData=null;
+Object data;
+Object primaryKeyObj=null;
+while(resultSet.next())
+{
+instance=objClass.getDeclaredConstructor().newInstance();
+for(int i=0;i<selectStatement.getResultParamsCount();i++)
+{
+try
+{
+data=jdbcGetterMethods.get(i).invoke(resultSet,i+1);
+convertedData=JDBCMethodExtractor.convertToJava(paramsType.get(i),data);
+classSetterMethods.get(i).invoke(instance,convertedData);
+}catch(Exception e)
+{
+convertedData=null;
+}
+if(primaryKeyIndex==i) primaryKeyObj=convertedData;
+}
+tableCache.put(primaryKeyObj,instance);
+}
+cache.put(objClass,tableCache);
+resultSet.close();
+preparedStatement.close();
+}
+}
 }
 
 
@@ -410,6 +467,7 @@ e.printStackTrace();
 }
 statements.put(objClass,map);
 }
+
 
 connection.close();
 }catch(DataException de)

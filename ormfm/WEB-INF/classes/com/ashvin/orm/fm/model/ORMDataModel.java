@@ -46,6 +46,7 @@ if(objClass.isAnnotationPresent(Cacheable.class))
 {
 schema.setCacheable();
 }
+boolean hasPrimaryKey=false;
 Field[] javaFields=objClass.getDeclaredFields();
 for(Field javaField:javaFields)
 {
@@ -60,6 +61,7 @@ FieldSchema fieldSchema=new FieldSchema(fieldName,columnName,fieldType);
 if(javaField.isAnnotationPresent(PrimaryKey.class))
 {
 fieldSchema.setPrimaryKey(true);
+hasPrimaryKey=true;
 }
 if(javaField.isAnnotationPresent(AutoIncrement.class))
 {
@@ -94,6 +96,7 @@ continue;   //Private properties with no setter getter are not included in this 
 }
 if(schema!=null) schema.addField(fieldSchema);
 }
+if(schema.isCacheable() && !hasPrimaryKey) throw new DataException("@Cacheable not allowed on the pojo, which does not have any primary key set.");
 cache.put(objClass,schema);
 return schema;
 }
