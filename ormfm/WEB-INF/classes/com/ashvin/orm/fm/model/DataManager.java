@@ -804,7 +804,7 @@ if(tableSchema.isCacheable())
 Object clonedObj=objClass.getDeclaredConstructor().newInstance();
 PojoCopier.copy(clonedObj,obj);     //Cloned Object stored in DS Cache
 Object primaryKeyObj=primaryKeyMethod.invoke(clonedObj);
-cache.get(objClass).put(primaryKeyObj,obj);             //We can't set the same object in our DS too.
+cache.get(objClass).put(primaryKeyObj,clonedObj);             //We can't set the same object in our DS too.
 System.out.println("Cloned Obj: "+primaryKeyObj);
 
 }//donedone
@@ -850,6 +850,7 @@ Object pkConvertedData=null;
 Integer pkSQLType=-1;
 Method pkJDBCSetterMethod=null;
 
+
 Object prevObj=objClass.getDeclaredConstructor().newInstance();
 
 FieldSchema primaryKeyField=tableSchema.getPrimaryKeyField();
@@ -889,6 +890,7 @@ throw new DataException("Invalid "+primaryKeyField.getMethodName()+": "+converte
 }
 else
 {
+
 List<Method> jdbcGetterMethods=statementDS.getJDBCGetterMethods();
 List<Method> classSetterMethods=statementDS.getClassSetterMethods();
 List<Integer> resultParamTypes=statementDS.getResultParamsType();
@@ -1047,6 +1049,15 @@ preparedStatement.setNull(i+1,sqlTypes.get(i));	//null set
 }
 preparedStatement.executeUpdate();
 preparedStatement.close();
+if(tableSchema.isCacheable())
+{
+Object clonedObj=objClass.getDeclaredConstructor().newInstance();
+PojoCopier.copy(clonedObj,obj);     //Cloned Object stored in DS Cache
+Object primaryKeyObj=pkClassGetterMethod.invoke(clonedObj);
+cache.get(objClass).remove(primaryKeyObj);
+cache.get(objClass).put(primaryKeyObj,clonedObj);             //We can't set the same object in our DS too.
+System.out.println("Cloned Obj: "+primaryKeyObj);
+}
 }catch(DataException de)
 {
 throw de;
@@ -1085,6 +1096,13 @@ Object convertedData=null;
 FieldSchema primaryKeyField=tableSchema.getPrimaryKeyField();
 if(primaryKeyField==null) throw new DataException("Invalid data provided, Data required");
 
+if(tableSchema.isCacheable())
+{
+obj=cache.get(objClass).get(primaryKey);
+if(obj==null) throw new DataException("Invalid "+primaryKeyField.getMethodName()+": "+primaryKey);
+}
+else
+{
 statementDS=statementMap.get("get_by_primary_key");
 sqlStatement=statementDS.getStatement().toString();
 if(sqlStatement.isBlank()) throw new DataException("Invalid data provided, Data required");
@@ -1130,7 +1148,7 @@ classSetterMethods.get(i).invoke(obj,convertedData);
 }
 resultSet.close();
 preparedStatement.close();
-
+}
 updateAndDeleteForeignKeyConstrainOnCompleteDB(obj,tableSchema);
 
 statementDS=statementMap.get("delete");
@@ -1161,6 +1179,10 @@ preparedStatement.setNull(i+1,sqlTypes.get(i));	//null set
 }
 preparedStatement.executeUpdate();
 preparedStatement.close();
+if(tableSchema.isCacheable())
+{
+cache.get(objClass).remove(primaryKey);
+}
 }catch(DataException de)
 {
 throw de;
@@ -1200,6 +1222,32 @@ else throw new DataException("Invalid data provided, Table required");
 session().qClass=objClass;
 session().qStatement="SELECT * FROM "+tableSchema.getTableName();
 return this;
+}
+public Object queryDS(Class objClass) throws DataException
+{
+Schema s=ORMDataModel.getInfo(objClass);
+if(s==null) throw new DataException("Invalid data provided, Data required");
+TableSchema tableSchema;
+if(s instanceof TableSchema) tableSchema=(TableSchema)s;
+else throw new DataException("Invalid data provided, Table required");
+
+if(!tableSchema.isCacheable()) throw new DataException(objClass.getName()+" is not declared as Cacheable, call for query() instead of using queryDS()");
+session().qClass=objClass;
+List<Object> results=new ArrayList<>();
+try
+{
+for(Object obj:cache.get(objClass).values())
+{
+Object clonedObj=objClass.getDeclaredConstructor().newInstance();
+PojoCopier.copy(clonedObj,obj);
+results.add(clonedObj);
+}
+}catch(Exception exception)
+{
+exception.printStackTrace();//comment it
+throw new DataException("Unable to load data, try query() method");
+}
+return results;
 }
 public DataManager select(Class objClass) throws DataException
 {
