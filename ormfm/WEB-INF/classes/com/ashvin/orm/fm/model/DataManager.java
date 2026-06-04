@@ -631,6 +631,7 @@ PreparedStatement preparedStatement;
 ResultSet resultSet;
 ResultSet generatedKeys;
 Object convertedData;
+Method primaryKeyMethod=null;
 
 if(!tableSchema.isPrimaryKeyAutoIncremented())
 {
@@ -646,7 +647,7 @@ for(int i=0;i<statementDS.getStatementParamsCount();i++)
 //System.out.println(classGetterMethods.get(i).getName());
 try
 {
-if(classGetterMethods.get(i)==null || (convertedData=JDBCMethodExtractor.convertToJDBC(sqlTypes.get(i),classGetterMethods.get(i).invoke(obj)))==null)
+if(classGetterMethods.get(i)==null || (convertedData=JDBCMethodExtractor.convertToJDBC(sqlTypes.get(i),((primaryKeyMethod=classGetterMethods.get(i)).invoke(obj))))==null)
 {
 preparedStatement.setNull(i+1,sqlTypes.get(i));
 }
@@ -798,6 +799,15 @@ classSetterMethods.get(i).invoke(obj,convertedData);
 }
 generatedKeys.close();
 preparedStatement.close();
+if(tableSchema.isCacheable())
+{
+Object clonedObj=objClass.getDeclaredConstructor().newInstance();
+PojoCopier.copy(clonedObj,obj);     //Cloned Object stored in DS Cache
+Object primaryKeyObj=primaryKeyMethod.invoke(clonedObj);
+cache.get(objClass).put(primaryKeyObj,obj);             //We can't set the same object in our DS too.
+System.out.println("Cloned Obj: "+primaryKeyObj);
+
+}//donedone
 }catch(DataException de)
 {
 throw de;
@@ -835,10 +845,17 @@ ResultSet resultSet;
 ResultSet generatedKeys;
 Object convertedData=null;
 
+Method pkClassGetterMethod=null;
+Object pkConvertedData=null;
+Integer pkSQLType=-1;
+Method pkJDBCSetterMethod=null;
+
+Object prevObj=objClass.getDeclaredConstructor().newInstance();
+
 FieldSchema primaryKeyField=tableSchema.getPrimaryKeyField();
 if(primaryKeyField==null) throw new DataException("Invalid data provided, Data required");
 
-statementDS=statementMap.get("primary_key_validation");
+statementDS=statementMap.get("get_by_primary_key");
 sqlStatement=statementDS.getStatement().toString();
 if(sqlStatement.isBlank()) throw new DataException("Invalid data provided, Data required");
 preparedStatement=connection.prepareStatement(sqlStatement);
@@ -849,7 +866,7 @@ for(int i=0;i<statementDS.getStatementParamsCount();i++)
 {
 try
 {
-if(classGetterMethods.get(i)==null || (convertedData=JDBCMethodExtractor.convertToJDBC(sqlTypes.get(i),classGetterMethods.get(i).invoke(obj)))==null)
+if(classGetterMethods.get(i)==null || (convertedData=JDBCMethodExtractor.convertToJDBC(sqlTypes.get(i),((classGetterMethods.get(i)).invoke(obj))))==null)
 {
 preparedStatement.setNull(i+1,sqlTypes.get(i));
 }
@@ -860,16 +877,39 @@ jdbcSetterMethods.get(i).invoke(preparedStatement,i+1,convertedData);
 }catch(Exception e)
 {
 preparedStatement.setNull(i+1,sqlTypes.get(i));	//null set
+//System.out.println("Error: "+e);
 }
 }
 resultSet=preparedStatement.executeQuery();
-exists=resultSet.next();
+if(!resultSet.next())
+{
 resultSet.close();
 preparedStatement.close();
-if(!exists)
-{
 throw new DataException("Invalid "+primaryKeyField.getMethodName()+": "+convertedData);
 }
+else
+{
+List<Method> jdbcGetterMethods=statementDS.getJDBCGetterMethods();
+List<Method> classSetterMethods=statementDS.getClassSetterMethods();
+List<Integer> resultParamTypes=statementDS.getResultParamsType();
+// System.out.println(classSetterMethods.size());
+// System.out.println(jdbcGetterMethods.size());
+for(int i=0;i<statementDS.getResultParamsCount();i++)
+{
+try
+{
+Object data=jdbcGetterMethods.get(i).invoke(resultSet,i+1);
+convertedData=JDBCMethodExtractor.convertToJava(resultParamTypes.get(i),data);
+classSetterMethods.get(i).invoke(prevObj,convertedData);
+}catch(Exception e)
+{
+}
+}
+}
+resultSet.close();
+preparedStatement.close();
+
+updateAndDeleteForeignKeyConstrainOnCompleteDB(prevObj,tableSchema);
 
 statementDS=statementMap.get("unique_and_primary_key_validation");
 sqlStatement=statementDS.getStatement().toString();
@@ -880,11 +920,6 @@ sqlStatements=sqlStatement.split(";");
 jdbcSetterMethods=statementDS.getJDBCSetterMethods();
 classGetterMethods=statementDS.getClassGetterMethods();
 sqlTypes=statementDS.getStatementParamsType();
-
-Method pkClassGetterMethod=null;
-Object pkConvertedData=null;
-Integer pkSQLType=-1;
-Method pkJDBCSetterMethod=null;
 
 try
 {
@@ -944,7 +979,6 @@ throw new DataException("This "+"[PENDING]"+" is already in use. Please try anot
 }
 }
 }
-//donedone over here to start
 statementDS=statementMap.get("foreign_key_validation");
 sqlStatement=statementDS.getStatement().toString();
 if(!sqlStatement.isBlank())
@@ -984,8 +1018,6 @@ throw new DataException("The selected [PENDING{parentTableName}] does not exist.
 }
 }
 }
-
-updateAndDeleteForeignKeyConstrainOnCompleteDB(obj,tableSchema);
 
 statementDS=statementMap.get("update");
 sqlStatement=statementDS.getStatement().toString();
