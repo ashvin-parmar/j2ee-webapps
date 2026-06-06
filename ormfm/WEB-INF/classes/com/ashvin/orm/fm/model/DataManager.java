@@ -642,24 +642,31 @@ preparedStatement=connection.prepareStatement(sqlStatement);
 jdbcSetterMethods=statementDS.getJDBCSetterMethods();
 classGetterMethods=statementDS.getClassGetterMethods();
 sqlTypes=statementDS.getStatementParamsType();
-for(int i=0;i<statementDS.getStatementParamsCount();i++)
+if(statementDS.getStatementParamsCount()==1)
 {
 //System.out.println(classGetterMethods.get(i).getName());
 try
 {
-if(classGetterMethods.get(i)==null || (convertedData=JDBCMethodExtractor.convertToJDBC(sqlTypes.get(i),((primaryKeyMethod=classGetterMethods.get(i)).invoke(obj))))==null)
+if(classGetterMethods.get(0)==null || (convertedData=JDBCMethodExtractor.convertToJDBC(sqlTypes.get(0),((classGetterMethods.get(0)).invoke(obj))))==null)
 {
-preparedStatement.setNull(i+1,sqlTypes.get(i));
+throw new DataException("Invalid data provided to primary key, Data required");
+//preparedStatement.setNull(1,sqlTypes.get(0));
 }
 else
 {
-jdbcSetterMethods.get(i).invoke(preparedStatement,i+1,convertedData);
+jdbcSetterMethods.get(0).invoke(preparedStatement,1,convertedData);
 }
+primaryKeyMethod=classGetterMethods.get(0);
 }catch(Exception e)
 {
-preparedStatement.setNull(i+1,sqlTypes.get(i));	//null set
+throw new DataException("Invalid data provided to primary key, Data required");
+//preparedStatement.setNull(1,sqlTypes.get(0));	//null set
 //System.out.println("Error: "+e);
 }
+}
+else
+{
+throw new DataException("Invalid data provided to primary key, Data required");
 }
 resultSet=preparedStatement.executeQuery();
 exists=resultSet.next();
@@ -689,7 +696,8 @@ try
 {
 if(classGetterMethods.get(i)==null || (convertedData=JDBCMethodExtractor.convertToJDBC(sqlTypes.get(i),classGetterMethods.get(i).invoke(obj)))==null)
 {
-preparedStatement.setNull(1,sqlTypes.get(i));
+throw new DataException("Invalid data provided to unique key, Data required");
+//preparedStatement.setNull(1,sqlTypes.get(i));
 }
 else
 {
@@ -697,7 +705,8 @@ jdbcSetterMethods.get(i).invoke(preparedStatement,1,convertedData);
 }
 }catch(Exception e)
 {
-preparedStatement.setNull(1,sqlTypes.get(i));	//null set
+throw new DataException("Invalid data provided to unique key, Data required");
+//preparedStatement.setNull(1,sqlTypes.get(i));	//null set
 //System.out.println("Error: "+e);
 }
 resultSet=preparedStatement.executeQuery();
@@ -706,7 +715,7 @@ resultSet.close();
 preparedStatement.close();
 if(exists)
 {
-throw new DataException("This "+"[PENDING]"+" is already in use. Please try another.");
+throw new DataException("This "+convertedData+" is already in use. Please try another.");
 }
 }
 }
@@ -728,7 +737,8 @@ try
 {
 if(classGetterMethods.get(i)==null || (convertedData=JDBCMethodExtractor.convertToJDBC(sqlTypes.get(i),classGetterMethods.get(i).invoke(obj)))==null)
 {
-preparedStatement.setNull(1,sqlTypes.get(i));
+throw new DataException("Invalid data provided to foreign key, Data required");
+//preparedStatement.setNull(1,sqlTypes.get(i));
 }
 else
 {
@@ -736,7 +746,8 @@ jdbcSetterMethods.get(i).invoke(preparedStatement,1,convertedData);
 }
 }catch(Exception e)
 {
-preparedStatement.setNull(1,sqlTypes.get(i));	//null set
+throw new DataException("Invalid data provided to foreign key, Data required");
+//preparedStatement.setNull(1,sqlTypes.get(i));	//null set
 //System.out.println("Error: "+e);
 }
 resultSet=preparedStatement.executeQuery();
@@ -745,7 +756,7 @@ resultSet.close();
 preparedStatement.close();
 if(!exists)
 {
-throw new DataException("Referenced parent record does not exist. Please select a valid entry.");
+throw new DataException("Referenced parent record "+convertedData+" does not exist. Please select a valid entry.");
 }
 }
 }
@@ -778,6 +789,7 @@ preparedStatement.setNull(i+1,sqlTypes.get(i));	//null set
 }
 preparedStatement.executeUpdate();
 generatedKeys=preparedStatement.getGeneratedKeys();
+Object data=null;        //Only one auto generated key allowed.
 if(generatedKeys.next())
 {
 List<Method> jdbcGetterMethods=statementDS.getJDBCGetterMethods();
@@ -789,7 +801,7 @@ for(int i=0;i<statementDS.getResultParamsCount();i++)
 {
 try
 {
-Object data=jdbcGetterMethods.get(i).invoke(generatedKeys,i+1);
+data=jdbcGetterMethods.get(i).invoke(generatedKeys,i+1);
 convertedData=JDBCMethodExtractor.convertToJava(resultParamTypes.get(i),data);
 classSetterMethods.get(i).invoke(obj,convertedData);
 }catch(Exception e)
@@ -803,11 +815,14 @@ if(tableSchema.isCacheable())
 {
 Object clonedObj=objClass.getDeclaredConstructor().newInstance();
 PojoCopier.copy(clonedObj,obj);     //Cloned Object stored in DS Cache
-Object primaryKeyObj=primaryKeyMethod.invoke(clonedObj);
-cache.get(objClass).put(primaryKeyObj,clonedObj);             //We can't set the same object in our DS too.
-System.out.println("Cloned Obj: "+primaryKeyObj);
+Object primaryKeyObj;
 
-}//donedone
+if(!tableSchema.isPrimaryKeyAutoIncremented()) primaryKeyObj=primaryKeyMethod.invoke(clonedObj);
+else primaryKeyObj=data;
+
+cache.get(objClass).put(primaryKeyObj,clonedObj);             //We can't set the same object in our DS too.
+//System.out.println("Cloned Obj: "+primaryKeyObj);
+}
 }catch(DataException de)
 {
 throw de;
@@ -863,23 +878,30 @@ preparedStatement=connection.prepareStatement(sqlStatement);
 jdbcSetterMethods=statementDS.getJDBCSetterMethods();
 classGetterMethods=statementDS.getClassGetterMethods();
 sqlTypes=statementDS.getStatementParamsType();
-for(int i=0;i<statementDS.getStatementParamsCount();i++)
+if(statementDS.getStatementParamsCount()==1)
 {
+//System.out.println(classGetterMethods.get(i).getName());
 try
 {
-if(classGetterMethods.get(i)==null || (convertedData=JDBCMethodExtractor.convertToJDBC(sqlTypes.get(i),((classGetterMethods.get(i)).invoke(obj))))==null)
+if(classGetterMethods.get(0)==null || (convertedData=JDBCMethodExtractor.convertToJDBC(sqlTypes.get(0),((classGetterMethods.get(0)).invoke(obj))))==null)
 {
-preparedStatement.setNull(i+1,sqlTypes.get(i));
+throw new DataException("Invalid data provided to primary key, Data required");
+//preparedStatement.setNull(1,sqlTypes.get(0));
 }
 else
 {
-jdbcSetterMethods.get(i).invoke(preparedStatement,i+1,convertedData);
+jdbcSetterMethods.get(0).invoke(preparedStatement,1,convertedData);
 }
 }catch(Exception e)
 {
-preparedStatement.setNull(i+1,sqlTypes.get(i));	//null set
+throw new DataException("Invalid data provided to primary key, Data required");
+//preparedStatement.setNull(1,sqlTypes.get(0));	//null set
 //System.out.println("Error: "+e);
 }
+}
+else
+{
+throw new DataException("Invalid changes performed in pojo");   //better message later on
 }
 resultSet=preparedStatement.executeQuery();
 if(!resultSet.next())
@@ -890,7 +912,6 @@ throw new DataException("Invalid "+primaryKeyField.getMethodName()+": "+converte
 }
 else
 {
-
 List<Method> jdbcGetterMethods=statementDS.getJDBCGetterMethods();
 List<Method> classSetterMethods=statementDS.getClassSetterMethods();
 List<Integer> resultParamTypes=statementDS.getResultParamsType();
@@ -922,13 +943,13 @@ sqlStatements=sqlStatement.split(";");
 jdbcSetterMethods=statementDS.getJDBCSetterMethods();
 classGetterMethods=statementDS.getClassGetterMethods();
 sqlTypes=statementDS.getStatementParamsType();
-
 try
 {
 if(((pkClassGetterMethod=classGetterMethods.get(classGetterMethods.size()-1))==null) || (pkConvertedData=JDBCMethodExtractor.convertToJDBC((pkSQLType=sqlTypes.get(sqlTypes.size()-1)),pkClassGetterMethod.invoke(obj)))==null)
 {
-pkClassGetterMethod=null;
-pkConvertedData=null;
+//pkClassGetterMethod=null;
+//pkConvertedData=null;
+throw new DataException("Invalid data provided to primary key, Data required");
 }
 else
 {
@@ -936,8 +957,9 @@ pkJDBCSetterMethod=jdbcSetterMethods.get(jdbcSetterMethods.size()-1);
 }
 }catch(Exception e)
 {
-pkClassGetterMethod=null;
-pkJDBCSetterMethod=null;
+//pkClassGetterMethod=null;
+//pkJDBCSetterMethod=null;
+throw new DataException("Invalid data provided for primary key, Data required");
 }
 for(int i=0;i<statementDS.getStatementParamsCount()-1;i++)
 {
@@ -950,26 +972,19 @@ try
 {
 if(classGetterMethods.get(i)==null || (convertedData=JDBCMethodExtractor.convertToJDBC(sqlTypes.get(i),classGetterMethods.get(i).invoke(obj)))==null)
 {
-preparedStatement.setNull(1,sqlTypes.get(i));
+    throw new DataException("Invalid data provided for unique key, Data required");
+//preparedStatement.setNull(1,sqlTypes.get(i));
 }
 else
 {
 jdbcSetterMethods.get(i).invoke(preparedStatement,1,convertedData);
 }
-
-if(pkClassGetterMethod==null || pkConvertedData==null)
-{
-preparedStatement.setNull(2,sqlTypes.get(sqlTypes.size()-1));
-}
-else
-{
 pkJDBCSetterMethod.invoke(preparedStatement,2,pkConvertedData);
-}
-
 }catch(Exception e)
 {
-preparedStatement.setNull(1,sqlTypes.get(i));	//null set
-preparedStatement.setNull(2,sqlTypes.get(sqlTypes.size()-1));
+    throw new DataException("Invalid data provided for unique key, Data required");
+//preparedStatement.setNull(1,sqlTypes.get(i));	//null set
+//preparedStatement.setNull(2,sqlTypes.get(sqlTypes.size()-1));
 }
 resultSet=preparedStatement.executeQuery();
 exists=resultSet.next();
@@ -977,7 +992,7 @@ resultSet.close();
 preparedStatement.close();
 if(exists)
 {
-throw new DataException("This "+"[PENDING]"+" is already in use. Please try another.");
+throw new DataException("This "+convertedData+" is already in use. Please try another.");
 }
 }
 }
@@ -999,7 +1014,8 @@ try
 {
 if(classGetterMethods.get(i)==null || (convertedData=JDBCMethodExtractor.convertToJDBC(sqlTypes.get(i),classGetterMethods.get(i).invoke(obj)))==null)
 {
-preparedStatement.setNull(1,sqlTypes.get(i));
+    throw new DataException("Invalid data provided to foreign key, Data required");
+//preparedStatement.setNull(1,sqlTypes.get(i));
 }
 else
 {
@@ -1007,7 +1023,8 @@ jdbcSetterMethods.get(i).invoke(preparedStatement,1,convertedData);
 }
 }catch(Exception e)
 {
-preparedStatement.setNull(1,sqlTypes.get(i));	//null set
+    throw new DataException("Invalid data provided to foreign key, Data required");
+//preparedStatement.setNull(1,sqlTypes.get(i));	//null set
 //System.out.println("Error: "+e);
 }
 resultSet=preparedStatement.executeQuery();
@@ -1016,14 +1033,14 @@ resultSet.close();
 preparedStatement.close();
 if(!exists)
 {
-throw new DataException("The selected [PENDING{parentTableName}] does not exist. Please select a valid entry.");
+throw new DataException("The selected "+convertedData+" does not exist. Please select a valid entry.");
 }
 }
 }
 
 statementDS=statementMap.get("update");
 sqlStatement=statementDS.getStatement().toString();
-if(sqlStatement.isBlank()) throw new DataException("Invalid data provided, Data required");		//donedone change the message
+if(sqlStatement.isBlank()) throw new DataException("Invalid data provided, Data required");	
 jdbcSetterMethods=statementDS.getJDBCSetterMethods();
 classGetterMethods=statementDS.getClassGetterMethods();
 sqlTypes=statementDS.getStatementParamsType();
@@ -1056,7 +1073,7 @@ PojoCopier.copy(clonedObj,obj);     //Cloned Object stored in DS Cache
 Object primaryKeyObj=pkClassGetterMethod.invoke(clonedObj);
 cache.get(objClass).remove(primaryKeyObj);
 cache.get(objClass).put(primaryKeyObj,clonedObj);             //We can't set the same object in our DS too.
-System.out.println("Cloned Obj: "+primaryKeyObj);
+//System.out.println("Cloned Obj: "+primaryKeyObj);
 }
 }catch(DataException de)
 {
@@ -1070,6 +1087,8 @@ public void delete(Class<?> objClass,Object primaryKey) throws DataException
 {
 Connection connection=conn();
 if(connection==null) throw new DataException("Call begin() before delete()");
+if(primaryKey==null) throw new DataException("Invalid data provided to primary key, Data required");
+
 try
 {
 Map<String,StatementDS> statementMap=statements.get(objClass);
@@ -1110,15 +1129,21 @@ preparedStatement=connection.prepareStatement(sqlStatement);
 jdbcSetterMethods=statementDS.getJDBCSetterMethods();
 classGetterMethods=statementDS.getClassGetterMethods();
 sqlTypes=statementDS.getStatementParamsType();
-for(int i=0;i<statementDS.getStatementParamsCount();i++)
+if(statementDS.getStatementParamsCount()==1)
 {
+int i=0;
 try
 {
 jdbcSetterMethods.get(i).invoke(preparedStatement,i+1,primaryKey);
 }catch(Exception e)
 {
 preparedStatement.setNull(i+1,sqlTypes.get(i));	//null set
+throw new DataException("Invalid data provided to primary key, Data required");
 }
+}
+else
+{
+throw new DataException("Invalid data provided to primary key, Data required");
 }
 resultSet=preparedStatement.executeQuery();
 if(!resultSet.next())
@@ -1153,7 +1178,7 @@ updateAndDeleteForeignKeyConstrainOnCompleteDB(obj,tableSchema);
 
 statementDS=statementMap.get("delete");
 sqlStatement=statementDS.getStatement().toString();
-if(sqlStatement.isBlank()) throw new DataException("Invalid data provided, Data required");		//donedone change the message
+if(sqlStatement.isBlank()) throw new DataException("Invalid data provided, Data required");
 jdbcSetterMethods=statementDS.getJDBCSetterMethods();
 classGetterMethods=statementDS.getClassGetterMethods();
 sqlTypes=statementDS.getStatementParamsType();

@@ -1,7 +1,7 @@
 package testing.school.pojo;
 
 import com.ashvin.orm.fm.annotations.*;
-
+@Cacheable
 @Table(name="student")
 public class Student
 {
@@ -39,6 +39,7 @@ public java.lang.String getLastName()
 {
 return this.lastName;
 }
+@Unique
 @Column(name="aadhar_card_number")
 @SetterGetter
 private java.lang.String aadharCardNumber;
