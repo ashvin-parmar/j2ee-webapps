@@ -130,8 +130,11 @@ randomAccessFile.writeBytes("{\r\n");
 ResultSet tableColumns=dbMetaData.getColumns(null,null,tableName,null);
 ResultSet pkTableColumns=dbMetaData.getPrimaryKeys(null,null,tableName);
 ResultSet fkTableColumns=dbMetaData.getImportedKeys(null,null,tableName);
+ResultSet ukTableColumns=dbMetaData.getIndexInfo(null,null,tableName,true,false);
+
 List<String> pkColumnNames=new LinkedList<>();
 Map<String,List<String>> fkColumnNames=new HashMap<>();
+List<String> ukColumnNames=new LinkedList<>();
 List<String> fkList;
 
 while(pkTableColumns.next())
@@ -140,6 +143,19 @@ String pkColumnName=pkTableColumns.getString("COLUMN_NAME");
 //System.out.println("Primary key Column: "+pkColumnName);
 pkColumnNames.add(pkColumnName);
 }
+pkTableColumns.close();
+
+while(ukTableColumns.next())
+{
+boolean nonUnique=ukTableColumns.getBoolean("NON_UNIQUE");
+String ukColumnName=ukTableColumns.getString("COLUMN_NAME");
+if(!nonUnique && !pkColumnNames.contains(ukColumnName))
+{
+ukColumnNames.add(ukColumnName);
+}
+}
+ukTableColumns.close();
+
 while(fkTableColumns.next())
 {
 fkList=new LinkedList<>();
@@ -152,6 +168,7 @@ fkColumnNames.put(fkColumnName,fkList);
 
 //System.out.printf("Foreign Keys: %s -> references %s(%s)\n",fkTableColumns.getString("FKCOLUMN_NAME"),fkTableColumns.getString("PKTABLE_NAME"),fkTableColumns.getString("PKCOLUMN_NAME"));
 }
+fkTableColumns.close();
 //Unique constraints adding is pending -> done later on.
 while(tableColumns.next())
 {
@@ -161,6 +178,10 @@ if(pkColumnNames.contains(columnName))
 //System.out.println("add primary key annotation: "+columnName);
 randomAccessFile.writeBytes("@PrimaryKey\r\n");
 //Add primary key annotation.
+}
+if(ukColumnNames.contains(columnName))
+{
+randomAccessFile.writeBytes("@Unique\r\n");
 }
 if((fkList=fkColumnNames.get(columnName))!=null)
 {
@@ -195,6 +216,7 @@ sb.append("{\r\n").append("return this.").append(camelCaseColumnName).append(";\
 randomAccessFile.writeBytes(sb.toString());
 //System.out.printf("Field: %s | Type: %s(%d) | Nullable: %s | Auto Increment: %s\n",columnName,columnType,size,nullable,isAutoIncrement);
 }
+tableColumns.close();
 randomAccessFile.writeBytes("}\r\n");
 randomAccessFile.close();
 
@@ -215,6 +237,7 @@ else
  System.out.println("File: '"+javaFile.getAbsolutePath()+"' compiled successfully.");
 }
 }
+tables.close();
 connection.close();
 }catch(Exception e)
 {
@@ -300,6 +323,7 @@ sb.append("public ").append(javaTypeName).append(" get").append(sCamelCaseColumn
 sb.append("{\r\n").append("return this.").append(camelCaseColumnName).append(";\r\n").append("}\r\n");
 randomAccessFile.writeBytes(sb.toString());
 }
+viewColumns.close();
 randomAccessFile.writeBytes("}\r\n");
 randomAccessFile.close();
 //donedone
@@ -318,6 +342,7 @@ else
  System.out.println("File: '"+javaFile.getAbsolutePath()+"' compiled successfully.");
 }
 }
+viewRS.close();
 connection.close();
 }catch(Exception e)
 {
