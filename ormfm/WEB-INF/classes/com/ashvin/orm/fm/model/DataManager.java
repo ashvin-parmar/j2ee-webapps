@@ -535,6 +535,7 @@ loadFiles(srcFolder,srcFolder,tables,views);
 
 public static synchronized void initialize(File parentWorkingDirectory) throws DataException
 {
+if(dataManager!=null) throw new DataException("Already initialized, can not call again");
 if(parentWorkingDirectory==null) throw new DataException("Configuration file contains directory required");
 if(!parentWorkingDirectory.exists() || !parentWorkingDirectory.isDirectory()) throw new DataException("Configuration file contains directory required");
 // System.out.println(parentWorkingDirectory.getAbsolutePath());
@@ -553,6 +554,11 @@ throw de;
 //System.out.println("Exception: "+e);
 throw new DataException(e);
 }
+}
+public static boolean isInitialized()
+{
+if(dataManager!=null) return true;
+return false;
 }
 public static DataManager getDataManager() throws DataException
 {
