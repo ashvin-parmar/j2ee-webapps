@@ -27,6 +27,7 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Text;
+import com.itextpdf.layout.element.AreaBreak;
 import com.itextpdf.layout.properties.*;
 import com.itextpdf.layout.borders.*;
 import com.itextpdf.io.image.*;
@@ -854,7 +855,110 @@ newPage=true;
 }
 }
 
-//VIEW pending
+document.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
+
+top=new Paragraph();
+top.add(logo);
+top.add(new Text(" "));
+top.add("ORM POJO Document").setFont(titleFont).setFontSize(30).setTextAlignment(TextAlignment.JUSTIFIED);
+title=new Paragraph("VIEW POJO(s)");
+title.setFont(titleFont).setFontSize(20).setTextAlignment(TextAlignment.CENTER);
+
+table=new Table(UnitValue.createPercentArray(columnWidth)).useAllAvailableWidth();
+headerCell1=new Cell().add(new Paragraph(" View ").setFont(titleFont).setFontSize(18).setBackgroundColor(ColorConstants.BLUE)); 
+
+
+totalSize=views.size();
+sno=0;
+pageSize=totalSize;
+newPage=true;
+pageNumber=0;
+ViewSchema viewSchema=null;
+fieldSchema=null;
+fields=null;
+j=0;
+for(int i=0;i<totalSize;i++)
+{
+//System.out.println("i="+i);
+viewSchema=views.get(i);
+if(newPage)
+{
+document.add(top);
+//pageNumberText=new Text("Page no: "+String.valueOf(++pageNumber));
+//pageNumberText.setTextAlignment(TextAlignment.RIGHT).setFont(dataFont).setFontSize(18);
+document.add(title);
+//document.add(new Paragraph(pageNumberText).setTextAlignment(TextAlignment.RIGHT));
+table=new Table(UnitValue.createPercentArray(columnWidth)).useAllAvailableWidth();
+table.addHeaderCell(headerCell0);
+table.addHeaderCell(headerCell1);
+//create Header
+newPage=false;
+}
+//Add row to table
+sno++;
+cell0=new Cell().add(new Paragraph(String.valueOf(sno)));
+cell0.setFont(dataFont).setFontSize(16).setTextAlignment(TextAlignment.CENTER);
+//From here, the data inner table starts
+innerTable=new Table(UnitValue.createPercentArray(innerTableColumnWidth)).useAllAvailableWidth();
+innerTable.addCell(new Cell().add((new Paragraph("View Name: ")).setFont(titleFont)).setPaddingLeft(5));
+innerTable.addCell(new Cell().add(new Paragraph(viewSchema.getViewName())).setPaddingLeft(5));
+innerTable.addCell(new Cell().add((new Paragraph("Pojo Class")).setFont(titleFont)));
+innerTable.addCell(new Cell().add(new Paragraph(viewSchema.getObjectClass().getName())));
+
+innerTable.addCell(new Cell().add(new Paragraph("Field(s)").setFont(titleFont)));
+fields=viewSchema.getAllFields();
+if(fields.size()==0) 
+{
+innerTable.addCell(new Cell().add(new Paragraph("--no-fields--")));
+}
+else
+{
+innerMostTable=new Table(UnitValue.createPercentArray(innerMostTableColumnWidth)).useAllAvailableWidth();
+
+Cell innerHeaderCell0=new Cell().add(new Paragraph(" S.No. ").setFont(titleFont).setFontSize(14).setBackgroundColor(ColorConstants.BLUE));
+Cell innerHeaderCell1=new Cell().add(new Paragraph(" Field(s) ").setFont(titleFont).setFontSize(14).setBackgroundColor(ColorConstants.BLUE)); 
+
+innerMostTable.addHeaderCell(innerHeaderCell0);
+innerMostTable.addHeaderCell(innerHeaderCell1);
+j=1;
+for(FieldSchema fs:fields)
+{
+innerMostTable.addCell(new Cell().add((new Paragraph(""+j)).setFont(titleFont)).setPaddingLeft(5));
+fieldTable=new Table(UnitValue.createPercentArray(fieldTableColumnWidth)).useAllAvailableWidth();
+fieldTable.addCell(new Cell().add(new Paragraph("Column name [DB]: ")).setPaddingLeft(5));
+fieldTable.addCell(new Cell().add((new Paragraph(fs.getColumnName()))).setPaddingLeft(5));
+fieldTable.addCell(new Cell().add(new Paragraph("Field name [Class]: ")).setPaddingLeft(5));
+fieldTable.addCell(new Cell().add((new Paragraph(fs.getMethodName()))).setPaddingLeft(5));
+fieldTable.addCell(new Cell().add(new Paragraph("Java type [DB]: ")).setPaddingLeft(5));
+fieldTable.addCell(new Cell().add((new Paragraph(fs.getType().getName()))).setPaddingLeft(5));
+fieldTable.addCell(new Cell().add(new Paragraph("Is setter allowed?: ")).setPaddingLeft(5));
+if(fs.isSetterAllowed())  fieldTable.addCell(new Cell().add(new Paragraph().add(correct)));
+else fieldTable.addCell(new Cell().add(new Paragraph().add(incorrect)));
+fieldTable.addCell(new Cell().add(new Paragraph("Is getter allowed?: ")).setPaddingLeft(5));
+if(fs.isGetterAllowed())  fieldTable.addCell(new Cell().add(new Paragraph().add(correct)));
+else fieldTable.addCell(new Cell().add(new Paragraph().add(incorrect)));
+innerMostTable.addCell(new Cell().add(fieldTable));
+j++;
+}
+innerTable.addCell(new Cell().add(innerMostTable));
+}
+
+cell1=new Cell().add(innerTable);
+//cell1.setFont(dataFont).setFontSize(16).setTextAlignment(TextAlignment.JUSTIFIED);
+table.addCell(cell0);
+table.addCell(cell1);
+
+if(sno%pageSize==0 || sno==totalSize)
+{
+document.add(table);
+document.add(creator);
+if(sno<totalSize)
+{
+//add new page
+}
+newPage=true;
+}
+}
 
 document.close();
 System.out.println(pdfFileName+" PDF created");

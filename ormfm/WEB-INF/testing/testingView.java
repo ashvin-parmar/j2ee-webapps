@@ -1,9 +1,3 @@
-/**
- * @author Ashvin
- * @since 2026-06-02
- * Description: 
- */
-
 import java.lang.*;
 import java.util.*;
 import java.text.*;
