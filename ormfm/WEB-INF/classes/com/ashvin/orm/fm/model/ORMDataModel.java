@@ -24,6 +24,7 @@ if(cache.containsKey(objClass))
 {
 return cache.get(objClass);
 }
+//System.out.println("Check for info");
 Schema schema;
 if(objClass.isAnnotationPresent(Table.class))
 {
@@ -109,8 +110,8 @@ cache.put(objClass,tableSchema);
 */
 public static List<Schema> getAllInfo() throws DataException
 {
-List<Schema> tables=new ArrayList<>(cache.values());
-return tables;
+List<Schema> schemas=new ArrayList<>(cache.values());
+return schemas;
 }
 public static List<TableSchema> getAllTableInfo() throws DataException
 {

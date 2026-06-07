@@ -2,6 +2,7 @@ package testing.school.pojo;
 
 import com.ashvin.orm.fm.annotations.*;
 
+@Cacheable
 @Table(name="student")
 public class Student
 {

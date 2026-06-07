@@ -12,6 +12,7 @@ public TableSchema(Class<?> objectClass,String tableName)
 this.objectClass=objectClass;
 this.tableName=tableName;
 this.fields=new ArrayList<>();
+this.isCacheable=false;
 }
 public void setCacheable()
 {

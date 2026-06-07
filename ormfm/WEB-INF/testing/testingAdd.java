@@ -14,6 +14,7 @@ public static void main(String args[])
 {
 try
 {
+System.out.println(System.getProperty("user.dir"));
 DataManager.initialize(new File(System.getProperty("user.dir")));
 DataManager dm=DataManager.getDataManager();
 dm.begin();

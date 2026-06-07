@@ -36,8 +36,9 @@ private DataManager() throws DataException
 {
 try
 {
+if(parentWorkingDirectory==null) throw new DataException("Configuration file required");
 File file=new File(parentWorkingDirectory,"conf.json");
-if(!file.exists()) throw new DataException("Configuration file required");
+if(!file.exists()) throw new DataException("Configuration(conf.json) file required");
 
 FileReader fileReader=new FileReader(file);
 JsonObject jsonObj=JsonParser.parseReader(fileReader).getAsJsonObject();
@@ -538,7 +539,7 @@ public static synchronized void initialize(File parentWorkingDirectory) throws D
 if(dataManager!=null) throw new DataException("Already initialized, can not call again");
 if(parentWorkingDirectory==null) throw new DataException("Configuration file contains directory required");
 if(!parentWorkingDirectory.exists() || !parentWorkingDirectory.isDirectory()) throw new DataException("Configuration file contains directory required");
-// System.out.println(parentWorkingDirectory.getAbsolutePath());
+// System.out.println("DM: "+parentWorkingDirectory.getAbsolutePath());
 DataManager.parentWorkingDirectory=parentWorkingDirectory;
 try
 {
@@ -552,7 +553,7 @@ throw de;
 }catch(Exception e)
 {
 //System.out.println("Exception: "+e);
-throw new DataException(e);
+throw new DataException(e.getMessage());
 }
 }
 public static boolean isInitialized()
