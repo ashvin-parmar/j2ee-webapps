@@ -64,29 +64,10 @@ Every servlet class duplicates the layout boilerplate, header, sidebar navigatio
 In modern web engineering, the presentation layer (HTML/CSS), application control logic, and client-side scripts are decoupled.
 *   **The Problem**: In this codebase, HTML elements, inline styles, client-side validation JavaScript, and Java controller code are mixed together. For instance, [AddEmployeeForm.java](file:///media/ashvin/code/tomcat9/webapps/styleone/WEB-INF/classes/com/ashvin/hr/nexus/servlets/AddEmployeeForm.java#L24-L98) outputs more than 70 lines of string-encoded JavaScript inside the servlet code. This makes debugging syntax errors in CSS or JS extremely difficult since the compiler cannot validate string literals.
 
-### C. Database Connection Leaks (Critical Resource Bug)
-In the DAOs, JDBC resource cleanup is performed inside the main `try` block.
-*   **The Problem**: If an exception occurs during query execution (such as a database timeout or syntax error), the execution flow immediately jumps to the `catch` block. The `.close()` calls are bypassed, leaking the connection. Under production loads, this quickly exhausts the database connection pool, rendering the app completely unresponsive.
-*   **Affected Code snippet from [DesignationDAO.java](file:///media/ashvin/code/tomcat9/webapps/styleone/WEB-INF/classes/com/ashvin/hr/nexus/dl/DesignationDAO.java#L7-L46)**:
-    ```java
-    try {
-        Connection connection = DAOConnection.getConnection();
-        // ... (queries executed here)
-        preparedStatement.close();
-        connection.close(); // Bypassed if SQLException is thrown!
-    } catch(SQLException sqlException) {
-        throw new DAOException(sqlException.getMessage());
-    }
-    ```
 
-### D. Hardcoded Environments (Static Data Configuration)
+### C. Hardcoded Environments (Static Data Configuration)
 All database connection configurations are compiled directly into [DAOConnection.java](file:///media/ashvin/code/tomcat9/webapps/styleone/WEB-INF/classes/com/ashvin/hr/nexus/dl/DAOConnection.java).
-*   **The Problem**: The database driver, URL (`jdbc:mysql://localhost:3306/tmdb`), username (`tmdbuser`), and password (`tmdb#User1`) are hardcoded. Deploying this code to a testing, staging, or production server requires editing the source code, re-compiling the Java files, and packaging the war.
-
-### E. HTML Whitespace Collapsing (Rendering Problem)
-As documented in your notes in [styleone_error.md](file:///media/ashvin/code/tomcat9/webapps/styleone/styleone_error.md#L6-L10), submitting a title with multiple spaces (e.g. `"Ashvin     Parmar"`) creates a valid record in the database, but it renders as `"Ashvin Parmar"` on the page.
-*   **The Problem**: By default, standard HTML rendering collapses multiple consecutive spaces/whitespace characters into a single space.
-*   **Solution**: To preserve formatting, the text needs to be styled with the CSS property `white-space: pre-wrap;` or the spaces must be escaped as non-breaking spaces (`&nbsp;`) when outputting.
+*   **The Problem**: The database driver, URL (`jdbc:mysql://localhost:3306/tmdb`), username (`user`), and password (`pass`) are hardcoded. Deploying this code to a testing, staging, or production server requires editing the source code, re-compiling the Java files, and packaging the war.
 
 ---
 

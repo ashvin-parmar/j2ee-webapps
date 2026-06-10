@@ -134,10 +134,8 @@ Every user interaction, navigation, form submission, and validation error trigge
 *   **The Issue**: Generating the employee list requires two separate traversal loops. First, the backend Java Servlet loops through all employee records from the database to dynamically write JavaScript object creation statements. Second, the client browser receives this generated script and must loop through the populated JavaScript array again to clone DOM nodes and render the table. This double-loop structure introduces unnecessary CPU cycles on both the server and client.
 
 ### D. Direct Database Resource Management (No Connection Pool)
-*   **The Issue**: Every database request calls `DriverManager.getConnection()`, which performs a raw network handshake with the MySQL database to establish a new connection. Without a Managed Connection Pool (like HikariCP), the application suffers from latency bottlenecks under production loads because connection creation is highly resource-intensive.
+*   **The Issue**: Every database request calls `DriverManager.getConnection()`, which performs a raw network handshake with the MySQL database to establish a new connection. Without a Managed Connection Pool, the application suffers from latency bottlenecks under production loads because connection creation is highly resource-intensive.
 
-### E. Manual Dependency Instantiation (No Inversion of Control)
-*   **The Issue**: Standard components and services are instantiated manually inside controllers and services using the `new` keyword (e.g., `new EmployeeDAO()`). This lack of Dependency Injection (DI) makes it difficult to swap database implementations, mock dependencies for unit testing, or manage component lifecycles cleanly.
 
 ---
 
