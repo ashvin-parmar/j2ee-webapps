@@ -1,3 +1,7 @@
 testing/dist/
 testing/lib/
 lib/
+
+dist/
+lib/
+src/

@@ -1,3 +1,5 @@
+Thread Safety
+
 Problem: There are singletone pattern used, so statements are fired using single connection, so, we cannot manage statement fire at the same time. There are NO thread safety, in that case -> This framework has No use. 
 
 Solution: Thread-local session state
