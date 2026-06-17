@@ -1,0 +1,642 @@
+<!-- [feat]: Provide a controller to mvcfm, such that you can manage complete functionlity by that controller class. -->
+<!-- [feat]: All the DS loaded initially when the mvcfm.model is assigned, not at the time of documentation loadded. Whenever the model changes, complete ds changed for the mvcfm and accordingly properties assigned, accordigly view and model managed.-->
+<!-- This class is used to write all the method, fields required for working. Additionaly, it has a ds, which covers all ds required for those fields. refer: getAll() data from DS. -->
+
+<!DOCTYPE HTML>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<title>MVC Framework</title>
+<script src='jquery/jquery.js'></script>
+<script>
+//Written by Amit [Framework Developer]
+var mvcfm={
+_model:null,
+controller:null,
+interpolationTextNodes:[],
+ifElements:[],
+attrElements:{}
+};
+
+Object.defineProperty(mvcfm,"model",{
+get()
+{
+return this._model;
+},
+set(newModel)
+{
+  if(newModel)
+  {
+    this._model=this.createProxy(newModel);
+    const init=()=>{
+      this.compile(document.body);
+      this.updateAllViews();
+    };
+    if(document.readyState==="loading")
+    {
+      document.addEventListener("DOMContentLoaded",init);
+    }
+    else
+    {
+      init();
+    }
+  }
+  else
+  {
+    this._model=null;
+  }
+}
+
+});
+
+mvcfm.createProxy=function(obj,path="")
+{
+const self=this;
+  if(typeof obj !== "object" || obj===null) return obj;
+
+  if(Array.isArray(obj))
+  {
+    for(let i=0;i<obj.length;i++)
+    {
+      if(typeof obj[i]==="object" && obj[i]!==null)
+      {
+        obj[i]=self.createSD(obj[i],`${path}[${i}]`);
+      }
+    }
+    return new Proxy(obj,{
+        get(target, prop, receiver) {
+        const value = Reflect.get(target, prop, receiver);
+        if (typeof value === 'function' && ['push', 'pop', 'shift', 'unshift', 'splice', 'reverse', 'sort'].includes(prop)) {
+          alert(prop);
+          alert(value);
+          return function(...args) {
+            const result = value.apply(target, args);
+            self.updateViewsFor(path, target);
+            self.updateConditionals();
+            return result;
+          }
+        }
+        return value;
+      },
+      set(target, prop, value, receiver) {
+        const result = Reflect.set(target, prop, value, receiver);
+        self.updateViewsFor(path, target);
+        self.updateConditionals();
+        return result;
+      }
+  });
+  }
+    for (let key in obj) {
+    if (typeof obj[key] === "object" && obj[key] !== null) {
+      obj[key] = self.createProxy(obj[key], path ? `${path}.${key}` : key);
+    }
+  }
+
+  return new Proxy(obj, {
+    set(target, property, value, receiver) {
+      const oldVal = target[property];
+      const result = Reflect.set(target, property, value, receiver);
+      if (oldVal !== value) {
+        const fullPath = path ? `${path}.${property}` : property;
+        self.updateViewsFor(fullPath, value);
+        self.updateConditionals();
+      }
+      return result;
+    }
+  });
+
+}
+
+mvcfm.compile=function(root)
+{
+const self=this;
+
+  traverse(self,root);
+}
+
+function traverse(self,node)
+{
+
+  if(node.nodeType===Node.TEXT_NODE)
+  {
+    const text=node.nodeValue;
+    if(text.includes("{{") && text.includes("}}"))
+    {
+      node.originalText=text;
+      self.interpolationTextNodes.push(node);
+    }
+  }
+  else if(node.nodeType===Node.ELEMENT_NODE)
+  {
+    const $elem=$(node);
+    if($elem.attr("mvcfm-if")!==undefined)
+    {
+      self.ifElements.push($elem);
+    }
+
+    const clickAttr=$elem.attr("mvcfm-click");
+
+    if(clickAttr!==undefined)
+    {
+      $elem.on("click",(ev)=>{
+        ev.preventDefault();
+        if(self.controller)
+        {
+          const func=Reflect.get(self.controller,clickAttr);
+          if(typeof func === "function")
+          {
+            const result=Reflect.apply(func,self.controller,[]);
+            if(result && typeof result.then=== 'function')
+            {
+              result.then(
+                (res)=>{
+                  if(res) alert("Success: "+JSON.stringify(res));
+                },
+                (err)=>{
+                  if(err) alert("Error: "+JSON.stringify(err));
+                }
+              );
+            }
+          }
+        }
+      });
+    }
+    const attrKey=$elem.attr("mvcfm-attribute");
+    if(attrKey!==undefined)
+    {
+      if(!self.attrElements[attrKey])
+      {
+        self.attrElements[attrKey]=[];
+      }
+      self.attrElements[attrKey].push($elem);
+    }
+
+    const bindTo=$elem.attr("mvcfm-bind-to") || "value";
+    if($elem.is("input[type='radio']"))
+    {
+      $elem.on("change",()=>{
+        if($elem.is(":checked"))
+        {
+          self.model[attrKey]=$elem.val() || $elem.attr(bindTo);
+        }
+      })
+    }
+    else if($elem.is("input[type='checkbox']"))
+    {
+      $elem.on("change",()=>{
+        const currentVal=self.model[attrKey];
+        if(Array.isArray(currentVal))
+        {
+          const checkedValues=[];
+          const group=$("[mvcfm-attribute='"+attrKey+"']");
+          group.each(function(){
+            const cb=$(this);
+            if(cb.is(":checked"))
+            {
+              checkedValues.push(cb.val() || cb.attr(bindTo));
+            }
+          });
+          self.model[attrKey]=checkedValues;
+        }
+        else if(typeof currentVal === "boolean")
+        {
+          self.model[attrKey]=$elem.is(":checked");
+        }
+        else
+        {
+          self.model[attrKey]=$elem.is(":checked")?($elem.val() || $elem.attr(bindTo)): "";
+        }
+      });
+    }
+    else 
+    {
+      $elem.on("input chage", ()=>{
+        self.model[attrKey]=$elem.val();
+      });
+    }
+
+    for(let child of node.childNodes)
+    {
+      traverse(self,child);
+    }
+  }
+}
+
+mvcfm.updateAllViews=function(){
+const self=this;  
+  if(!self.model) return;
+  self.interpolationTextNodes.forEach(node => self.interpolateTextNode(node));
+  Object.keys(self.attrElements).forEach(key=>{
+    self.updateInputsFor(key,self.model[key]);
+  });
+  self.updateConditionals();
+}
+
+mvcfm.updateViewsFor=function(key,value)
+{
+const self=this;
+  self.interpolationTextNodes.forEach((node)=>{
+    if(node.originalText.includes("{{"+key+"}}"))
+    {
+      self.interpolateTextNode(node);
+    }
+  });
+  self.updateInputsFor(key,value);
+};
+
+mvcfm.interpolateTextNode=function(node)
+{
+const self=this;
+  let text=node.originalText;
+  const matches=text.match(/\{\{\s*([\w\.]+)\s*\}\}/g);
+  if(matches)
+  {
+    matches.forEach(match=>{
+      const propPath=match.replace(/[\{\}\s]/g,"");
+      const val=self.resolvePath(self.model,propPath);
+      text=text.replace(match,Array.isArray(val)?JSON.stringify(val):(val!==undefined?val:""));
+    });
+  }
+  node.nodeValue=text;
+};
+
+mvcfm.resolvePath=function(obj,path){
+const parts=path.split(".");
+  let current=obj;
+  for(let i=0;i<parts.length;i++)
+  {
+    const part=parts[i];
+    if(current!==null && current!==undefined)
+    {
+      current=current[part];
+    }
+    else
+    {
+      return undefined;
+    }
+  }
+  return current;
+};
+
+
+mvcfm.updateInputsFor=function(key,value){
+const self=this;
+  //alert("Key: "+key+", Value: "+value);
+//  if(key !== undefined) return;
+  const elements=self.attrElements[key];
+  try
+  {
+  elements.forEach($elem => {
+    const bindTo=$elem.attr("mvcfm-bind-to") || "value";
+    if($elem.is("input[type='radio']"))
+    {
+      const elemVal=$elem.val() || $elem.attr(bindTo);
+      $elem.prop("checked",String(value)===String(elemVal));
+    }
+    else if($elem.is("input[type='checkbox']"))
+    {
+      if(Array.isArray(value))
+      {
+        const elemVal=$elem.val() || $elem.attr(bindTo);
+        $elem.prop("checked",value.includes(elemVal));
+      }
+      else if(typeof value === "boolean")
+      {
+        $elem.prop("checked",value);
+      }
+      else
+      {
+        const elemVal=$elem.val() || $elem.attr(bindTo);
+        $elem.prop("checked",String(value)===String(elemVal));
+      }
+    }
+    else if($elem.is("select"))
+    {
+      let selectedAny=false;
+      $elem.children("option").each(function(){
+        if($(this).val()===String(value)) selectedAny=true;
+      });
+      if(!selectedAny && value!== undefined && value!== "")
+      {
+        if($elem.find("option[value='-1']").length===0)
+        {
+          $elem.prepend("<option value='-1' disabled>&lt;Select&gt;</option>");
+        }
+        $elem.val("-1");
+      }
+      else
+      {
+        $elem.val(value);
+      }
+    }
+    else
+    {
+      $elem.val(value);
+    } 
+  });
+  }catch(e)
+  {
+  }
+};
+
+mvcfm.updateConditionals=function(){
+  const self=this;
+  self.ifElements.forEach($elem => {
+    const expr=$elem.attr("mvcfm-if");
+    try
+    {
+      const keys=Object.keys(self.model || {});
+      const values=Object.values(self.model || {});
+      const func = new Function(...keys, `return (${expr});`);
+      const result=func.apply(null,values);
+      if(result)
+      {
+        $elem.show('slow');
+      }
+      else 
+      {
+        $elem.hide('fast');
+      }
+    }catch(e)
+    {
+      console.error("Failed to evaluate mvcfm-if: "+expr,e);
+    }
+  });
+};
+
+
+
+//----------------------
+
+</script>
+
+<script>
+//Written by Bobby [Framework User]
+class Student
+{
+contructor(rollNumber,name,gender,isIndian,interest,city)
+{
+this.rollNumber=rollNumber;
+this.name=name;
+this.gender=gender;
+this.isIndian=isIndian;
+this.interest=interest;
+this.city=city;
+}
+}
+class StudentManager
+{
+constructor()
+{
+this.students=[];
+}
+update(student)
+{
+return new Promise((resolve,reject)=>{
+const xhr=new XMLHttpRequest();
+let finalUrl='StudentManager/update';
+xhr.open("POST",finalUrl);
+xhr.setRequestHeader('Content-Type','application/json');
+xhr.onload=()=>{
+if(xhr.status>=200 && xhr.status<300)
+{
+resolve(JSON.parse(xhr.responseText));
+}
+else
+{
+var contentType = xhr.getResponseHeader("Content-Type");
+var messageData;
+if (contentType && contentType.indexOf("application/json") !== -1) 
+{
+messageData=JSON.parse(xhr.responseText).error;
+} 
+else if (contentType && contentType.indexOf("text/html") !== -1) 
+{
+messageData=xhr.responseText;
+}
+reject({
+status:xhr.status,
+message:messageData
+});
+}
+};
+xhr.onerror=()=>reject(new Error('Network Error'));
+const body=JSON.stringify(student);
+xhr.send(body);
+});
+}
+add(student)
+{
+alert("Add Method called");
+return new Promise((resolve,reject)=>{
+const xhr=new XMLHttpRequest();
+let finalUrl='StudentManager/add';
+xhr.open("POST",finalUrl);
+xhr.setRequestHeader('Content-Type','application/json');
+xhr.onload=()=>{
+if(xhr.status>=200 && xhr.status<300)
+{
+resolve(JSON.parse(xhr.responseText));
+}
+else
+{
+var contentType = xhr.getResponseHeader("Content-Type");
+var messageData;
+if (contentType && contentType.indexOf("application/json") !== -1) 
+{
+messageData=JSON.parse(xhr.responseText).error;
+} 
+else if (contentType && contentType.indexOf("text/html") !== -1) 
+{
+messageData=xhr.responseText;
+}
+reject({
+status:xhr.status,
+message:messageData
+});
+}
+};
+xhr.onerror=()=>reject(new Error('Network Error'));
+const body=JSON.stringify(student);
+xhr.send(body);
+});
+}
+delete(val1)
+{
+return new Promise((resolve,reject)=>{
+const xhr=new XMLHttpRequest();
+let finalUrl='StudentManager/delete';
+const queryString=new URLSearchParams({val1}).toString();
+finalUrl+="?${queryString}";
+xhr.open("GET",finalUrl);
+xhr.setRequestHeader('Content-Type','application/json');
+xhr.onload=()=>{
+if(xhr.status>=200 && xhr.status<300)
+{
+resolve(JSON.parse(xhr.responseText));
+}
+else
+{
+reject({
+status:xhr.status,
+message:JSON.parse(xhr.responseText).error
+});
+}
+};
+xhr.onerror=()=>reject(new Error('Network Error'));
+xhr.send();
+});
+}
+getAll()
+{
+return new Promise((resolve,reject)=>{
+const xhr=new XMLHttpRequest();
+let finalUrl='StudentManager/getAll';
+xhr.open("GET",finalUrl);
+xhr.setRequestHeader('Content-Type','application/json');
+xhr.onload=()=>{
+if(xhr.status>=200 && xhr.status<300)
+{
+resolve(JSON.parse(xhr.responseText));
+}
+else
+{
+reject({
+status:xhr.status,
+message:JSON.parse(xhr.responseText).error
+});
+}
+};
+xhr.onerror=()=>reject(new Error('Network Error'));
+xhr.send();
+});
+}
+getByRollNumber(val1)
+{
+return new Promise((resolve,reject)=>{
+const xhr=new XMLHttpRequest();
+let finalUrl='StudentManager/getByRollNumber';
+const queryString=new URLSearchParams({val1}).toString();
+finalUrl+="?${queryString}";
+xhr.open("GET",finalUrl);
+xhr.setRequestHeader('Content-Type','application/json');
+xhr.onload=()=>{
+if(xhr.status>=200 && xhr.status<300)
+{
+resolve(JSON.parse(xhr.responseText));
+}
+else
+{
+reject({
+status:xhr.status,
+message:JSON.parse(xhr.responseText).error
+});
+}
+};
+xhr.onerror=()=>reject(new Error('Network Error'));
+xhr.send();
+});
+}
+}
+var mode="";
+var ds={
+"rollNumber":0,
+"name":"honey",
+"gender":"F",
+"isIndian":true,
+"interest":["music","sports"],
+"city":"indore"
+};
+window.addEventListener('load',function(){
+mvcfm.model=ds;
+mvcfm.controller=new StudentManager();
+});
+function changeModel()
+{
+mvcfm.model={
+"rollNumber":12345,
+"name":"Monkey The Luffy",
+"gender":"M",
+"isIndian":false,
+"interest":["sports"],
+"city":"Ujjain"
+};
+
+}
+function addStudent()
+{
+alert(mvcfm.model.rollNumber);
+alert(mvcfm.model.name);
+alert(mvcfm.model.gender);
+alert(mvcfm.model.isIndian);
+alert(mvcfm.model.interest)
+alert(mvcfm.model.city);
+}
+function setAddMode()
+{
+mode="A";
+mvcfm.updateConditionals();
+}
+function resetMode()
+{
+mode="";
+mvcfm.updateConditionals();
+}
+</script>
+</head>
+<body>
+<div style='height:300px;width:300px;'>
+<center>
+<div id='addForm' mvcfm-if="mode=='A'" >
+Number: <input type='number' id='rollNumber' name='rollNumber' mvcfm-attribute='rollNumber'><br>
+
+Name: <input type='text' id='name' name='name' mvcfm-attribute='name'><br>
+
+Gender: &nbsp;&nbsp;
+Male <input type='radio' id='male' name='gender' mvcfm-attribute='gender' value="M">&nbsp;
+Female <input type='radio' id='female' name='gender' mvcfm-attribute='gender' value="F" ><br>
+
+Is Indian?: <input type='checkbox' id='isIndian' name='isIndian' mvcfm-attribute='isIndian' mvcfm-bind-to='val' val='true'><br>
+
+
+  <label><input type="checkbox" name="interest" value="coding" mvcfm-attribute='interest'> Coding</label><br>
+  <label><input type="checkbox" name="interest" value="music" mvcfm-attribute='interest'> Music</label><br>
+  <label><input type="checkbox" name="interest" value="sports" mvcfm-attribute='interest'> Sports</label><br>
+<br>
+
+City: &nbsp;
+<select mvcfm-attribute='city' id='city' name='city'>
+<option value="mumbai">Mumbai</option>
+<option value="delhi">Delhi</option>
+<option value="indore">Indore</option>
+<option value='ujjain'>Ujjain</option>
+</select>
+<br>
+<br>
+<button type='button' mvcfm-click='add'>Add</button>
+</div>
+</center>
+<button type='button' onclick='setAddMode()'>Set Add Mode</button>
+<br>
+<button type='button' onclick='resetMode()'>Reset Mode</button><br>
+<button type='button' onclick='addStudent()'>See Status</button><br>
+<button type='button' onclick='changeModel()'>Change Model</button>
+
+
+</div>
+
+
+  <div style="background-color: #f1f8ff; padding: 15px; border-radius: 8px; max-width: 500px; margin: 0 auto;">
+    <h4 style="margin-top:0;">Live Interpolation View ({{data}} Feature):</h4>
+    <p><strong>Roll Number:</strong> {{rollNumber}}</p>
+    <p><strong>Name:</strong> {{name}}</p>
+    <p><strong>Gender:</strong> {{gender}}</p>
+    <p><strong>Is Indian:</strong> {{isIndian}}</p>
+    <p><strong>Interests:</strong> {{interest}}</p>
+    <p><strong>City:</strong> {{city}}</p>
+    <p><strong>Current Mode:</strong> {{mode}}</p>
+  </div>
+
+</body>
+</html>
+

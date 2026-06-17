@@ -441,11 +441,14 @@ window.addEventListener('load', function() {
 function setAddMode()
 {
   ds.mode = "A"; // Updates the proxied model, triggering reactive conditional view update
+  mvcfm.updateConditionals();
 }
 
 function resetMode()
 {
   ds.mode = "";  // Hides the conditional view
+    mvcfm.updateConditionals();
+
 }
 
 // Example demonstrating programmatic deep reactivity
