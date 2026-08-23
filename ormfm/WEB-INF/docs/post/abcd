@@ -1,0 +1,22 @@
+Why PreparedStatement Matters?
+
+String sql = "SELECT * FROM users WHERE username = '" + username + "'";
+This works perfectly in normal use. If a user types "john", it work perfectly. But, it can be harmful if user try to play with the code.
+This is SQL injection. It is not a complex hack. It is just the attacker treating your SQL string as code, not data.
+
+This has been in the OWASP Top 10 security risks list for over 15 years, and it still happens. Because string concatenation looks harmless until it is not.
+
+The fix is PreparedStatement
+String sql = "SELECT * FROM users WHERE username=?";
+
+The '?' is a placeholder. The actual value is passed separately using setString().
+
+The database receives the SQL structure and the value, No matter what the user types, it is treated as plain text data. so, if someone types "' OR '1'='1", the database literally searches for a user whose username is the text "' OR '1'='1". It finds nothing. No breach.
+
+Why do developers still use string concatenation?
+Because it is shorter to write. Because it works in testing. Because the data in tests is always clean. The problem only shows up when real users find the edge case. Or when someone is actively looking for it.
+
+Single Goal: If the value comes from outside your code, it goes through a placeholder. Always.
+
+
+

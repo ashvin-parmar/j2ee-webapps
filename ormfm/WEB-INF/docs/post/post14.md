@@ -1,54 +1,57 @@
 # Post 14 - Always Close Your Resources: The try-finally Rule
 
-This is one of the most common sources of bugs and memory leaks in Java applications:
+One of the easiest ways to create hidden bugs in Java is forgetting to close resources.
+At first, everything seems fine. The application runs without issues.
+Then an exception occurs.
 
-```java
-Connection conn = dataSource.getConnection();
-PreparedStatement ps = conn.prepareStatement(sql);
-ResultSet rs = ps.executeQuery();
-// ... process ...
-rs.close();
-ps.close();
-conn.close();
-```
+FileInputStream input = new FileInputStream("data.txt");
+// Read and process the file
+input.close();
 
-Looks fine. But what if an exception is thrown during processing?
+Looks correct, right?
+Not quite.
 
-rs.close() never runs. ps.close() never runs. conn.close() never runs. The connection is leaked. Do this enough times and you run out of connections.
+If an exception is thrown before close() is reached, the stream is never closed. The same problem happens with database connections, sockets, HTTP clients, and many other resources.
 
-The fix: try-finally
+The result?
+• Memory leaks
+• File handles staying open
+• Database connection pool exhaustion
+• Applications that work perfectly during testing but start failing under production load
 
-```java
-Connection conn = dataSource.getConnection();
+The safer approach: try-finally
+FileInputStream input = new FileInputStream("data.txt");
+
 try {
-    // work
+    // Read and process the file
 } finally {
-    conn.close(); // always runs, even after exception
+    input.close();   // Always executes
 }
-```
 
-Or with try-with-resources (Java 7+):
+No matter how the try block exits—normally, with a return, or because of an exception—the finally block still runs.
 
-```java
-try (Connection conn = dataSource.getConnection();
-     PreparedStatement ps = conn.prepareStatement(sql)) {
-    // work
-} // auto-closed
-```
+The modern approach: Try-with-Resources (Java 7+)
+try (FileInputStream input = new FileInputStream("data.txt")) {
+    // Read and process the file
+}
 
-Try-with-resources calls close() automatically when the block exits, even on exception. The cleanest option.
+When execution leaves the block, Java automatically calls close(), even if an exception occurs.
+Cleaner code, Less boilerplate, Fewer resource leaks.
 
-This applies to everything:
-- Database connections
-- File streams
+This isn't just for files. The same principle applies to:
+- Database connections (Connection, PreparedStatement, ResultSet)
+- File streams (FileInputStream, BufferedReader, etc.)
 - Network sockets
-- Any Closeable object
+- HTTP connections
+- Any object that implements AutoCloseable
 
-The rule is: if you open it, you close it. Always. In a finally block or with try-with-resources.
+A simple rule that saves hours of debugging: If you open it, you close it.
+Small habits like this make applications far more reliable—especially when they move from development to production.
 
-Connection leaks are frustrating to debug because the application works fine under light load and breaks only when traffic increases. Do not wait for that lesson.
+#Java #Programming #SoftwareEngineering #Backend #SpringBoot #JDBC #BestPractices #CleanCode #JavaDeveloper
 
----
+
+-------------------------------------
 
 **Image generation prompt:**
 `Flow diagram showing two paths. Top path: normal code flow with open and close resource. Bottom path: exception occurs, close is skipped, resource leak shown as dripping faucet icon. Arrow pointing to try-finally block as the solution showing always closes. Clean flat illustration. Blue and red palette. White background.`

@@ -1,46 +1,81 @@
 # Post 5 - SQL Injection and Why PreparedStatement Matters
 
-This is a real vulnerability that still exists in production Java code.
+Let me show you a line of code that looks completely fine but is actually dangerous.
 
 ```java
-String sql = "SELECT * FROM user WHERE name = '" + name + "'";
+String sql = "SELECT * FROM users WHERE username = '" + username + "'";
 ```
 
-If someone passes this as name:
+This works perfectly in normal use. If a user types `john`, the query becomes:
+
+```sql
+SELECT * FROM users WHERE username = 'john'
+```
+
+No problem.
+
+Now imagine someone types this into the input field:
+
 ```
 ' OR '1'='1
 ```
 
-The SQL becomes:
+Your code blindly puts that into the string. The query becomes:
+
 ```sql
-SELECT * FROM user WHERE name = '' OR '1'='1'
+SELECT * FROM users WHERE username = '' OR '1'='1'
 ```
 
-Which returns every row in the table.
+`'1'='1'` is always true. So the WHERE condition is always true. The database returns every single row in the table.
 
-This is SQL injection. And it is completely preventable.
+One input. All your data exposed.
 
-PreparedStatement fixes this:
+This is SQL injection. It is not a complex hack. It is just the attacker treating your SQL string as code, not data.
+
+It gets worse. An attacker can also do this:
+
+```
+'; DROP TABLE users; --
+```
+
+Which becomes:
+
+```sql
+SELECT * FROM users WHERE username = ''; DROP TABLE users; --'
+```
+
+Depending on the database configuration, that second statement actually runs. Your table is gone.
+
+This has been in the OWASP Top 10 security risks list for over 15 years. And it still happens. Because string concatenation looks harmless until it is not.
+
+The fix is PreparedStatement.
 
 ```java
-String sql = "SELECT * FROM user WHERE name = ?";
+String sql = "SELECT * FROM users WHERE username = ?";
 PreparedStatement ps = connection.prepareStatement(sql);
-ps.setString(1, name);
+ps.setString(1, username);
+ResultSet rs = ps.executeQuery();
 ```
 
-Here the ? is a placeholder. The value is passed separately. The database driver handles escaping. No matter what the user types, it is treated as data, not SQL.
+The `?` is a placeholder. The actual value is passed separately using `setString()`.
 
-Why do developers still make this mistake?
+Here is the key difference: the database receives the SQL structure and the value as two separate things. The value is never interpreted as SQL. No matter what the user types, it is treated as plain text data.
 
-Because string concatenation feels fast and easy. And in small projects it seems to work fine. Until it does not.
+So if someone types `' OR '1'='1`, the database literally searches for a user whose username is the text `' OR '1'='1`. It finds nothing. No breach.
 
-If you are building a query builder or any dynamic SQL layer in Java, always use PreparedStatement with parameter binding. Store the ? placeholders in your SQL string and collect the values separately.
+Why do developers still use string concatenation?
 
-The rule is simple: never put user input directly into a SQL string.
+Because it is shorter to write. Because it works in testing. Because the data in tests is always clean. The problem only shows up when real users find the edge case. Or when someone is actively looking for it.
 
-No exception to this rule.
+Three things to remember:
+
+1. Never put any user input directly into a SQL string
+2. Always use `?` placeholders and `setXxx()` methods
+3. PreparedStatement also improves performance because the database can cache the execution plan
+
+The rule has no exceptions. If the value comes from outside your code, it goes through a placeholder. Always.
 
 ---
 
 **Image generation prompt:**
-`Split screen illustration. Left panel shows red highlighted SQL string concatenation with a warning icon. Right panel shows green PreparedStatement with question mark placeholder and setString call. Clean white background. Red and green color contrast. Flat minimal tech style.`
+`Split screen illustration. Left panel labeled Dangerous shows SQL string with username value concatenated directly, red warning border, attacker icon injecting code. Right panel labeled Safe shows PreparedStatement with question mark placeholder and setString call below it, green border, shield icon. Clean white background. Red and green contrast. Flat minimal tech style.`

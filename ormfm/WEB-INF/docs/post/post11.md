@@ -20,12 +20,10 @@ public void process() {
 ```
 
 When to use checked exceptions:
-
 When the caller can reasonably recover from the failure. Database connection failed? File not found? The caller should know about this and decide what to do.
 
 When to use unchecked exceptions:
-
-When the failure is a programming error. NullPointerException. IndexOutOfBoundsException. These should not happen if the code is correct.
+When the failure is a programming error, NullPointerException, IndexOutOfBoundsException. These should not happen if the code is correct.
 
 For framework design, checked exceptions are usually the right choice for anything involving I/O, network, or database operations. The developer using your framework should not be surprised by a failure that takes the whole application down silently.
 
