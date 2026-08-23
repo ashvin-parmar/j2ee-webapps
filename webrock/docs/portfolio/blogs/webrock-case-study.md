@@ -66,7 +66,7 @@ To eliminate `web.xml`, I utilized the `ServletContainerInitializer` interface. 
 ```java
 // Example of a WEBRock Service Method
 public class UserController {
-    
+
     @PATH(value = "/getUser", method = "GET")
     public User getUser(int id) {
         return database.findUser(id);
@@ -78,16 +78,16 @@ During startup, the framework maps `/getUser` to this specific `Method` object a
 
 ### 2. Custom Dependency Injection (`@AutoWired`)
 
-I built a custom Inversion of Control (IoC) container to manage object lifecycles. After the framework instantiates the service classes during startup, it performs a second pass to resolve dependencies. 
+I built a custom Inversion of Control (IoC) container to manage object lifecycles. After the framework instantiates the service classes during startup, it performs a second pass to resolve dependencies.
 
 If a field is annotated with `@AutoWired`, the framework looks up the required type in its registry. It then uses Reflection to bypass private visibility (`field.setAccessible(true)`) and injects the singleton instance directly into the object.
 
 ```java
 public class OrderService {
-    
+
     @AutoWired
     private PaymentGateway paymentGateway; // Injected automatically at startup!
-    
+
     // ...
 }
 ```
@@ -96,9 +96,9 @@ This taught me exactly how Spring context initialization works and how object gr
 
 ### 3. Automated JavaScript Client Generation
 
-One of the most innovative features of WEBRock is its ability to write frontend code. Keeping AJAX calls in sync with backend routes is notoriously error-prone. 
+One of the most innovative features of WEBRock is its ability to write frontend code. Keeping AJAX calls in sync with backend routes is notoriously error-prone.
 
-Because WEBRock has full knowledge of all endpoints in memory via Reflection, I wrote a generator that outputs typed ES6 JavaScript classes for every service. 
+Because WEBRock has full knowledge of all endpoints in memory via Reflection, I wrote a generator that outputs typed ES6 JavaScript classes for every service.
 
 When the browser requests a specific script tag:
 ```html

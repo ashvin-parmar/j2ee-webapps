@@ -1,6 +1,6 @@
 # WebRock Web Framework Documentation
 
-Welcome to the official developer and user documentation for the **WebRock Framework**—a custom-built, lightweight replica of the Spring Boot framework running on standard Java Servlet containers.
+Welcome to the official developer and user documentation for the **WebRock Framework**—a custom-built, lightweight replica of the Spring Boot framework running on standard Java Servlet containers. It is not complete replica, but having multiple features with different inline architecture than actual Spring Boot.
 
 ---
 
