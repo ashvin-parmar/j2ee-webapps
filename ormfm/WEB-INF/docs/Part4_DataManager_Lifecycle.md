@@ -544,4 +544,3 @@ This is exactly the pattern used in all the `testing/*.java` examples.
 
 ---
 
-*End of Part 4 — Please review and confirm to proceed to Part 5.*

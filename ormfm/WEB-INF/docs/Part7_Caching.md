@@ -462,4 +462,3 @@ Since `@Cacheable` is **never generated automatically by `ORMFMTool`**, here is 
 
 ---
 
-*End of Part 7 — Please review and confirm to proceed to Part 8.*

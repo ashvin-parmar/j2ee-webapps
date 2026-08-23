@@ -325,4 +325,3 @@ Private fields without `@SetterGetter` are **completely ignored** by the framewo
 
 ---
 
-*End of Part 1 — Please review and confirm to proceed to Part 2.*

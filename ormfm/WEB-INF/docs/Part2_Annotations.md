@@ -701,4 +701,3 @@ public class V1 {
 
 ---
 
-*End of Part 2 — Please review and confirm to proceed to Part 3.*

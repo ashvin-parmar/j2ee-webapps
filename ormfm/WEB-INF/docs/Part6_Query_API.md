@@ -627,4 +627,3 @@ dm.view(V1.class);
 
 ---
 
-*End of Part 6 — Please review and confirm to proceed to Part 7.*

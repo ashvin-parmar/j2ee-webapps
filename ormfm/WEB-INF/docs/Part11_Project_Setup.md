@@ -505,7 +505,7 @@ Runs this sequence (requires `Student` POJO to have `@Cacheable`):
 java -classpath ../lib/*:dist/*:. testingThreaded
 ```
 
-15 threads × 30 operations × 3 tests = 1,350 individual operations.  
+15 threads × 30 operations × 3 tests = 1,350 individual operations.
 All must succeed. Final line: `✅  ALL PASSED — ThreadLocal isolation is working.`
 
 ---
@@ -568,4 +568,3 @@ This demonstrates the referential integrity enforcement at the application layer
 
 ---
 
-*End of Part 11 — Please review and confirm to proceed to Part 12 (Final Reference & Glossary).*

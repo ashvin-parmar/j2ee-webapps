@@ -675,4 +675,3 @@ testing/
 
 ---
 
-*End of Part 3 — Please review and confirm to proceed to Part 4.*
