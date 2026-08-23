@@ -1,0 +1,88 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[a4paper,margin=0.4in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\pagestyle{empty}
+
+\titleformat{\section}{\large\bfseries}{}{0em}{}[\titlerule]
+\setlength{\parindent}{0pt}
+\setlist[itemize]{noitemsep, topsep=1.5pt, leftmargin=*}
+
+\begin{document}
+
+%======================
+% Header
+%======================
+\begin{center}
+    {\LARGE \textbf{Ashvin Parmar}}\\
+    \vspace{1mm}
+    \href{mailto:ashwinparmar8181@gmail.com}{ashwinparmar8181@gmail.com} $|$
+    +91 6261659781 $|$
+    \href{https://www.linkedin.com/in/ashvinparmar/}{linkedin.com/in/ashvinparmar} $|$
+    \href{https://github.com/ashvin-parmar}{github.com/ashvin-parmar}
+\end{center}
+
+%======================
+% Summary
+%======================
+\section*{Summary}
+Java-focused Software Engineer with hands-on experience building backend frameworks, full-stack web applications, and reactive client-side systems. Designed a custom ORM from scratch using Java Reflection and JDBC, and a client-side MVC framework inspired by Angular, before formally learning Angular and Spring Boot. Solved \textbf{450+ LeetCode problems}; \textbf{950+ GitHub contributions} in the past year. Strong grasp of framework internals, design patterns, and progressive learning through self-directed engineering projects.
+
+%======================
+% Technical Skills
+%======================
+\section*{Technical Skills}
+\textbf{Languages}: Java (Advanced), SQL, JavaScript (ES6+), HTML5, CSS \\
+\textbf{Frameworks \& Libraries}: Spring Boot, Angular, Hibernate / JPA (Internals), Servlets, JSP, JDBC \\
+\textbf{Backend}: RESTful APIs, ORM, TCP Sockets, Apache Tomcat, Session Management \\
+\textbf{Frontend}: Angular (Components, Services, Reactive Forms), DOM Manipulation, ES6 Proxies \\
+\textbf{Databases}: MySQL, Relational Schema Design, Query Optimization, Connection Pooling \\
+\textbf{Tools}: Linux, Git, GitHub, Maven, Postman \\
+\textbf{CS Fundamentals}: Data Structures \& Algorithms, Java Reflection, Concurrency (ThreadLocal), Design Patterns
+
+%======================
+% Projects
+%======================
+\section*{Projects}
+
+\textbf{ORMFM (Object-Relational Mapping Framework)} \textit{(Java $\cdot$ Reflection $\cdot$ JDBC $\cdot$ ThreadLocal $\cdot$ Annotations)}
+\hfill \href{https://github.com/ashvin-parmar/orm-fm}{\texttt{GitHub}} \quad \textbf{May 2026 -- Jul 2026}
+\begin{itemize}
+  \item Architected a custom \textbf{ORM framework} from scratch, abstracting JDBC boilerplate via a fluent query builder API and dynamic SQL generation using Java Reflection and custom Annotations (\texttt{@Table}, \texttt{@Column}).
+  \item Engineered a \textbf{thread-safe Session management} system using \texttt{ThreadLocal}, ensuring transaction isolation for concurrent web requests in multi-threaded environments without leaking database connections.
+  \item Implemented an \textbf{in-memory caching layer} (\texttt{@Cacheable}) using \texttt{LinkedHashMap}, reducing database read load by serving repetitive queries from memory while keeping cache synchronized on writes.
+  \item Developed \textbf{ORMFMTool}, a CLI utility that introspects database schemas via \texttt{DatabaseMetaData} to auto-generate POJO classes and PDF documentation, drastically reducing developer boilerplate.
+\end{itemize}
+
+\vspace{0.5mm}
+
+\textbf{MVCFM (Model-View-Controller Framework for Client-side)} \textit{(JavaScript ES6 $\cdot$ jQuery $\cdot$ HTML5 $\cdot$ Proxy API)}
+\hfill \href{https://github.com/ashvin-parmar/mvcfm}{\texttt{GitHub}} \quad \textbf{Apr 2026 -- Jul 2026}
+\begin{itemize}
+  \item Built a \textbf{reactive client-side MVC framework} from scratch inspired by Angular, implementing two-way data binding between a JavaScript model and DOM view elements using \textbf{ES6 Proxy} with deep recursive interception.
+  \item Engineered \textbf{non-destructive template interpolation} (\texttt{\{\{key\}\}} syntax) by caching original template strings on DOM text nodes, enabling live re-rendering without losing template structure on model updates.
+  \item Implemented a \textbf{secure conditional directive} (\texttt{mvcfm-if}) using the \texttt{Function} constructor with model keys as formal parameters, replacing \texttt{eval()} to eliminate XSS and scope-leakage vulnerabilities.
+  \item Designed a \textbf{dynamic controller dispatch mechanism} using the ES6 Reflection API (\texttt{Reflect.get}/\texttt{Reflect.apply}), enabling declarative event-to-method binding (\texttt{mvcfm-click}) on ES6 class-based controllers.
+\end{itemize}
+
+%======================
+% Experience
+%======================
+\section*{Professional Experience}
+
+\textbf{Software Developer Intern} $|$ \textit{Java $\cdot$ Git $\cdot$ Linux} \hfill \textbf{TechZest Global Solutions} $|$ \textit{Jun 2024 -- Jan 2025}
+\begin{itemize}
+  \item Engineered robust server-side validation logic for 2 enterprise Java web applications, decreasing invalid database entries by \textbf{30\%} and significantly improving overall data integrity.
+  \item Refactored legacy Java data-processing components to streamline exception handling, reducing application error rates; collaborated in a 4-person Agile team via Git, conducting \textbf{15+ peer code reviews} over 7 months.
+\end{itemize}
+
+%======================
+% Education
+%======================
+\section*{Education}
+\textbf{B.Tech --- Electronics and Telecommunication Engineering} $|$ IET DAVV, Indore \hfill \textit{2023 -- 2027} \\
+\textbf{School --- PCM} $|$ Jawahar Navodaya Vidyalaya - JNV Ratlam \hfill \textit{2015 -- 2022}
+
+\end{document}
+

@@ -1,0 +1,94 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[a4paper,margin=0.4in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\pagestyle{empty}
+
+\titleformat{\section}{\large\bfseries}{}{0em}{}[\titlerule]
+\setlength{\parindent}{0pt}
+\setlist[itemize]{noitemsep, topsep=1pt, leftmargin=*}
+
+\begin{document}
+
+%======================
+% Header
+%======================
+\begin{center}
+    {\LARGE \textbf{Ashvin Parmar}}\\
+    \vspace{1mm}
+    \href{mailto:ashwinparmar8181@gmail.com}{ashwinparmar8181@gmail.com} $|$
+    +91 6261659781 $|$
+    \href{https://www.linkedin.com/in/ashvinparmar/}{linkedin.com/in/ashvinparmar} $|$
+    \href{https://github.com/ashvin-parmar}{github.com/ashvin-parmar}
+\end{center}
+
+%======================
+% Summary
+%======================
+\section*{Summary}
+Java-focused Software Engineer who builds frameworks and tools from the ground up to understand how things work internally. Designed a custom ORM (ORMFM), a client-side MVC engine (MVCFM), and a full Servlet-based web framework (WEBRock) --- all before formally studying Spring Boot and Angular. Now applying those internals-first foundations to production-grade technologies. Solved \textbf{450+ LeetCode problems}; \textbf{950+ GitHub contributions} in the past year.
+
+%======================
+% Technical Skills
+%======================
+\section*{Technical Skills}
+\textbf{Languages}: Java (Advanced), SQL, JavaScript (ES6+), HTML5, CSS \\
+\textbf{Frameworks \& Libraries}: Spring Boot, Angular, Servlets, JSP, JDBC, Hibernate / JPA \\
+\textbf{Backend}: RESTful APIs, Annotation Processing, Classpath Scanning, ORM, Apache Tomcat, Session Management \\
+\textbf{Frontend}: Angular (Components, Services, Reactive Forms), ES6 Proxy, Dynamic DOM Rendering \\
+\textbf{Databases}: MySQL, Relational Schema Design, Query Optimization, Connection Pooling \\
+\textbf{Tools}: Linux, Git, GitHub, Maven, Postman, iText PDF \\
+\textbf{CS Fundamentals}: Data Structures \& Algorithms, Java Reflection, Concurrency (ThreadLocal), Design Patterns
+
+%======================
+% Projects
+%======================
+\section*{Projects}
+
+\textbf{ORMFM (Object-Relational Mapping Framework)} \textit{(Java $\cdot$ Reflection $\cdot$ JDBC $\cdot$ ThreadLocal $\cdot$ Annotations)}
+\hfill \href{https://github.com/ashvin-parmar/orm-fm}{\texttt{GitHub}} \quad \textbf{May 2026 -- Jul 2026}
+\begin{itemize}
+  \item Architected a custom \textbf{ORM framework} from scratch, abstracting JDBC boilerplate via a fluent query builder API and dynamic SQL generation using Java Reflection and custom Annotations (\texttt{@Table}, \texttt{@Column}).
+  \item Engineered a \textbf{thread-safe Session management} system using \texttt{ThreadLocal}, ensuring transaction isolation for concurrent web requests in multi-threaded environments without leaking database connections.
+  \item Implemented an \textbf{in-memory caching layer} (\texttt{@Cacheable}) using \texttt{LinkedHashMap}, reducing database read load by serving repetitive queries from memory while keeping cache synchronized on writes.
+  \item Developed \textbf{ORMFMTool}, a CLI utility that introspects database schemas via \texttt{DatabaseMetaData} to auto-generate POJO classes and PDF documentation, drastically reducing developer boilerplate.
+\end{itemize}
+
+\vspace{0.5mm}
+
+\textbf{MVCFM (Model-View-Controller Framework for Client-side)} \textit{(JavaScript ES6 $\cdot$ jQuery $\cdot$ HTML5 $\cdot$ Proxy API)}
+\hfill \href{https://github.com/ashvin-parmar/mvcfm}{\texttt{GitHub}} \quad \textbf{Apr 2026 -- Jul 2026}
+\begin{itemize}
+  \item Built a \textbf{reactive client-side MVC framework} from scratch inspired by Angular, implementing two-way data binding between a JavaScript model and DOM view elements using \textbf{ES6 Proxy} with deep recursive interception.
+  \item Engineered \textbf{non-destructive template interpolation} (\texttt{\{\{key\}\}} syntax) by caching original template strings on DOM text nodes, enabling live re-rendering without losing template structure on model updates.
+  \item Implemented a \textbf{secure conditional directive} (\texttt{mvcfm-if}) using the \texttt{Function} constructor with model keys as formal parameters, replacing \texttt{eval()} to eliminate XSS and scope-leakage vulnerabilities.
+  \item Designed a \textbf{dynamic controller dispatch mechanism} using the ES6 Reflection API (\texttt{Reflect.get}/\texttt{Reflect.apply}), enabling declarative event-to-method binding (\texttt{mvcfm-click}) on ES6 class-based controllers.
+\end{itemize}
+
+\vspace{0.5mm}
+
+\textbf{WEBRock (Servlet-based Web Framework)} \textit{(Java $\cdot$ Servlets $\cdot$ Reflection $\cdot$ Annotations $\cdot$ iText $\cdot$ JavaScript ES6)}
+\hfill \href{https://github.com/ashvin-parmar/webrock}{\texttt{GitHub}} \quad \textbf{Mar 2026 -- Jun 2026}
+\begin{itemize}
+  \item Built a \textbf{full-stack web framework} on raw Java Servlets, implementing annotation-driven routing (\texttt{@PATH}), dependency injection (\texttt{@AutoWired}), and a front-controller dispatch pattern --- replicating Spring MVC internals from scratch.
+  \item Engineered a \textbf{classpath scanner} (\texttt{WebRockStarter}) that auto-discovers and registers all \texttt{@PATH}-annotated service classes at application startup, eliminating manual \texttt{web.xml} servlet mappings entirely.
+  \item Implemented a \textbf{JS client code generator} that introspects Java service classes via Reflection and emits typed ES6 client modules, enabling zero-boilerplate AJAX calls from the browser to backend services.
+  \item Generated \textbf{live PDF API documentation} at startup using iText, auto-documenting all registered endpoints, parameter types, and security constraints with no developer effort.
+\end{itemize}
+
+%======================
+% Experience
+%======================
+\section*{Professional Experience}
+
+\textbf{Software Developer Intern} $|$ \textit{Java $\cdot$ Git $\cdot$ Linux} \hfill \textbf{TechZest Global Solutions} $|$ \textit{Jun 2024 -- Jan 2025}
+
+%======================
+% Education
+%======================
+\section*{Education}
+\textbf{B.Tech --- Electronics and Telecommunication Engineering} $|$ IET DAVV, Indore \hfill \textit{2023 -- 2027} \\
+\textbf{School --- PCM} $|$ Jawahar Navodaya Vidyalaya - JNV Ratlam \hfill \textit{2015 -- 2022}
+
+\end{document}
